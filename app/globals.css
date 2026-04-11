@@ -167,6 +167,27 @@
   background-image: radial-gradient(circle, var(--tw-gradient-stops));
 }
 
+/* Logo marquee (Maki .c_logo_marquee--cms scroll animation).
+   2-set 복제된 트랙을 translateX(-50%) 로 이동 = 정확히 한 세트 길이만큼 이동.
+   duration 25s linear infinite — 모션 민감 사용자 대응. */
+@keyframes logo-marquee-scroll {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+.lm-track {
+  animation: logo-marquee-scroll 25s linear infinite;
+  will-change: transform;
+}
+@media (prefers-reduced-motion: reduce) {
+  .lm-track {
+    animation: none;
+  }
+}
+
 @theme inline {
   --color-background: var(--color-bg);
   --color-foreground: var(--color-text);
