@@ -19,7 +19,7 @@ export default async function AdminLayout({
   } = await supabase.auth.getUser();
 
   return (
-    <div className="flex min-h-[calc(100dvh-5rem)] flex-col bg-[#f8f9fa] lg:flex-row">
+    <div className="flex min-h-[100dvh] flex-col bg-[#f8f9fa] lg:flex-row">
       {user && (
         <div className="hidden lg:block">
           <AdminSidebar userEmail={user.email ?? null} />

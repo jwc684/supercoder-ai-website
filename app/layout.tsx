@@ -1,8 +1,6 @@
 import type { Metadata } from "next";
 import { Toaster } from "sonner";
 import "./globals.css";
-import { Header } from "@/components/layout/Header";
-import { Footer } from "@/components/layout/Footer";
 
 export const metadata: Metadata = {
   title: {
@@ -21,6 +19,11 @@ export const metadata: Metadata = {
   },
 };
 
+/**
+ * Root layout — 모든 라우트 공통. 최소한의 shell 만 담당.
+ * - Public pages (홈/contact/download/blog 등): app/(public)/layout.tsx 가 Header+Footer 를 wrap
+ * - Admin pages (/admin/*): app/admin/layout.tsx 가 사이드바를 wrap (Header/Footer 없음)
+ */
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -28,10 +31,8 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="ko" className="h-full">
-      <body className="min-h-full flex flex-col bg-surface text-foreground">
-        <Header />
-        <main className="flex-1">{children}</main>
-        <Footer />
+      <body className="min-h-full bg-white text-[#282828]">
+        {children}
         <Toaster position="top-right" richColors closeButton />
       </body>
     </html>

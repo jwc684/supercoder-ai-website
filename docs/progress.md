@@ -10,12 +10,12 @@
 
 | Phase | 내용 | 상태 | 컨펌 |
 |---|---|---|---|
-| 0 | 기반 구축 (Next.js + Supabase + Prisma + 레이아웃) | ✅ 완료 (2026-04-11) | 🟢 암묵 컨펌 (push 완료) |
-| 1 | 랜딩 페이지 12 섹션 | ✅ 완료 (2026-04-11) | 🟢 암묵 컨펌 (push 완료) |
-| 2 | 도입 문의 + 소개서 다운로드 (공개 폼) | ✅ 완료 (2026-04-11) | 🟢 암묵 컨펌 (push 완료) |
-| 3 | 관리자 인증 + 대시보드 | ✅ 완료 (2026-04-11) | 🟡 대기 (push 전) |
-| 4 | 관리자 — 문의/다운로드 리스트 | ⏳ 대기 | — |
-| 5 | 관리자 — 블로그 CRUD + Tiptap + Storage | ⏳ 대기 | — |
+| 0 | 기반 구축 (Next.js + Supabase + Prisma + 레이아웃) | ✅ 완료 (2026-04-11) | 🟢 컨펌 (push 완료) |
+| 1 | 랜딩 페이지 12 섹션 | ✅ 완료 (2026-04-11) | 🟢 컨펌 (push 완료) |
+| 2 | 도입 문의 + 소개서 다운로드 (공개 폼) | ✅ 완료 (2026-04-11) | 🟢 컨펌 (push 완료) |
+| 3 | 관리자 인증 + 대시보드 | ✅ 완료 (2026-04-11) | 🟢 컨펌 (로그인 테스트 + push 완료) |
+| 4 | 관리자 — 문의/다운로드 리스트 | ✅ 완료 (2026-04-11) | 🟢 컨펌 (push 완료) |
+| 5 | 관리자 — 블로그 CRUD + Tiptap + Storage | 🟡 진행 중 (Task 5-1 완료) | — |
 | 6 | 공개 블로그 (목록 + 상세) | ⏳ 대기 | — |
 | 7 | 관리자 약관 + 공개 약관 페이지 | ⏳ 대기 | — |
 | 8 | Trial 플레이스홀더 + SEO + 마무리 | ⏳ 대기 | — |
@@ -23,8 +23,8 @@
 
 ### 🔗 GitHub 리모트
 - Repo: https://github.com/jwc684/supercoder-ai-website
-- 최신 푸시: `a58e28b Phase 2: 공개 폼 구현 (도입 문의 + 소개서 다운로드)`
-- Phase 3 은 아직 로컬 커밋 전
+- 최신 푸시: `6ea8f48 Phase 4: 관리자 문의/다운로드 리스트 + CSV 내보내기`
+- Phase 5 는 진행 중 (로컬, 미커밋)
 
 ---
 
@@ -271,7 +271,7 @@ POST /api/downloads (valid) → 201 + downloadUrl, downloads 에 저장 확인
 ## ✅ Phase 3 — 관리자 인증 + 대시보드
 
 **완료일**: 2026-04-11
-**GitHub 커밋**: 🟡 로컬 커밋 전 (다음 push 에 포함 예정)
+**GitHub 커밋**: `de772af`
 **목표**: Supabase Auth Email/Password + 보호된 /admin + 대시보드 위젯.
 
 ### 완료한 작업
@@ -319,13 +319,115 @@ POST /api/downloads (valid) → 201 + downloadUrl, downloads 에 저장 확인
 - Proxy.ts 의 admin 보호 로직 정상 동작
 - 아직 실제 관리자 계정으로 end-to-end 로그인 테스트 미진행 (Supabase 대시보드에서 초기 계정 생성 필요)
 
-### 남은 작업 (Phase 3 컨펌 전)
+### Phase 3 컨펌
 
-1. **Supabase 대시보드에서 초기 관리자 계정 1개 생성**
-   - Supabase → Authentication → Users → Add user → Email + Password
-   - 또는 SQL Editor 에서 `INSERT INTO auth.users (...)` (권장 X, 대시보드 사용)
-2. **로컬 dev 에서 실제 로그인 → 대시보드 → 로그아웃 end-to-end 테스트**
-3. **Phase 3 commit/push** (모든 파일을 하나의 commit 으로)
+🟢 **완료** — Supabase 대시보드에서 초기 관리자 계정 생성 + 로컬 로그인 테스트 성공 후 `de772af` 로 푸시.
+
+---
+
+## ✅ Phase 4 — 관리자 문의/다운로드 리스트 + CSV
+
+**완료일**: 2026-04-11
+**GitHub 커밋**: `6ea8f48`
+**목표**: 가장 단순한 관리자 페이지 2종 (문의/다운로드 리스트) + CSV 내보내기.
+
+### 완료한 작업
+
+**`lib/csv.ts`** — CSV 내보내기 유틸
+- `toCsv<T>(rows, columns)`: RFC 4180 (쌍따옴표 escape, CRLF) + UTF-8 BOM (Excel 한글 호환)
+- `CsvColumn<T>`: generic accessor 기반, Date/배열/null 안전 처리
+- `downloadCsv(filename, csv)`: client 전용 Blob + anchor 다운로드 트리거
+
+**API 확장**
+- `GET /api/inquiries` (admin): status 필터 + q 검색 (company/name/email) + limit (max 500)
+- `PATCH /api/inquiries/[id]`: status / adminNote 업데이트, Zod 검증
+- `GET /api/downloads` (admin): q 검색 + limit
+
+**`/admin/inquiries`** (기획문서 4.5)
+- Server: Prisma 초기 200건 조회, Date → ISO 직렬화
+- Client `InquiriesTable`:
+  - 상태 칩 필터 (전체/NEW/REVIEWED/CONTACTED/COMPLETED + 카운트)
+  - 검색 (company/name/email)
+  - 인라인 상태 드롭다운 → PATCH
+  - 행 클릭 → DetailModal (기본 정보 + 메시지 + 관리자 메모 편집)
+  - CSV 내보내기 (한글 헤더 포함)
+
+**`/admin/downloads`** (기획문서 4.6)
+- Server: Prisma 초기 200건 조회
+- Client `DownloadsTable`:
+  - 검색 + 총 건수 표시
+  - 관심분야 chip 렌더
+  - CSV 내보내기
+
+### 보안 검증 로그
+
+```
+/admin/inquiries   (unauth) → 307   (proxy.ts 리다이렉트)
+/admin/downloads   (unauth) → 307
+GET /api/inquiries (unauth) → 401   (API 레벨 가드)
+GET /api/downloads (unauth) → 401
+PATCH /api/inquiries/[id] (unauth) → 401
+```
+
+---
+
+## 🟡 Phase 5 — 관리자 블로그 CRUD + Tiptap + Storage (진행 중)
+
+**시작일**: 2026-04-11
+**GitHub 커밋**: 🟡 로컬 진행 중
+**목표**: Tiptap 리치 텍스트 에디터 + Supabase Storage 이미지 업로드 + 블로그 CRUD.
+
+### Phase 5 하위 태스크
+
+| Task | 내용 | 상태 |
+|---|---|---|
+| 5-1 | Tiptap 패키지 설치 + RichEditor 컴포넌트 | ✅ 완료 |
+| 5-2 | Supabase Storage + /api/upload 이미지 업로드 | ⏳ 다음 |
+| 5-3 | Blog CRUD API (list/create/update/delete) | ⏳ 대기 |
+| 5-4 | /admin/blog 목록 + /new + /[id] 에디터 페이지 | ⏳ 대기 |
+
+### 추가 변경 — Admin/Public Layout 분리
+
+사용자 요청으로 Admin 페이지에서 public Header/Footer 가 안 보이도록 route group 재구조화:
+
+- **Root layout** (`app/layout.tsx`): Header/Footer 제거. `<html>` + `<body>` + `<Toaster>` 만
+- **`app/(public)/layout.tsx`** 신규: Header + Footer wrap 전담
+- **Public 페이지 이동**:
+  - `app/page.tsx` → `app/(public)/page.tsx`
+  - `app/contact/` → `app/(public)/contact/`
+  - `app/download/` → `app/(public)/download/`
+- **Admin** (`app/admin/*`): 변화 없음. 기존 `app/admin/layout.tsx` 가 사이드바만 담당 → Header/Footer 영향 0
+
+Route groups 는 URL 에 영향 없음 (`/contact` 는 여전히 `/contact`). Admin 페이지는 public layout 을 거치지 않아 header/footer 가 렌더되지 않음.
+
+### Task 5-1 완료 — RichEditor 컴포넌트
+
+**패키지 설치** (+ 81 packages):
+- `@tiptap/react`, `@tiptap/pm`, `@tiptap/starter-kit`
+- Extensions: Image, Link, Placeholder, Table (+row/header/cell), Youtube, CodeBlockLowlight
+- `lowlight` (코드 하이라이팅)
+
+**`components/admin/RichEditor.tsx`**
+- Editor: StarterKit + 모든 extensions, `immediatelyRender: false` (SSR 경고 방지)
+- Toolbar: Undo/Redo + Heading 1/2/3 + Bold/Italic/Strike/Code + List/Ordered/Quote/CodeBlock/HR + Link/Image/Table/YouTube
+- `handleFileChange`: 이미지 파일 선택 → `POST /api/upload` 로 전송 → 응답 URL 을 Tiptap `setImage` 로 삽입 (`/api/upload` 는 Task 5-2 에서 구현 예정)
+- `handleAddLink`, `handleAddYoutube`, `handleAddTable` 헬퍼
+- 스타일: `.prose-editor` 클래스 (globals.css 에 prose 스타일 추가 필요)
+
+**발견한 이슈 & 해결**:
+1. Tiptap v3 에서 default export 제거 → 모든 extension named import 로 수정 (`import { StarterKit }` 등)
+2. `lucide-react` 1.8 에 `Youtube` 아이콘 없음 → `Film` 으로 대체 (`import { Film as YoutubeIcon }`)
+3. `.next/types/validator.ts` stale 캐시 → `.next` 삭제 후 dev 서버 재시작
+
+### 검증 로그 (Phase 5 진행 중)
+
+```
+/              → 200 (public layout, Header 정상)
+/contact       → 200 (public layout)
+/download      → 200 (public layout)
+/admin/login   → 200 (admin layout, no public Header)
+/admin/inquiries (unauth) → 307 (proxy 리다이렉트)
+```
 
 ---
 
@@ -333,8 +435,7 @@ POST /api/downloads (valid) → 201 + downloadUrl, downloads 에 저장 확인
 
 | Phase | 내용 | 주요 컴포넌트 |
 |---|---|---|
-| 4 | 관리자 문의/다운로드 리스트 | /admin/inquiries, /admin/downloads + CSV 내보내기 |
-| 5 | 블로그 CRUD + Tiptap + Storage | /admin/blog/new, [id], Tiptap 에디터, 이미지 업로드 API, Supabase Storage 버킷 |
+| 5 (남은 3 tasks) | 블로그 CRUD 완료 | /api/upload, /api/blog, /admin/blog/[new\|id] |
 | 6 | 공개 블로그 | /blog, /blog/[slug], SSG/ISR, Tiptap JSON → HTML 렌더 |
 | 7 | 약관 관리 + 공개 약관 | /admin/terms, /privacy, /terms-enterprise, /terms-candidate |
 | 8 | Trial 플레이스홀더 + SEO | /trial, sitemap, robots, 404/500, Vercel Analytics |
