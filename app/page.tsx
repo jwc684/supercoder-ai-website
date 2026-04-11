@@ -4,6 +4,10 @@ import { LogoMarquee } from "@/components/landing/LogoMarquee";
 import { PainPoints } from "@/components/landing/PainPoints";
 import { SolutionBridge } from "@/components/landing/SolutionBridge";
 import { KobiIntro } from "@/components/landing/KobiIntro";
+import { CoreFeatures } from "@/components/landing/CoreFeatures";
+import { HowItWorks } from "@/components/landing/HowItWorks";
+import { AiServiceDetail } from "@/components/landing/AiServiceDetail";
+import { CandidateExperience } from "@/components/landing/CandidateExperience";
 
 export default function HomePage() {
   return (
@@ -84,6 +88,18 @@ export default function HomePage() {
 
       {/* 기획문서 3.1 Section 4 — Kobi Intro (AI Screening Agent 소개) */}
       <KobiIntro />
+
+      {/* 기획문서 3.1 Section 5 — Core Features (4단계 핵심 기능) */}
+      <CoreFeatures />
+
+      {/* 기획문서 3.1 Section 6 — How It Works (5스텝 타임라인, 셋업 10분) */}
+      <HowItWorks />
+
+      {/* 기획문서 3.1 Section 7 — AI Service Detail (Deep dive, Proctoring, 리포트) */}
+      <AiServiceDetail />
+
+      {/* 기획문서 3.1 Section 8 — Candidate Experience (공정성, 다국어, 멀티디바이스) */}
+      <CandidateExperience />
     </>
   );
 }
