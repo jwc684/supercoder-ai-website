@@ -52,51 +52,113 @@
   margin-inline: auto;
 }
 
-/* Hero 우측 시각 영역 애니메이션 (makipeople.com 레퍼런스) */
-@keyframes hv-float {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-8px); }
-}
-@keyframes hv-fade-up {
-  from { opacity: 0; transform: translateY(16px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-@keyframes hv-avatar-in {
-  from { opacity: 0; transform: translate(-50%, calc(-20px + 0%)) scale(0.92); }
-  to { opacity: 1; transform: translate(-50%, 0) scale(1); }
-}
-@keyframes hv-path-draw {
-  from { stroke-dashoffset: 200; opacity: 0; }
-  to { stroke-dashoffset: 0; opacity: 1; }
+/* Hero 우측 5 단계 프로세스 시퀀셜 애니메이션.
+   - 사이클 = 7.5s (5 스텝 × 1.5s).
+   - 각 스텝 등장 지연 = index × 1.5s.
+   - 활성 스텝은 선명, 이미 지나간 스텝은 디밍 상태.
+   - 파란 dot 은 라인을 따라 위에서 아래로 이동. */
+
+/* 배경 점선 라인 (배지 z-10 밑, z-0) */
+.hero-visual .hv-line {
+  background-image: repeating-linear-gradient(
+    to bottom,
+    #e5e7eb 0 4px,
+    transparent 4px 8px
+  );
 }
 
-.hero-visual .hv-avatar {
-  animation: hv-avatar-in 0.8s ease-out 0.1s both,
-    hv-float 4s ease-in-out 1s infinite;
+/* 스텝 등장 + 유지 + 디밍 */
+@keyframes hv-step-in {
+  0%, 10% {
+    opacity: 0;
+    transform: translateX(-10px);
+  }
+  20% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+  35% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+  45%, 100% {
+    opacity: 0.4;
+    transform: translateX(0);
+  }
 }
-.hero-visual .hv-card-1 {
-  animation: hv-fade-up 0.6s ease-out 0.5s both,
-    hv-float 5s ease-in-out 1.5s infinite;
+
+/* 배지 펄스: 활성 시 밝아지고 링 확장 */
+@keyframes hv-badge-pulse {
+  0%, 10% {
+    transform: scale(0.9);
+    filter: brightness(0.85) saturate(0.85);
+    box-shadow: 0 4px 10px rgba(33, 68, 165, 0.1);
+  }
+  20% {
+    transform: scale(1.04);
+    filter: brightness(1.05) saturate(1.05);
+    box-shadow: 0 10px 24px rgba(33, 68, 165, 0.3);
+  }
+  35% {
+    transform: scale(1);
+    filter: brightness(1) saturate(1);
+    box-shadow: 0 6px 16px rgba(33, 68, 165, 0.2);
+  }
+  45%, 100% {
+    transform: scale(0.92);
+    filter: brightness(0.85) saturate(0.85);
+    box-shadow: 0 4px 10px rgba(33, 68, 165, 0.1);
+  }
 }
-.hero-visual .hv-card-2 {
-  animation: hv-fade-up 0.6s ease-out 0.8s both,
-    hv-float 5s ease-in-out 2.2s infinite;
+
+.hero-visual .hv-step {
+  animation: hv-step-in 7.5s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+  animation-delay: calc(var(--step-index) * 1.5s);
 }
-.hero-visual .hv-path {
-  stroke-dasharray: 200;
-  animation: hv-path-draw 1.2s ease-out 0.4s both;
+.hero-visual .hv-step-badge {
+  animation: hv-badge-pulse 7.5s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+  animation-delay: calc(var(--step-index) * 1.5s);
 }
-.hero-visual .hv-path-2 {
-  animation-delay: 0.7s;
+
+/* 파란 진행 dot 이 첫 배지 중심 → 마지막 배지 중심으로 이동.
+   top 범위는 [0.5rem + 31, calc(100% - 0.5rem - 41)] (10px dot 보정 반영).
+   5 스텝 구조에 맞춰 20% 단위로 snap. */
+@keyframes hv-dot-travel {
+  0%, 10% {
+    top: calc(0.5rem + 31px);
+  }
+  15%, 25% {
+    top: calc(((100% - 1rem - 72px) * 1 / 4) + 0.5rem + 31px);
+  }
+  30%, 40% {
+    top: calc(((100% - 1rem - 72px) * 2 / 4) + 0.5rem + 31px);
+  }
+  45%, 55% {
+    top: calc(((100% - 1rem - 72px) * 3 / 4) + 0.5rem + 31px);
+  }
+  60%, 70% {
+    top: calc(((100% - 1rem - 72px) * 4 / 4) + 0.5rem + 31px);
+  }
+  75%, 90% {
+    top: calc(((100% - 1rem - 72px) * 4 / 4) + 0.5rem + 31px);
+  }
+  100% {
+    top: calc(0.5rem + 31px);
+  }
+}
+.hero-visual .hv-dot {
+  animation: hv-dot-travel 7.5s cubic-bezier(0.4, 0, 0.2, 1) infinite;
 }
 
 /* 접근성: 모션 민감 사용자 */
 @media (prefers-reduced-motion: reduce) {
-  .hero-visual .hv-avatar,
-  .hero-visual .hv-card-1,
-  .hero-visual .hv-card-2,
-  .hero-visual .hv-path {
+  .hero-visual .hv-step,
+  .hero-visual .hv-step-badge,
+  .hero-visual .hv-progress-line {
     animation: none;
+  }
+  .hero-visual .hv-step {
+    opacity: 1;
   }
 }
 

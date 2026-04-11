@@ -4,14 +4,23 @@ import { HeroVisual } from "@/components/landing/HeroVisual";
 export default function HomePage() {
   return (
     <>
-      {/* Hero (Phase 0 임시). Phase 1 에서 풀 랜딩으로 교체 예정. */}
-      <section className="wp-container grid gap-12 py-20 md:grid-cols-[minmax(0,1fr)_minmax(0,480px)] md:gap-16 md:py-28 lg:gap-20 lg:py-32">
+      {/* Hero (Phase 0 임시). Phase 1 에서 풀 랜딩으로 교체 예정.
+          반응형:
+            - < lg (1024px): 1 컬럼, 텍스트(타이틀) 위 → 시각 영역 아래
+            - ≥ lg (1024px): 2 컬럼 [텍스트 | 시각] */}
+      <section className="wp-container grid gap-12 py-16 md:gap-16 md:py-24 lg:grid-cols-[minmax(0,1fr)_minmax(0,480px)] lg:gap-20 lg:py-32">
         <div className="flex flex-col items-start">
-          <p className="text-xs font-medium uppercase tracking-wide text-[var(--color-text-sub)]">
+          <p className="text-[12px] font-medium uppercase leading-[15.6px] tracking-normal text-[#5f6363]">
             HIRING POWERED BY KOBI
           </p>
 
-          <h1 className="mt-4 text-[44px] font-bold leading-[1] tracking-normal text-[var(--color-text)] md:text-[64px] lg:text-[80px]">
+          {/* Maki 완전 매칭:
+              - font-size: 5rem (80px), mobile ≤767px: 4rem (64px)
+              - font-weight: 500
+              - line-height: 100%
+              - color: #282828 (var(--_modes---text--1))
+              - letter-spacing: normal */}
+          <h1 className="mt-4 text-[4rem] font-medium leading-[100%] tracking-normal text-[#282828] md:text-[5rem]">
             코비가 채용의
             <br />
             모든 과정을
@@ -41,8 +50,8 @@ export default function HomePage() {
           </div>
         </div>
 
-        {/* 우측 시각 영역 — Maki 레퍼런스 */}
-        <div className="flex items-start justify-center md:pt-4">
+        {/* 우측(데스크톱) / 하단(모바일·태블릿) 시각 영역 — Maki 레퍼런스 */}
+        <div className="flex items-start justify-center lg:pt-4">
           <HeroVisual />
         </div>
       </section>
