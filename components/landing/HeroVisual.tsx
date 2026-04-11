@@ -21,15 +21,17 @@ const STEP_COUNT = steps.length;
 
 export function HeroVisual() {
   return (
-    <div className="hero-visual relative aspect-square w-full max-w-[521px]">
+    // Stacked 모드: 480px 캡 + mx-auto 로 가운데 정렬, 자연 높이
+    // 데스크톱(≥lg): aspect-square 복원, max-w 해제, justify-between 으로 셀 가득 분포
+    <div className="hero-visual relative mx-auto w-full max-w-[480px] lg:max-w-none lg:aspect-square">
       {/* 배경 방사형 글로우 */}
       <div
         aria-hidden
         className="pointer-events-none absolute -inset-10 -z-10 rounded-full bg-gradient-radial from-[var(--color-primary-light)] to-transparent opacity-60 blur-3xl"
       />
 
-      {/* 스텝 스택 */}
-      <ul className="relative flex h-full flex-col justify-between py-2">
+      {/* 스텝 스택 — stacked: 자연 높이 + gap-5(20px), 데스크톱: h-full + justify-between */}
+      <ul className="relative flex flex-col gap-5 py-2 lg:h-full lg:justify-between lg:gap-0">
         {/* 배경 점선 세로 라인: 배지 컬럼 정중앙(left 36 − width 2 /2 = 35) */}
         <span
           aria-hidden
