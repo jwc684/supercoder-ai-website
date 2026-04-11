@@ -15,7 +15,7 @@
 | 2 | 도입 문의 + 소개서 다운로드 (공개 폼) | ✅ 완료 (2026-04-11) | 🟢 컨펌 (push 완료) |
 | 3 | 관리자 인증 + 대시보드 | ✅ 완료 (2026-04-11) | 🟢 컨펌 (로그인 테스트 + push 완료) |
 | 4 | 관리자 — 문의/다운로드 리스트 | ✅ 완료 (2026-04-11) | 🟢 컨펌 (push 완료) |
-| 5 | 관리자 — 블로그 CRUD + Tiptap + Storage | 🟡 진행 중 (Task 5-1 완료) | — |
+| 5 | 관리자 — 블로그 CRUD + Tiptap + Storage | ✅ 완료 (2026-04-11) | 🟢 컨펌 (push 완료) |
 | 6 | 공개 블로그 (목록 + 상세) | ⏳ 대기 | — |
 | 7 | 관리자 약관 + 공개 약관 페이지 | ⏳ 대기 | — |
 | 8 | Trial 플레이스홀더 + SEO + 마무리 | ⏳ 대기 | — |
@@ -23,8 +23,7 @@
 
 ### 🔗 GitHub 리모트
 - Repo: https://github.com/jwc684/supercoder-ai-website
-- 최신 푸시: `6ea8f48 Phase 4: 관리자 문의/다운로드 리스트 + CSV 내보내기`
-- Phase 5 는 진행 중 (로컬, 미커밋)
+- 최신 푸시: `ee57199 Phase 5: 블로그 CRUD + Tiptap 에디터 + Supabase Storage 이미지 업로드`
 
 ---
 
@@ -371,10 +370,10 @@ PATCH /api/inquiries/[id] (unauth) → 401
 
 ---
 
-## 🟡 Phase 5 — 관리자 블로그 CRUD + Tiptap + Storage (진행 중)
+## ✅ Phase 5 — 관리자 블로그 CRUD + Tiptap + Storage
 
-**시작일**: 2026-04-11
-**GitHub 커밋**: 🟡 로컬 진행 중
+**완료일**: 2026-04-11
+**GitHub 커밋**: `bba2370` (Task 5-1 + 레이아웃 분리), `ee57199` (Task 5-2~5-4 완료)
 **목표**: Tiptap 리치 텍스트 에디터 + Supabase Storage 이미지 업로드 + 블로그 CRUD.
 
 ### Phase 5 하위 태스크
@@ -382,9 +381,9 @@ PATCH /api/inquiries/[id] (unauth) → 401
 | Task | 내용 | 상태 |
 |---|---|---|
 | 5-1 | Tiptap 패키지 설치 + RichEditor 컴포넌트 | ✅ 완료 |
-| 5-2 | Supabase Storage + /api/upload 이미지 업로드 | ⏳ 다음 |
-| 5-3 | Blog CRUD API (list/create/update/delete) | ⏳ 대기 |
-| 5-4 | /admin/blog 목록 + /new + /[id] 에디터 페이지 | ⏳ 대기 |
+| 5-2 | Supabase Storage + /api/upload 이미지 업로드 | ✅ 완료 |
+| 5-3 | Blog CRUD API (list/create/update/delete) | ✅ 완료 |
+| 5-4 | /admin/blog 목록 + /new + /[id] 에디터 페이지 | ✅ 완료 |
 
 ### 추가 변경 — Admin/Public Layout 분리
 
@@ -419,15 +418,100 @@ Route groups 는 URL 에 영향 없음 (`/contact` 는 여전히 `/contact`). Ad
 2. `lucide-react` 1.8 에 `Youtube` 아이콘 없음 → `Film` 으로 대체 (`import { Film as YoutubeIcon }`)
 3. `.next/types/validator.ts` stale 캐시 → `.next` 삭제 후 dev 서버 재시작
 
-### 검증 로그 (Phase 5 진행 중)
+### Task 5-2 완료 — Supabase Storage + /api/upload
+
+**`scripts/setup-storage.mjs`**
+- `blog-images` 버킷 자동 생성 (public, 5MB 제한, jpeg/png/webp/gif)
+- 이미 존재 시 public 설정 확인/업데이트
+- 실제 실행 확인: `✅ 버킷 'blog-images' 생성 완료`
+
+**`lib/supabase/admin.ts`**
+- `createAdminClient()`: service role (SUPABASE_SECRET_KEY) 기반
+- RLS 우회용, **서버 전용** (클라이언트 import 금지)
+
+**`POST /api/upload`**
+- 관리자 인증 필수 (`getAdminUser`)
+- multipart/form-data `file` 필드
+- MIME 화이트리스트: `image/jpeg`, `image/png`, `image/webp`, `image/gif`
+- 크기 제한: 5MB (버킷 설정과 일치)
+- 파일명: `YYYY/MM/uuid.ext` (연도/월 폴더 구조)
+- 응답: `{ ok, url, path, size, mime }`
+
+### Task 5-3 완료 — Blog CRUD API
+
+**`lib/validations.ts` 확장**
+- `blogPostSchema`: title / slug / content (Tiptap JSON) / excerpt / thumbnail / category / tags / status / publishedAt / seoTitle / seoDesc
+- Slug regex: `/^[a-z0-9\uAC00-\uD7A3-]+$/` (한글 + 영소문자 + 숫자 + 하이픈)
+- `slugify()` 유틸: 한글 유지, 공백 → 하이픈, 중복 하이픈 제거
+- `BLOG_CATEGORIES` / `BLOG_CATEGORY_LABELS` / `POST_STATUSES` 상수
+
+**`GET /api/blog`**
+- 공개 (unauth): `status: PUBLISHED` 만
+- 관리자 (auth): DRAFT + PUBLISHED 모두
+- Query: `category`, `q` (title/slug 검색), `limit` (max 100)
+- `content` 필드는 목록에서 제외 (무거움)
+
+**`POST /api/blog`** (admin)
+- `blogPostSchema.safeParse` 검증
+- `AdminUser` upsert: Supabase `auth.users.id` ↔ Prisma `AdminUser.id` 매핑 (자동 동기화)
+- `PUBLISHED` + `publishedAt` 미지정 → 현재 시각 자동
+- Slug 중복 (`P2002`) → 409
+
+**`GET/PUT/DELETE /api/blog/[id]`**
+- GET: 공개는 PUBLISHED 만, admin 은 모두
+- PUT: 전체 필드 업데이트, slug 중복 409
+- DELETE: 삭제
+
+### Task 5-4 완료 — /admin/blog 페이지 3종
+
+**`/admin/blog`** (목록)
+- 서버 컴포넌트 Prisma 직접 조회 (200건)
+- `BlogListToolbar` (클라이언트): URL 쿼리 기반
+  - 상태 칩 필터 (전체/초안/발행)
+  - 카테고리 칩 필터 (전체/4개)
+  - 제목/슬러그 검색 (form submit → URL 업데이트)
+- 테이블: 제목/슬러그/카테고리/상태pill/발행일/액션(편집+공개보기)
+
+**`/admin/blog/new`**
+- `BlogEditorForm` (mode="new") 렌더
+- 목록으로 돌아가기 링크
+
+**`/admin/blog/[id]`**
+- Prisma `findUnique`, 존재하지 않으면 `notFound()`
+- `Date → "YYYY-MM-DDTHH:mm"` 로 `datetime-local` input 대응
+- `BlogEditorForm` (mode="edit") 에 initial 전달
+
+**`BlogEditorForm`** (재사용 클라이언트 컴포넌트, 461줄)
+- **좌측**: 제목 대형 입력 + 슬러그 (제목 변경 시 자동 생성, 수동 편집 시 lock) + RichEditor
+- **우측 사이드바**:
+  1. 저장 버튼 (`POST /api/blog` 또는 `PUT /api/blog/[id]`) + 삭제 (edit mode)
+  2. 게시 설정 카드: 상태 (초안/발행) 토글, 카테고리 select, 발행 예약일 (`datetime-local`)
+  3. 태그 카드: Enter 로 태그 추가, X 로 제거
+  4. 썸네일 카드: 클릭 → `/api/upload` 업로드 → URL 저장, 미리보기 이미지, 제거 버튼
+  5. 메타 정보 카드: 요약 (excerpt) + SEO 제목 + SEO 설명
+
+### 검증 로그
 
 ```
-/              → 200 (public layout, Header 정상)
-/contact       → 200 (public layout)
-/download      → 200 (public layout)
+/              → 200 (public layout)
 /admin/login   → 200 (admin layout, no public Header)
-/admin/inquiries (unauth) → 307 (proxy 리다이렉트)
+/admin/blog    (unauth) → 307 (proxy 리다이렉트)
+/admin/blog/new (unauth) → 307
+GET  /api/blog  (public) → 200 (PUBLISHED 필터)
+POST /api/blog  (unauth) → 401
+PUT  /api/blog/[id] (unauth) → 401
+DELETE /api/blog/[id] (unauth) → 401
+POST /api/upload (unauth) → 401
 ```
+
+- Supabase Storage `blog-images` 버킷 실제 생성 확인
+- TypeScript 0 에러
+
+### Phase 5 설치된 패키지 (+81)
+
+- `@tiptap/react`, `@tiptap/pm`, `@tiptap/starter-kit`
+- Extensions: `@tiptap/extension-image`, `-link`, `-placeholder`, `-table`, `-table-row`, `-table-header`, `-table-cell`, `-youtube`, `-code-block-lowlight`
+- `lowlight` (코드 하이라이팅)
 
 ---
 
@@ -435,11 +519,10 @@ Route groups 는 URL 에 영향 없음 (`/contact` 는 여전히 `/contact`). Ad
 
 | Phase | 내용 | 주요 컴포넌트 |
 |---|---|---|
-| 5 (남은 3 tasks) | 블로그 CRUD 완료 | /api/upload, /api/blog, /admin/blog/[new\|id] |
-| 6 | 공개 블로그 | /blog, /blog/[slug], SSG/ISR, Tiptap JSON → HTML 렌더 |
-| 7 | 약관 관리 + 공개 약관 | /admin/terms, /privacy, /terms-enterprise, /terms-candidate |
-| 8 | Trial 플레이스홀더 + SEO | /trial, sitemap, robots, 404/500, Vercel Analytics |
-| 9 | Vercel 배포 | GitHub → Vercel, 환경 변수, Prisma `migrate deploy`, 도메인 |
+| 6 | 공개 블로그 | /blog (카드 그리드, 카테고리 필터, 페이지네이션), /blog/[slug] (Tiptap JSON → HTML 렌더, TOC, 관련 글, CTA 배너) |
+| 7 | 약관 관리 + 공개 약관 | /admin/terms CRUD + 활성화 토글 (동일 type 이전 자동 비활성), /privacy · /terms-enterprise · /terms-candidate 동적 로딩 |
+| 8 | Trial 플레이스홀더 + SEO | /trial (곧 출시 안내 + CTA), sitemap.xml, robots.txt, OG 메타, 404/500, Vercel Analytics |
+| 9 | Vercel 배포 | GitHub → Vercel, 환경 변수 4종, Prisma `migrate deploy` postinstall, 프리뷰 → 프로덕션 → 도메인 |
 
 ---
 
