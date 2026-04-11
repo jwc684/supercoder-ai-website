@@ -31,28 +31,20 @@ export default async function AdminDashboardPage() {
   const thirtyDaysAgo = new Date();
   thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
 
+  // 12 쿼리 → 6 쿼리로 축소. Stats 싱글톤이 6개 총합을 대체.
+  // 시간 윈도우 count 3개만 라이브 쿼리, 상위페이지/블로그조회수는 각각 groupBy와
+  // viewCount 인덱스 스캔으로 처리.
   const [
-    inquiriesTotal,
-    inquiriesNew,
+    stats,
     inquiriesRecent,
-    downloadsTotal,
     downloadsRecent,
-    blogPostsTotal,
-    blogPostsPublished,
-    pageViewsTotal,
     pageViewsRecent,
     topPagesGrouped,
-    blogPosts,
-    blogViewsGrouped,
+    topBlogPosts,
   ] = await Promise.all([
-    prisma.inquiry.count(),
-    prisma.inquiry.count({ where: { status: "NEW" } }),
+    prisma.stats.findUnique({ where: { id: "singleton" } }),
     prisma.inquiry.count({ where: { createdAt: { gte: sevenDaysAgo } } }),
-    prisma.download.count(),
     prisma.download.count({ where: { createdAt: { gte: sevenDaysAgo } } }),
-    prisma.blogPost.count(),
-    prisma.blogPost.count({ where: { status: "PUBLISHED" } }),
-    prisma.pageView.count(),
     prisma.pageView.count({ where: { createdAt: { gte: sevenDaysAgo } } }),
     // 최근 30일 상위 페이지 (path 기준 그룹)
     prisma.pageView.groupBy({
@@ -62,43 +54,39 @@ export default async function AdminDashboardPage() {
       orderBy: { _count: { path: "desc" } },
       take: 10,
     }),
-    // 모든 블로그 글 (슬러그 조인용)
+    // 블로그 글 viewCount 인덱스로 정렬 — groupBy 스캔 대체
     prisma.blogPost.findMany({
+      where: { status: "PUBLISHED" },
       select: {
         id: true,
         title: true,
         slug: true,
         status: true,
         publishedAt: true,
+        viewCount: true,
       },
-      orderBy: { createdAt: "desc" },
-      take: 200,
-    }),
-    // /blog/* 경로의 방문 집계 (전체 기간)
-    prisma.pageView.groupBy({
-      by: ["path"],
-      where: { path: { startsWith: "/blog/" } },
-      _count: { _all: true },
+      orderBy: [{ viewCount: "desc" }, { publishedAt: "desc" }],
+      take: 8,
     }),
   ]);
 
-  // 블로그 글 + 조회수 병합 (slug 매칭) → 상위 5건
-  const viewsBySlug = new Map<string, number>();
-  for (const row of blogViewsGrouped) {
-    const slug = row.path.replace(/^\/blog\//, "");
-    viewsBySlug.set(slug, row._count._all);
-  }
-  const blogWithViews = blogPosts
-    .map((p) => ({
-      id: p.id,
-      title: p.title,
-      slug: p.slug,
-      status: p.status,
-      publishedAt: p.publishedAt,
-      views: viewsBySlug.get(p.slug) ?? 0,
-    }))
-    .sort((a, b) => b.views - a.views)
-    .slice(0, 8);
+  // Stats 싱글톤이 없을 수 있음 (시드 미실행 환경) — 안전 기본값
+  const inquiriesTotal = stats?.inquiriesTotal ?? 0;
+  const inquiriesNew = stats?.inquiriesNew ?? 0;
+  const downloadsTotal = stats?.downloadsTotal ?? 0;
+  const blogPostsTotal = stats?.blogPostsTotal ?? 0;
+  const blogPostsPublished = stats?.blogPostsPublished ?? 0;
+  const pageViewsTotal = stats?.pageViewsTotal ?? 0;
+
+  // 블로그 카드 데이터 변환 (기존 UI 호환)
+  const blogWithViews = topBlogPosts.map((p) => ({
+    id: p.id,
+    title: p.title,
+    slug: p.slug,
+    status: p.status,
+    publishedAt: p.publishedAt,
+    views: p.viewCount,
+  }));
 
   // 상위 페이지 테이블 데이터 정리
   const topPages = topPagesGrouped.map((g) => ({

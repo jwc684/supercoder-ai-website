@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowRight, Sparkles, PlayCircle, Clock, Shield } from "lucide-react";
+import { getStaticPageMeta } from "@/lib/seo";
 
 /**
  * /trial — 무료 체험 플레이스홀더 (기획문서 3.2).
@@ -10,12 +11,9 @@ import { ArrowRight, Sparkles, PlayCircle, Clock, Shield } from "lucide-react";
  *   - 하단: 3가지 이점 카드 + 최종 CTA 배너
  */
 
-export const metadata: Metadata = {
-  title: "무료 체험",
-  description:
-    "슈퍼코더 AI Interviewer 의 AI 면접을 직접 체험해보세요. 현재는 1:1 맞춤 데모로 안내드립니다.",
-  robots: { index: true, follow: true },
-};
+export async function generateMetadata(): Promise<Metadata> {
+  return getStaticPageMeta("/trial");
+}
 
 const benefits = [
   {

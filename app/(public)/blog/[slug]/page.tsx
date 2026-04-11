@@ -10,6 +10,8 @@ import {
   estimateReadingTime,
   extractPlainText,
 } from "@/lib/tiptap";
+import { articleJsonLd, breadcrumbJsonLd } from "@/lib/jsonld";
+import { JsonLd } from "@/components/seo/JsonLd";
 import { BlogFooterCta } from "@/components/landing/BlogFooterCta";
 
 /**
@@ -101,7 +103,8 @@ export default async function BlogDetailPage({ params }: { params: Params }) {
   const { html, toc } = renderTiptap(post.content as object);
   const readMin = estimateReadingTime(post.content);
   const publishedDate = post.publishedAt ?? post.createdAt;
-  const authorName = post.author?.name ?? post.author?.email?.split("@")[0] ?? "Supercoder";
+  // 이메일 로컬 파트가 공개 메타/JSON-LD 에 노출되지 않도록 name 만 사용, fallback 은 브랜드명.
+  const authorName = post.author?.name ?? "Supercoder";
 
   // 관련 글 — 같은 카테고리 3건 (본 글 제외)
   const relatedPosts = await prisma.blogPost.findMany({
@@ -124,8 +127,26 @@ export default async function BlogDetailPage({ params }: { params: Params }) {
     },
   });
 
+  // JSON-LD 구조화 데이터 (Article + BreadcrumbList)
+  const articleSchema = articleJsonLd({
+    title: post.seoTitle ?? post.title,
+    description:
+      post.seoDesc ?? post.excerpt ?? extractPlainText(post.content, 160),
+    slug: post.slug,
+    thumbnail: post.thumbnail,
+    author: authorName,
+    publishedAt: publishedDate,
+    updatedAt: post.updatedAt,
+  });
+  const breadcrumbSchema = breadcrumbJsonLd([
+    { name: "홈", url: "/" },
+    { name: "블로그", url: "/blog" },
+    { name: post.title, url: `/blog/${post.slug}` },
+  ]);
+
   return (
     <div className="bg-white">
+      <JsonLd data={[articleSchema, breadcrumbSchema]} />
       {/* Back link */}
       <div className="wp-container pt-10 md:pt-14">
         <Link

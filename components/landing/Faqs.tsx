@@ -1,5 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import { renderTiptap } from "@/lib/tiptap";
+import { faqPageJsonLd } from "@/lib/jsonld";
+import { JsonLd } from "@/components/seo/JsonLd";
 import { FaqAccordionItem } from "./FaqAccordionItem";
 
 /**
@@ -27,12 +29,16 @@ export async function Faqs() {
     return { id: f.id, question: f.question, answerHtml: html };
   });
 
+  // JSON-LD FAQPage 도 병행 (microdata 와 중복 허용 — Google 권장)
+  const faqSchema = faqPageJsonLd(items);
+
   return (
     <div
       itemScope
       itemType="https://schema.org/FAQPage"
       className="py-20 md:py-28 lg:py-32"
     >
+      <JsonLd data={faqSchema} />
       <div className="wp-container">
         <div className="grid gap-10 lg:grid-cols-12 lg:gap-8">
           {/* Left (col 1–5) — label + H2 */}

@@ -46,6 +46,9 @@ model BlogPost {
   publishedAt DateTime?
   seoTitle    String?
   seoDesc     String?
+  // 카운터 캐시 — /blog/[slug] 방문 시 POST /api/page-views 에서 increment.
+  // 대시보드의 "블로그 조회수" 위젯이 pageView.groupBy 대신 이 컬럼으로 orderBy.
+  viewCount   Int          @default(0)
   author      AdminUser    @relation(fields: [authorId], references: [id])
   authorId    String
   createdAt   DateTime     @default(now())
@@ -54,6 +57,7 @@ model BlogPost {
   @@index([slug])
   @@index([status, publishedAt])
   @@index([category])
+  @@index([viewCount(sort: Desc)])
   @@map("blog_posts")
 }
 
@@ -90,6 +94,44 @@ enum TermsType {
   ENTERPRISE // 기업용 이용약관
   CANDIDATE // 지원자용 이용약관
   MARKETING // 마케팅 동의
+}
+
+// ─── 페이지 SEO 메타 ───
+// 정적 페이지(/, /blog, /contact, /download, /trial, /privacy, /terms-*, /404)
+// 의 관리자 편집 가능한 SEO 메타데이터. 블로그 글은 BlogPost.seoTitle/seoDesc/thumbnail
+// 을 직접 사용 (이 테이블에 포함 안 됨).
+// path 가 PK. 관리자 /admin/seo 에서 편집 가능.
+model PageMeta {
+  id              String   @id @default(cuid())
+  path            String   @unique // "/", "/blog", "/contact", ...
+  title           String
+  description     String
+  socialImage     String? // Supabase Storage public URL (1200x630)
+  socialImagePath String? // Storage 내부 경로 (삭제용)
+  indexable       Boolean  @default(true) // false 면 robots: noindex
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([path])
+  @@map("page_meta")
+}
+
+// ─── 통계 싱글톤 (카운터 캐시) ───
+// 대시보드의 COUNT 쿼리 9개를 단일 row 조회로 대체.
+// Mutation API 가 $transaction 으로 원자적 increment 수행.
+// id 는 항상 "singleton" — 1 행만 존재.
+// 드리프트 발생 시 scripts/seed-stats.mjs 로 실제값 재계산.
+model Stats {
+  id                 String   @id @default("singleton")
+  inquiriesTotal     Int      @default(0)
+  inquiriesNew       Int      @default(0) // status=NEW 개수만 별도 추적
+  downloadsTotal     Int      @default(0)
+  blogPostsTotal     Int      @default(0)
+  blogPostsPublished Int      @default(0)
+  pageViewsTotal     Int      @default(0)
+  updatedAt          DateTime @updatedAt
+
+  @@map("stats")
 }
 
 // ─── 페이지 방문 통계 ───

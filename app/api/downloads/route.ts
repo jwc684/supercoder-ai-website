@@ -33,17 +33,24 @@ export async function POST(request: Request) {
   const data = parsed.data;
 
   try {
-    const record = await prisma.download.create({
-      data: {
-        company: data.company,
-        name: data.name,
-        email: data.email,
-        jobTitle: data.jobTitle ?? null,
-        phone: data.phone ?? null,
-        interests: data.interests ?? [],
-      },
-      select: { id: true, createdAt: true },
-    });
+    // insert + stats increment 를 원자적으로
+    const [record] = await prisma.$transaction([
+      prisma.download.create({
+        data: {
+          company: data.company,
+          name: data.name,
+          email: data.email,
+          jobTitle: data.jobTitle ?? null,
+          phone: data.phone ?? null,
+          interests: data.interests ?? [],
+        },
+        select: { id: true, createdAt: true },
+      }),
+      prisma.stats.update({
+        where: { id: "singleton" },
+        data: { downloadsTotal: { increment: 1 } },
+      }),
+    ]);
 
     // 현재 활성 브로셔(최신 업로드) URL 을 반환. 없으면 정적 placeholder.
     const latest = await prisma.brochure.findFirst({

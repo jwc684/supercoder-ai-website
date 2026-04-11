@@ -112,28 +112,42 @@ export async function POST(request: Request) {
   });
 
   try {
-    const created = await prisma.blogPost.create({
-      data: {
-        title: data.title,
-        slug: data.slug,
-        content: data.content as Prisma.InputJsonValue,
-        excerpt: data.excerpt ?? null,
-        thumbnail: data.thumbnail ?? null,
-        category: data.category,
-        tags: data.tags ?? [],
-        status: data.status,
-        publishedAt:
-          data.publishedAt && data.publishedAt !== ""
-            ? new Date(data.publishedAt)
-            : data.status === "PUBLISHED"
-              ? new Date()
-              : null,
-        seoTitle: data.seoTitle ?? null,
-        seoDesc: data.seoDesc ?? null,
-        authorId: user.id,
-      },
-      select: { id: true, slug: true, createdAt: true },
-    });
+    // create + stats increment 원자성.
+    // PUBLISHED 로 바로 생성될 수 있으므로 blogPostsPublished 도 조건부 증분.
+    const isPublished = data.status === "PUBLISHED";
+    const [created] = await prisma.$transaction([
+      prisma.blogPost.create({
+        data: {
+          title: data.title,
+          slug: data.slug,
+          content: data.content as Prisma.InputJsonValue,
+          excerpt: data.excerpt ?? null,
+          thumbnail: data.thumbnail ?? null,
+          category: data.category,
+          tags: data.tags ?? [],
+          status: data.status,
+          publishedAt:
+            data.publishedAt && data.publishedAt !== ""
+              ? new Date(data.publishedAt)
+              : isPublished
+                ? new Date()
+                : null,
+          seoTitle: data.seoTitle ?? null,
+          seoDesc: data.seoDesc ?? null,
+          authorId: user.id,
+        },
+        select: { id: true, slug: true, createdAt: true },
+      }),
+      prisma.stats.update({
+        where: { id: "singleton" },
+        data: {
+          blogPostsTotal: { increment: 1 },
+          ...(isPublished
+            ? { blogPostsPublished: { increment: 1 } }
+            : {}),
+        },
+      }),
+    ]);
 
     return NextResponse.json(
       { ok: true, id: created.id, slug: created.slug, createdAt: created.createdAt },

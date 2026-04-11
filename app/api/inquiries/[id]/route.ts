@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
+import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { getAdminUser } from "@/lib/auth";
 
@@ -44,10 +45,42 @@ export async function PATCH(
   }
 
   try {
-    const updated = await prisma.inquiry.update({
+    // status 전환 시 Stats.inquiriesNew 카운터 동기화 필요.
+    // 이전 상태 확인 → update → 전환 패턴 감지 → counter 조정.
+    const existing = await prisma.inquiry.findUnique({
       where: { id },
-      data: parsed.data,
+      select: { status: true },
     });
+    if (!existing) {
+      return NextResponse.json({ error: "Not found" }, { status: 404 });
+    }
+
+    const prevStatus = existing.status;
+    const nextStatus = parsed.data.status ?? prevStatus;
+    const inquiriesNewDelta =
+      prevStatus === "NEW" && nextStatus !== "NEW"
+        ? -1
+        : prevStatus !== "NEW" && nextStatus === "NEW"
+          ? 1
+          : 0;
+
+    const operations: Prisma.PrismaPromise<unknown>[] = [
+      prisma.inquiry.update({
+        where: { id },
+        data: parsed.data,
+      }),
+    ];
+    if (inquiriesNewDelta !== 0) {
+      operations.push(
+        prisma.stats.update({
+          where: { id: "singleton" },
+          data: { inquiriesNew: { increment: inquiriesNewDelta } },
+        }),
+      );
+    }
+    const results = await prisma.$transaction(operations);
+    const updated = results[0] as Awaited<ReturnType<typeof prisma.inquiry.update>>;
+
     return NextResponse.json({ ok: true, inquiry: updated });
   } catch (err) {
     console.error("[api/inquiries/:id PATCH] failed:", err);

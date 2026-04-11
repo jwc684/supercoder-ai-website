@@ -1,4 +1,6 @@
+import type { Metadata } from "next";
 import Link from "next/link";
+import { getStaticPageMeta } from "@/lib/seo";
 import { HeroVisual } from "@/components/landing/HeroVisual";
 import { LogoMarquee } from "@/components/landing/LogoMarquee";
 import { PainPoints } from "@/components/landing/PainPoints";
@@ -18,6 +20,12 @@ import { FloatingCta } from "@/components/landing/FloatingCta";
 // ISR 60s — FAQ 가 DB 에 있고, Prisma 호출은 자동으로 dynamic 하지 않으므로
 // revalidate 를 명시해서 관리자 변경이 랜딩에 60초 내 반영되도록 한다.
 export const revalidate = 60;
+
+// PageMeta ("/") 조회 + 관리자 편집 가능한 SEO 메타 렌더.
+// /admin/seo 에서 편집 즉시 revalidatePath 로 무효화됨.
+export async function generateMetadata(): Promise<Metadata> {
+  return getStaticPageMeta("/");
+}
 
 export default function HomePage() {
   return (

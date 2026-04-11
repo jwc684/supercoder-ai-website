@@ -33,20 +33,30 @@ export async function POST(request: Request) {
   const data = parsed.data;
 
   try {
-    const record = await prisma.inquiry.create({
-      data: {
-        company: data.company,
-        name: data.name,
-        email: data.email,
-        phone: data.phone,
-        jobTitle: data.jobTitle ?? null,
-        hireSize: data.hireSize ?? null,
-        interests: data.interests ?? [],
-        message: data.message ?? null,
-        privacyAgreed: data.privacyAgreed,
-      },
-      select: { id: true, createdAt: true },
-    });
+    // insert + stats increment 를 단일 트랜잭션으로 묶어 원자성 보장
+    const [record] = await prisma.$transaction([
+      prisma.inquiry.create({
+        data: {
+          company: data.company,
+          name: data.name,
+          email: data.email,
+          phone: data.phone,
+          jobTitle: data.jobTitle ?? null,
+          hireSize: data.hireSize ?? null,
+          interests: data.interests ?? [],
+          message: data.message ?? null,
+          privacyAgreed: data.privacyAgreed,
+        },
+        select: { id: true, createdAt: true },
+      }),
+      prisma.stats.update({
+        where: { id: "singleton" },
+        data: {
+          inquiriesTotal: { increment: 1 },
+          inquiriesNew: { increment: 1 },
+        },
+      }),
+    ]);
 
     return NextResponse.json(
       { ok: true, id: record.id, createdAt: record.createdAt },

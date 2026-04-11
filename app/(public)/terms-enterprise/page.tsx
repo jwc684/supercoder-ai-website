@@ -1,14 +1,12 @@
 import type { Metadata } from "next";
+import { getStaticPageMeta } from "@/lib/seo";
 import { TermsView } from "@/components/landing/TermsView";
 
 export const revalidate = 60;
 
-export const metadata: Metadata = {
-  title: "기업용 이용약관",
-  description:
-    "슈퍼코더 AI Interviewer 를 도입한 기업 고객 대상 이용약관.",
-  robots: { index: true, follow: true },
-};
+export async function generateMetadata(): Promise<Metadata> {
+  return getStaticPageMeta("/terms-enterprise");
+}
 
 export default function TermsEnterprisePage() {
   return <TermsView type="ENTERPRISE" />;

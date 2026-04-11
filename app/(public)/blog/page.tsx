@@ -4,6 +4,7 @@ import type { Metadata } from "next";
 import { ArrowLeft, ArrowRight } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { BLOG_CATEGORIES, BLOG_CATEGORY_LABELS } from "@/lib/validations";
+import { getStaticPageMeta } from "@/lib/seo";
 import { BlogFooterCta } from "@/components/landing/BlogFooterCta";
 
 /**
@@ -18,11 +19,9 @@ import { BlogFooterCta } from "@/components/landing/BlogFooterCta";
 
 export const revalidate = 60;
 
-export const metadata: Metadata = {
-  title: "블로그",
-  description:
-    "AI 채용 · HR 인사이트 · 고객 사례 · 제품 업데이트 등 슈퍼코더의 최신 글을 읽어보세요.",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  return getStaticPageMeta("/blog");
+}
 
 const POSTS_PER_PAGE = 9;
 

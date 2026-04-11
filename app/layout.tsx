@@ -2,6 +2,8 @@ import type { Metadata, Viewport } from "next";
 import { Toaster } from "sonner";
 import { Analytics } from "@vercel/analytics/next";
 import { SITE_URL, SITE_NAME, SITE_DESCRIPTION } from "@/lib/site";
+import { organizationJsonLd, webSiteJsonLd } from "@/lib/jsonld";
+import { JsonLd } from "@/components/seo/JsonLd";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -86,6 +88,8 @@ export default function RootLayout({
   return (
     <html lang="ko" className="h-full">
       <body className="min-h-full bg-white text-[#282828]">
+        {/* 사이트 전체 공통 JSON-LD — Organization + WebSite */}
+        <JsonLd data={[organizationJsonLd(), webSiteJsonLd()]} />
         {children}
         <Toaster position="top-right" richColors closeButton />
         <Analytics />

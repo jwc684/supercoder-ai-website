@@ -70,27 +70,48 @@ export async function PUT(
       return NextResponse.json({ error: "Not found" }, { status: 404 });
     }
 
-    const updated = await prisma.blogPost.update({
-      where: { id },
-      data: {
-        title: data.title,
-        slug: data.slug,
-        content: data.content as Prisma.InputJsonValue,
-        excerpt: data.excerpt ?? null,
-        thumbnail: data.thumbnail ?? null,
-        category: data.category,
-        tags: data.tags ?? [],
-        status: data.status,
-        publishedAt:
-          data.publishedAt && data.publishedAt !== ""
-            ? new Date(data.publishedAt)
-            : data.status === "PUBLISHED"
-              ? (existing.publishedAt ?? new Date())
-              : null,
-        seoTitle: data.seoTitle ?? null,
-        seoDesc: data.seoDesc ?? null,
-      },
-    });
+    // status 전환 감지 → Stats.blogPostsPublished 조건부 증분
+    const wasPublished = existing.status === "PUBLISHED";
+    const willPublish = data.status === "PUBLISHED";
+    const publishedDelta = !wasPublished && willPublish
+      ? 1
+      : wasPublished && !willPublish
+        ? -1
+        : 0;
+
+    const operations: Prisma.PrismaPromise<unknown>[] = [
+      prisma.blogPost.update({
+        where: { id },
+        data: {
+          title: data.title,
+          slug: data.slug,
+          content: data.content as Prisma.InputJsonValue,
+          excerpt: data.excerpt ?? null,
+          thumbnail: data.thumbnail ?? null,
+          category: data.category,
+          tags: data.tags ?? [],
+          status: data.status,
+          publishedAt:
+            data.publishedAt && data.publishedAt !== ""
+              ? new Date(data.publishedAt)
+              : willPublish
+                ? (existing.publishedAt ?? new Date())
+                : null,
+          seoTitle: data.seoTitle ?? null,
+          seoDesc: data.seoDesc ?? null,
+        },
+      }),
+    ];
+    if (publishedDelta !== 0) {
+      operations.push(
+        prisma.stats.update({
+          where: { id: "singleton" },
+          data: { blogPostsPublished: { increment: publishedDelta } },
+        }),
+      );
+    }
+    const results = await prisma.$transaction(operations);
+    const updated = results[0] as Awaited<ReturnType<typeof prisma.blogPost.update>>;
 
     return NextResponse.json({ ok: true, post: updated });
   } catch (err) {
@@ -122,7 +143,29 @@ export async function DELETE(
   const { id } = await params;
 
   try {
-    await prisma.blogPost.delete({ where: { id } });
+    // 삭제 전 상태 확인 (PUBLISHED 여부 → Stats 감소량 결정)
+    const existing = await prisma.blogPost.findUnique({
+      where: { id },
+      select: { status: true },
+    });
+    if (!existing) {
+      return NextResponse.json({ error: "Not found" }, { status: 404 });
+    }
+
+    const wasPublished = existing.status === "PUBLISHED";
+    await prisma.$transaction([
+      prisma.blogPost.delete({ where: { id } }),
+      prisma.stats.update({
+        where: { id: "singleton" },
+        data: {
+          blogPostsTotal: { increment: -1 },
+          ...(wasPublished
+            ? { blogPostsPublished: { increment: -1 } }
+            : {}),
+        },
+      }),
+    ]);
+
     return NextResponse.json({ ok: true });
   } catch (err) {
     console.error("[api/blog/:id] DELETE failed:", err);

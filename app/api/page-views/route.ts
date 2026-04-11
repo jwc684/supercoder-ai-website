@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 
 /**
@@ -51,13 +52,38 @@ export async function POST(request: Request) {
   }
 
   try {
-    await prisma.pageView.create({
-      data: {
-        path,
-        referer,
-        userAgent: userAgent?.slice(0, 512) ?? null,
-      },
-    });
+    // 카운터 캐시 증분:
+    //   1. PageView raw append (기존 로직)
+    //   2. Stats.pageViewsTotal +1 (singleton)
+    //   3. 경로가 /blog/{slug} 면 해당 BlogPost.viewCount +1
+    // updateMany 는 match 0 건이어도 에러 없이 count:0 반환 → 안전.
+    const isBlogPath = path.startsWith("/blog/");
+    const blogSlug = isBlogPath
+      ? path.replace(/^\/blog\//, "").replace(/\/$/, "")
+      : null;
+
+    const operations: Prisma.PrismaPromise<unknown>[] = [
+      prisma.pageView.create({
+        data: {
+          path,
+          referer,
+          userAgent: userAgent?.slice(0, 512) ?? null,
+        },
+      }),
+      prisma.stats.update({
+        where: { id: "singleton" },
+        data: { pageViewsTotal: { increment: 1 } },
+      }),
+    ];
+    if (blogSlug) {
+      operations.push(
+        prisma.blogPost.updateMany({
+          where: { slug: blogSlug, status: "PUBLISHED" },
+          data: { viewCount: { increment: 1 } },
+        }),
+      );
+    }
+    await prisma.$transaction(operations);
     return NextResponse.json({ ok: true });
   } catch (err) {
     console.error("[api/page-views] POST failed:", err);
