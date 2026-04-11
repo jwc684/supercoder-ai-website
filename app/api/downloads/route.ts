@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { downloadSchema } from "@/lib/validations";
+import { getAdminUser } from "@/lib/auth";
 
 /**
  * POST /api/downloads — 공개 소개서 다운로드 리드 등록.
@@ -59,5 +60,44 @@ export async function POST(request: Request) {
       { error: "서버 저장 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요." },
       { status: 500 },
     );
+  }
+}
+
+/**
+ * GET /api/downloads — 관리자 리스트 조회.
+ * Query params:
+ *   - q: 검색어 (company / name / email contains, 선택)
+ *   - limit: 기본 100, 최대 500
+ */
+export async function GET(request: Request) {
+  const user = await getAdminUser();
+  if (!user) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  const url = new URL(request.url);
+  const q = url.searchParams.get("q")?.trim();
+  const limitParam = url.searchParams.get("limit");
+  const limit = Math.min(500, Math.max(1, Number(limitParam) || 100));
+
+  try {
+    const downloads = await prisma.download.findMany({
+      where: q
+        ? {
+            OR: [
+              { company: { contains: q, mode: "insensitive" } },
+              { name: { contains: q, mode: "insensitive" } },
+              { email: { contains: q, mode: "insensitive" } },
+            ],
+          }
+        : undefined,
+      orderBy: { createdAt: "desc" },
+      take: limit,
+    });
+
+    return NextResponse.json({ ok: true, count: downloads.length, downloads });
+  } catch (err) {
+    console.error("[api/downloads] GET failed:", err);
+    return NextResponse.json({ error: "조회 실패" }, { status: 500 });
   }
 }
