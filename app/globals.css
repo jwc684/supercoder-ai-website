@@ -1,26 +1,164 @@
 @import "tailwindcss";
 
+@font-face {
+  font-family: "Pretendard Variable";
+  font-weight: 45 920;
+  font-style: normal;
+  font-display: swap;
+  src: url("https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/woff2/PretendardVariable.woff2")
+    format("woff2-variations");
+}
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* Brand palette (기획문서 9.1) */
+  --color-primary: #2563eb;
+  --color-primary-hover: #1d4ed8;
+  --color-primary-light: #dbeafe;
+  --color-bg: #ffffff;
+  --color-bg-alt: #f8f9fa;
+  --color-bg-dark: #1a1a2e;
+  --color-text: #1e2229;
+  --color-text-sub: #6b7280;
+  --color-border: #e5e7eb;
+  --color-success: #10b981;
+  --color-warning: #f59e0b;
+  --color-error: #ef4444;
+
+  /* Website container (makipeople.com 레퍼런스)
+     - 데스크톱 상한: 88rem = 1408px
+     - 좌우 여백: 3.5rem = 56px
+     - 실제 콘텐츠 최대폭: 1408 − 112 = 1296px
+     - 수식: width = min(100%, size) − padding × 2 */
+  --container-size: 88rem;
+  --container-padding: 3.5rem;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
+/* 모바일/태블릿에서는 좌우 여백을 줄인다 */
+@media (max-width: 768px) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --container-padding: 1.25rem; /* 20px */
+  }
+}
+@media (min-width: 769px) and (max-width: 1024px) {
+  :root {
+    --container-padding: 2rem; /* 32px */
   }
 }
 
+/* 레이아웃 컨테이너 (makipeople.com 의 g_page--container 규칙 포팅)
+   className="wp-container" 으로 사용. Tailwind 변형자 불필요한 순수 CSS 클래스. */
+.wp-container {
+  width: calc(min(100%, var(--container-size)) - var(--container-padding) * 2);
+  margin-inline: auto;
+}
+
+/* Hero 우측 시각 영역 애니메이션 (makipeople.com 레퍼런스) */
+@keyframes hv-float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+@keyframes hv-fade-up {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes hv-avatar-in {
+  from { opacity: 0; transform: translate(-50%, calc(-20px + 0%)) scale(0.92); }
+  to { opacity: 1; transform: translate(-50%, 0) scale(1); }
+}
+@keyframes hv-path-draw {
+  from { stroke-dashoffset: 200; opacity: 0; }
+  to { stroke-dashoffset: 0; opacity: 1; }
+}
+
+.hero-visual .hv-avatar {
+  animation: hv-avatar-in 0.8s ease-out 0.1s both,
+    hv-float 4s ease-in-out 1s infinite;
+}
+.hero-visual .hv-card-1 {
+  animation: hv-fade-up 0.6s ease-out 0.5s both,
+    hv-float 5s ease-in-out 1.5s infinite;
+}
+.hero-visual .hv-card-2 {
+  animation: hv-fade-up 0.6s ease-out 0.8s both,
+    hv-float 5s ease-in-out 2.2s infinite;
+}
+.hero-visual .hv-path {
+  stroke-dasharray: 200;
+  animation: hv-path-draw 1.2s ease-out 0.4s both;
+}
+.hero-visual .hv-path-2 {
+  animation-delay: 0.7s;
+}
+
+/* 접근성: 모션 민감 사용자 */
+@media (prefers-reduced-motion: reduce) {
+  .hero-visual .hv-avatar,
+  .hero-visual .hv-card-1,
+  .hero-visual .hv-card-2,
+  .hero-visual .hv-path {
+    animation: none;
+  }
+}
+
+/* 그라디언트 방사형 유틸 (Tailwind v4 에서 쓰기 위한 쇼트컷) */
+.bg-gradient-radial {
+  background-image: radial-gradient(circle, var(--tw-gradient-stops));
+}
+
+@theme inline {
+  --color-background: var(--color-bg);
+  --color-foreground: var(--color-text);
+
+  --color-brand: var(--color-primary);
+  --color-brand-hover: var(--color-primary-hover);
+  --color-brand-light: var(--color-primary-light);
+
+  --color-surface: var(--color-bg);
+  --color-surface-alt: var(--color-bg-alt);
+  --color-surface-dark: var(--color-bg-dark);
+
+  --color-muted: var(--color-text-sub);
+  --color-border-subtle: var(--color-border);
+
+  --color-success: var(--color-success);
+  --color-warning: var(--color-warning);
+  --color-error: var(--color-error);
+
+  --font-sans:
+    "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont,
+    system-ui, Roboto, "Helvetica Neue", "Segoe UI", "Apple SD Gothic Neo",
+    "Noto Sans KR", "Malgun Gothic", sans-serif;
+
+  /* Typography scale (기획문서 9.2) */
+  --text-display: 3.5rem; /* 56px */
+  --text-display-mobile: 2rem; /* 32px */
+  --text-h1: 2.75rem; /* 44px */
+  --text-h1-mobile: 1.75rem; /* 28px */
+  --text-h2: 1.75rem; /* 28px */
+  --text-h2-mobile: 1.375rem; /* 22px */
+  --text-h3: 1.25rem; /* 20px */
+  --text-h3-mobile: 1.125rem; /* 18px */
+  --text-body: 1rem; /* 16px */
+  --text-body-sm: 0.875rem; /* 14px */
+  --text-caption: 0.75rem; /* 12px */
+}
+
+html,
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  height: 100%;
+}
+
+body {
+  background-color: var(--color-bg);
+  color: var(--color-text);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
 }
