@@ -92,6 +92,21 @@ enum TermsType {
   MARKETING // 마케팅 동의
 }
 
+// ─── 페이지 방문 통계 ───
+// 공개 페이지 방문 기록. 클라이언트 마운트 시 POST /api/page-views 로 단순 append.
+// path 단위 집계로 관리자 대시보드에 상위 페이지 + 블로그 조회수 표시.
+model PageView {
+  id        String   @id @default(cuid())
+  path      String // 정규화된 경로 (예: "/", "/blog", "/blog/ai-science-...")
+  referer   String? // HTTP referer (선택)
+  userAgent String? // 간단 UA (선택, 봇 필터링용)
+  createdAt DateTime @default(now())
+
+  @@index([path, createdAt])
+  @@index([createdAt])
+  @@map("page_views")
+}
+
 // ─── 서비스 소개서 (PDF) ───
 // 관리자가 업로드한 브로셔 파일 기록. 가장 최근(createdAt desc)이 "현재 활성" 브로셔.
 // 공개 /download 페이지는 이 테이블의 최신 레코드 URL 을 사용.

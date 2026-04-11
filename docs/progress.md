@@ -20,9 +20,10 @@
 | 7 | 관리자 약관 + 공개 약관 페이지 | ✅ 완료 (2026-04-11) | 🟢 컨펌 (push 완료 `4713656`) |
 | + | FAQ 기능 (모델 + API + 관리자 + 랜딩) — 추가 | ✅ 완료 (2026-04-11) | 🟢 컨펌 (push 완료 `4713656`) |
 | + | Maki UI 폴리싱 (Blog CTA · Contact · FAQ 폭) — 추가 | ✅ 완료 (2026-04-11) | 🟢 컨펌 (push 완료 `4713656`) |
-| 8 | Trial 플레이스홀더 + SEO + 마무리 | ✅ 완료 (2026-04-11) | 🟡 로컬 (push 전) |
-| + | 브로셔 업로드 관리자 + /download Maki 매칭 — 추가 | ✅ 완료 (2026-04-11) | 🟡 로컬 (push 전) |
-| 9 | Vercel 배포 | ⏳ 대기 | — |
+| 8 | Trial 플레이스홀더 + SEO + 마무리 | ✅ 완료 (2026-04-11) | 🟢 컨펌 (push 완료 `12ff2e5`) |
+| + | 브로셔 업로드 관리자 + /download Maki 매칭 — 추가 | ✅ 완료 (2026-04-11) | 🟢 컨펌 (push 완료 `12ff2e5`) |
+| 9 | Vercel 배포 준비 (로컬) | ✅ 완료 (2026-04-11) | 🟡 로컬 (push 전) |
+| + | 페이지 방문 통계 (PageView 모델 + 대시보드 위젯) — 추가 | ✅ 완료 (2026-04-11) | 🟡 로컬 (push 전) |
 
 ### 🔗 GitHub 리모트
 - Repo: https://github.com/jwc684/supercoder-ai-website
@@ -943,11 +944,119 @@ DELETE /api/brochure/[id] (unauth) → 401
 
 ---
 
+## ✅ Phase 9 — Vercel 배포 준비 (로컬)
+
+**완료일**: 2026-04-11
+**GitHub 커밋**: 🟡 로컬 진행 중
+**목표**: 코드 저장소를 Vercel 배포 가능 상태로 만들기. 실제 배포는 사용자가
+Vercel 계정에서 수행.
+
+### 완료한 작업
+
+**`vercel.json`** — 플랫폼 설정
+- `framework: nextjs`, `regions: ["icn1"]` (서울)
+- **`buildCommand`**: `prisma generate && prisma migrate deploy && next build`
+  - package.json 의 `build` 는 로컬 개발 편의 위해 clean 유지
+  - Vercel 빌드 시에만 `migrate deploy` 자동 실행
+- `functions.maxDuration`:
+  - 전체 API: 30 초
+  - `/api/upload` (이미지), `/api/brochure` (PDF): 60 초
+
+**`.env.local.example`** — `NEXT_PUBLIC_SITE_URL` 주석 추가
+
+**`docs/deploy.md`** (신규) — Step-by-step 배포 가이드
+- 사전 준비 체크리스트
+- Vercel 프로젝트 생성 단계
+- 환경 변수 6종 주입 (Production/Preview 스코프)
+- 초기 배포 + 빌드 실패 트러블슈팅 표
+- 프로덕션 프로모션, 커스텀 도메인 연결
+- 배포 후 검증 체크리스트 (11 항목)
+- 운영 노트 (Prisma 마이그레이션 워크플로우, Storage 버킷, env 변경 반영, 모니터링)
+
+### 검증 로그
+
+```
+npm run build  → 성공 (prisma generate + next build)
+               → 23 static / 25 dynamic routes 생성 확인
+TypeScript     → 0 에러
+```
+
+---
+
+## ✅ 추가 구현 — 페이지 방문 통계 (PageView)
+
+**완료일**: 2026-04-11
+**GitHub 커밋**: 🟡 로컬 진행 중
+**목표**: 공개 페이지 방문을 self-host 로 기록, 관리자 대시보드에 상위 페이지
++ 블로그 글 조회수 표시. Vercel Analytics 와 달리 DB 저장 → 직접 쿼리/집계 가능.
+
+### 완료한 작업
+
+**`prisma/schema.prisma`** — `PageView` 모델
+```prisma
+model PageView {
+  id        String   @id @default(cuid())
+  path      String   // 정규화된 경로
+  referer   String?
+  userAgent String?  // 봇 필터용
+  createdAt DateTime @default(now())
+
+  @@index([path, createdAt])
+  @@index([createdAt])
+  @@map("page_views")
+}
+```
+- 마이그레이션: `20260411122146_add_page_views`
+
+**`POST /api/page-views`** (공개)
+- 클라이언트가 경로 변경 시 호출
+- `path` 정규화: `"/"` 시작 체크, 길이 1024, query/hash 제거, `//` 압축
+- 화이트리스트: `/admin`, `/api`, `/_next` 제외
+- 간단 봇 필터: user-agent 에 `bot|crawler|spider|headlesschrome` 포함 시 skip
+- 실패해도 silent 응답 (UX 영향 없음)
+
+**`components/analytics/PageViewTracker.tsx`** (클라이언트)
+- `usePathname` + `useEffect` 로 경로 변경 감지
+- 중복 전송 방지: `useRef` 로 마지막 경로 추적
+- **`navigator.sendBeacon`** 우선 → 라우트 이탈 시에도 안전 전송
+- fallback: `fetch(keepalive)`
+- `return null` — DOM 출력 없음
+
+**`app/(public)/layout.tsx`** 에 `<PageViewTracker />` 배선
+- Admin 레이아웃에는 배선 안 함 (관리자 활동은 추적 제외)
+
+**`app/admin/page.tsx` 대시보드 확장**
+- 스탯 카드 3 → **4 개** (md:2col → xl:4col grid): 도입 문의 / 다운로드 / 블로그 / **페이지 방문** (Eye 아이콘, 녹색)
+- **상위 페이지 위젯** (최근 30일):
+  - `prisma.pageView.groupBy({by: path, _count, orderBy _count path desc, take:10})`
+  - 경로 + 방문 수 + 가로 막대 차트 (최대값 대비 비율)
+  - 각 행 클릭 시 새 탭으로 해당 페이지 오픈
+- **블로그 조회수 위젯** (전체 기간):
+  - 블로그 글 전체 조회 + `/blog/*` 경로 방문 집계 → slug 매칭 → JS 에서 merge
+  - 조회수 desc 로 상위 8건 표시
+  - 발행 글: 공개 URL 새 탭 / 초안: `/admin/blog/[id]` 이동
+  - 제목 + slug + 조회수 (Eye 아이콘)
+
+### 검증 로그
+
+```
+POST /api/page-views {"path":"/"}              → 200 {"ok":true}  (DB 에 insert)
+POST /api/page-views {"path":"not-a-path"}     → 200 {"ok":true, "skipped":true}
+POST /api/page-views {"path":"/admin/blog"}    → 200 skipped (화이트리스트)
+/admin                                          → 307 (auth 가드)
+/                                               → 200 (클라이언트 트래커가 /api/page-views POST)
+```
+
+- DB 확인: `page_views` 에 방문 기록 append 확인
+- TypeScript 0 에러
+
+---
+
 ## 📋 남은 Phase 개요
 
-| Phase | 내용 | 주요 컴포넌트 |
+| Phase | 내용 | 비고 |
 |---|---|---|
-| 9 | Vercel 배포 | GitHub → Vercel, 환경 변수 5종, Prisma `migrate deploy` postinstall, 프리뷰 → 프로덕션 → 도메인 |
+| 9 (실배포) | Vercel 에서 실제 배포 수행 | `docs/deploy.md` 가이드 참고, 사용자 액션 |
 
 ---
 

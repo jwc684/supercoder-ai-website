@@ -6,6 +6,8 @@ import {
   Plus,
   ArrowRight,
   TrendingUp,
+  Eye,
+  BarChart3,
 } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "@/lib/auth";
@@ -26,6 +28,8 @@ export default async function AdminDashboardPage() {
 
   const sevenDaysAgo = new Date();
   sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+  const thirtyDaysAgo = new Date();
+  thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
 
   const [
     inquiriesTotal,
@@ -35,6 +39,11 @@ export default async function AdminDashboardPage() {
     downloadsRecent,
     blogPostsTotal,
     blogPostsPublished,
+    pageViewsTotal,
+    pageViewsRecent,
+    topPagesGrouped,
+    blogPosts,
+    blogViewsGrouped,
   ] = await Promise.all([
     prisma.inquiry.count(),
     prisma.inquiry.count({ where: { status: "NEW" } }),
@@ -43,7 +52,59 @@ export default async function AdminDashboardPage() {
     prisma.download.count({ where: { createdAt: { gte: sevenDaysAgo } } }),
     prisma.blogPost.count(),
     prisma.blogPost.count({ where: { status: "PUBLISHED" } }),
+    prisma.pageView.count(),
+    prisma.pageView.count({ where: { createdAt: { gte: sevenDaysAgo } } }),
+    // 최근 30일 상위 페이지 (path 기준 그룹)
+    prisma.pageView.groupBy({
+      by: ["path"],
+      where: { createdAt: { gte: thirtyDaysAgo } },
+      _count: { _all: true },
+      orderBy: { _count: { path: "desc" } },
+      take: 10,
+    }),
+    // 모든 블로그 글 (슬러그 조인용)
+    prisma.blogPost.findMany({
+      select: {
+        id: true,
+        title: true,
+        slug: true,
+        status: true,
+        publishedAt: true,
+      },
+      orderBy: { createdAt: "desc" },
+      take: 200,
+    }),
+    // /blog/* 경로의 방문 집계 (전체 기간)
+    prisma.pageView.groupBy({
+      by: ["path"],
+      where: { path: { startsWith: "/blog/" } },
+      _count: { _all: true },
+    }),
   ]);
+
+  // 블로그 글 + 조회수 병합 (slug 매칭) → 상위 5건
+  const viewsBySlug = new Map<string, number>();
+  for (const row of blogViewsGrouped) {
+    const slug = row.path.replace(/^\/blog\//, "");
+    viewsBySlug.set(slug, row._count._all);
+  }
+  const blogWithViews = blogPosts
+    .map((p) => ({
+      id: p.id,
+      title: p.title,
+      slug: p.slug,
+      status: p.status,
+      publishedAt: p.publishedAt,
+      views: viewsBySlug.get(p.slug) ?? 0,
+    }))
+    .sort((a, b) => b.views - a.views)
+    .slice(0, 8);
+
+  // 상위 페이지 테이블 데이터 정리
+  const topPages = topPagesGrouped.map((g) => ({
+    path: g.path,
+    count: g._count._all,
+  }));
 
   return (
     <div className="px-6 py-8 md:px-10 md:py-10">
@@ -60,8 +121,8 @@ export default async function AdminDashboardPage() {
         </p>
       </div>
 
-      {/* 3 stat cards */}
-      <div className="mt-8 grid gap-4 md:grid-cols-3 md:gap-5">
+      {/* 4 stat cards */}
+      <div className="mt-8 grid gap-4 md:grid-cols-2 md:gap-5 xl:grid-cols-4">
         <StatCard
           icon={MessageSquare}
           label="도입 문의"
@@ -97,6 +158,127 @@ export default async function AdminDashboardPage() {
           accent="text-[#7c3aed]"
           accentBg="bg-[#f5f3ff]"
         />
+        <StatCard
+          icon={Eye}
+          label="페이지 방문"
+          value={pageViewsTotal}
+          trend={`최근 7일 +${pageViewsRecent}`}
+          sub={`누적 방문 ${pageViewsTotal.toLocaleString()}회`}
+          href="/admin"
+          accent="text-[#16a34a]"
+          accentBg="bg-[#f0fdf4]"
+        />
+      </div>
+
+      {/* Analytics 섹션 — 상위 페이지 + 블로그 조회수 */}
+      <div className="mt-8 grid gap-5 lg:grid-cols-2">
+        {/* Top pages (최근 30일) */}
+        <div className="rounded-2xl border border-[var(--color-border)] bg-white p-6 md:p-8">
+          <div className="flex items-start justify-between gap-3">
+            <div>
+              <p className="text-[11px] font-semibold uppercase tracking-wider text-[#5f6363]">
+                Top Pages
+              </p>
+              <p className="mt-1 text-[16px] font-semibold text-[#282828]">
+                상위 방문 페이지 (최근 30일)
+              </p>
+            </div>
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#f0fdf4] text-[#16a34a]">
+              <BarChart3 className="h-5 w-5" />
+            </div>
+          </div>
+
+          {topPages.length === 0 ? (
+            <p className="mt-6 text-center text-[13px] text-[#5f6363]">
+              아직 기록된 방문이 없습니다
+            </p>
+          ) : (
+            <ul className="mt-5 flex flex-col gap-2.5">
+              {topPages.map((p) => {
+                const max = topPages[0]?.count ?? 1;
+                const pct = Math.round((p.count / max) * 100);
+                return (
+                  <li key={p.path} className="flex flex-col gap-1.5">
+                    <div className="flex items-center justify-between gap-3">
+                      <Link
+                        href={p.path}
+                        target="_blank"
+                        className="truncate text-[13px] font-medium text-[#282828] hover:text-[var(--color-primary)]"
+                        title={p.path}
+                      >
+                        {p.path}
+                      </Link>
+                      <span className="shrink-0 text-[12px] font-semibold tabular-nums text-[#5f6363]">
+                        {p.count.toLocaleString()}
+                      </span>
+                    </div>
+                    <div className="h-1.5 w-full overflow-hidden rounded-full bg-[#f0f1f3]">
+                      <div
+                        className="h-full rounded-full bg-[var(--color-primary)]"
+                        style={{ width: `${pct}%` }}
+                      />
+                    </div>
+                  </li>
+                );
+              })}
+            </ul>
+          )}
+        </div>
+
+        {/* Blog post views */}
+        <div className="rounded-2xl border border-[var(--color-border)] bg-white p-6 md:p-8">
+          <div className="flex items-start justify-between gap-3">
+            <div>
+              <p className="text-[11px] font-semibold uppercase tracking-wider text-[#5f6363]">
+                Blog Views
+              </p>
+              <p className="mt-1 text-[16px] font-semibold text-[#282828]">
+                블로그 글 조회수 (전체 기간)
+              </p>
+            </div>
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#f5f3ff] text-[#7c3aed]">
+              <Eye className="h-5 w-5" />
+            </div>
+          </div>
+
+          {blogWithViews.length === 0 ? (
+            <p className="mt-6 text-center text-[13px] text-[#5f6363]">
+              아직 등록된 블로그 글이 없습니다
+            </p>
+          ) : (
+            <ul className="mt-5 flex flex-col gap-1">
+              {blogWithViews.map((p) => (
+                <li
+                  key={p.id}
+                  className="flex items-center justify-between gap-3 rounded-lg px-2 py-2 transition-colors hover:bg-[#f8f9fa]"
+                >
+                  <div className="min-w-0 flex-1">
+                    <Link
+                      href={
+                        p.status === "PUBLISHED"
+                          ? `/blog/${p.slug}`
+                          : `/admin/blog/${p.id}`
+                      }
+                      target={p.status === "PUBLISHED" ? "_blank" : undefined}
+                      className="truncate text-[13px] font-medium text-[#282828] hover:text-[var(--color-primary)]"
+                      title={p.title}
+                    >
+                      {p.title}
+                    </Link>
+                    <p className="truncate text-[11px] text-[#9ca3af]">
+                      /blog/{p.slug}
+                      {p.status !== "PUBLISHED" && " · 초안"}
+                    </p>
+                  </div>
+                  <div className="flex shrink-0 items-center gap-1 text-[12px] font-semibold tabular-nums text-[#282828]">
+                    <Eye className="h-3 w-3 text-[#9ca3af]" />
+                    {p.views.toLocaleString()}
+                  </div>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
       </div>
 
       {/* Quick actions */}
