@@ -30,6 +30,7 @@
     "@tiptap/extension-table-header": "^3.22.3",
     "@tiptap/extension-table-row": "^3.22.3",
     "@tiptap/extension-youtube": "^3.22.3",
+    "@tiptap/html": "^3.22.3",
     "@tiptap/pm": "^3.22.3",
     "@tiptap/react": "^3.22.3",
     "@tiptap/starter-kit": "^3.22.3",

@@ -16,14 +16,15 @@
 | 3 | 관리자 인증 + 대시보드 | ✅ 완료 (2026-04-11) | 🟢 컨펌 (로그인 테스트 + push 완료) |
 | 4 | 관리자 — 문의/다운로드 리스트 | ✅ 완료 (2026-04-11) | 🟢 컨펌 (push 완료) |
 | 5 | 관리자 — 블로그 CRUD + Tiptap + Storage | ✅ 완료 (2026-04-11) | 🟢 컨펌 (push 완료) |
-| 6 | 공개 블로그 (목록 + 상세) | ⏳ 대기 | — |
+| 6 | 공개 블로그 (목록 + 상세) | ✅ 완료 (2026-04-11) | 🟡 로컬 (push 전) |
 | 7 | 관리자 약관 + 공개 약관 페이지 | ⏳ 대기 | — |
 | 8 | Trial 플레이스홀더 + SEO + 마무리 | ⏳ 대기 | — |
 | 9 | Vercel 배포 | ⏳ 대기 | — |
 
 ### 🔗 GitHub 리모트
 - Repo: https://github.com/jwc684/supercoder-ai-website
-- 최신 푸시: `ee57199 Phase 5: 블로그 CRUD + Tiptap 에디터 + Supabase Storage 이미지 업로드`
+- 최신 푸시: `109dda9 test: Vitest 기반 API 통합 테스트 4 파일 (30 tests 전부 통과)`
+- Phase 6 는 로컬 (미커밋)
 
 ---
 
@@ -515,11 +516,74 @@ POST /api/upload (unauth) → 401
 
 ---
 
+## ✅ Phase 6 — 공개 블로그 (/blog 목록 + /blog/[slug] 상세)
+
+**완료일**: 2026-04-11
+**GitHub 커밋**: 🟡 로컬 진행 중
+**목표**: Tiptap JSON → HTML 서버 렌더, 카테고리 필터, TOC, 관련 글, CTA 배너, ISR.
+
+### 완료한 작업
+
+**`lib/tiptap.ts`** — Tiptap HTML 렌더러
+- `tiptapExtensions`: RichEditor + 서버 양쪽에서 공유 (Placeholder 만 제외)
+- `renderTiptap(json)`: `@tiptap/html generateHTML` 호출 + 헤딩에 id 주입 (중복 slug 처리)
+- `TocEntry` 타입: `{ level, text, id }`
+- `extractPlainText(json, maxLen)`: 텍스트 추출 (meta description 자동 생성용)
+- `estimateReadingTime(json)`: 한글 기준 분당 500자 어림셈
+
+**`app/(public)/blog/page.tsx`** — 목록 페이지
+- SSR + `revalidate = 60` (ISR 60초)
+- `generateMetadata`: "블로그" 타이틀, 소개 설명
+- Prisma 직접 조회 (PUBLISHED, 최근 60건)
+- URL 쿼리 기반 카테고리 필터 (`?category=AI_HIRING` 등)
+- 카테고리 필터 칩 5개 (전체 + 4 카테고리)
+- 3-col 카드 그리드 (md:2-col, sm:1-col)
+- 카드: 썸네일 + 카테고리 배지 + 읽기 시간 + 제목 + 요약 + 날짜
+- 썸네일 없을 때: gradient placeholder + 책 아이콘
+- 빈 상태: 필터 있을 때 / 없을 때 분기 메시지
+
+**`app/(public)/blog/[slug]/page.tsx`** — 상세 페이지
+- `generateStaticParams`: 모든 PUBLISHED 글 slug (SSG 사전 생성)
+- `generateMetadata`: title, description (seoTitle/seoDesc/excerpt/auto 우선순위),
+  OpenGraph (article type + published time + thumbnail), Twitter summary_large_image
+- 본문 렌더: `dangerouslySetInnerHTML` + `.prose-blog` 클래스
+- 레이아웃: `lg:grid-cols-[1fr_240px]` (본문 + sticky TOC 사이드바)
+- TOC: 헤딩 레벨별 들여쓰기 (h1 no indent / h2 pl-2 / h3 pl-4)
+- CTA 배너: 브랜드 그라디언트 + "데모 신청하기" 링크
+- 관련 글: 같은 카테고리 3건, NOT 본 글
+- 404: `notFound()` — PUBLISHED 아닌 글은 노출 금지
+
+**`app/globals.css`** — `.prose-blog` 타이포
+- h1/h2/h3, p, a, strong, em, ul, ol, li, blockquote, img, pre, code, hr, table, iframe
+- 블록체인 컬러: 링크 = primary, 코드 = primary-light bg, pre 배경 = `#0b1b4a` (다크)
+- 이미지 rounded + border
+- 첫 자식 헤딩 margin-top: 0
+
+**`next.config.ts`** — Supabase Storage 이미지 도메인 허용
+- `remotePatterns`: `{ protocol: 'https', hostname: <supabase-host>, pathname: '/storage/v1/object/public/**' }`
+- Supabase URL 환경변수에서 자동 파싱
+
+### 검증 로그
+
+```
+/blog                                → 200
+/blog?category=INSIGHT               → 200
+/blog/ai-science-a-new-paradigm-for-skill-assessment → 200
+```
+
+- TypeScript 0 에러
+- 기존 블로그 글 (DRAFT) 을 PUBLISHED 로 승격 후 /blog 에서 정상 렌더 확인
+- ISR 60초 재검증, 본문은 Tiptap JSON → HTML 서버 렌더 + TOC 자동 생성
+
+### 설치된 패키지 (+1)
+- `@tiptap/html` (서버 사이드 generateHTML)
+
+---
+
 ## 📋 남은 Phase 개요
 
 | Phase | 내용 | 주요 컴포넌트 |
 |---|---|---|
-| 6 | 공개 블로그 | /blog (카드 그리드, 카테고리 필터, 페이지네이션), /blog/[slug] (Tiptap JSON → HTML 렌더, TOC, 관련 글, CTA 배너) |
 | 7 | 약관 관리 + 공개 약관 | /admin/terms CRUD + 활성화 토글 (동일 type 이전 자동 비활성), /privacy · /terms-enterprise · /terms-candidate 동적 로딩 |
 | 8 | Trial 플레이스홀더 + SEO | /trial (곧 출시 안내 + CTA), sitemap.xml, robots.txt, OG 메타, 404/500, Vercel Analytics |
 | 9 | Vercel 배포 | GitHub → Vercel, 환경 변수 4종, Prisma `migrate deploy` postinstall, 프리뷰 → 프로덕션 → 도메인 |
