@@ -186,6 +186,43 @@ export const blogPostSchema = z.object({
 
 export type BlogPostInput = z.infer<typeof blogPostSchema>;
 
+// ─── 약관 (Terms) ──────────────────────────────────────────────────
+// 기획문서 4.4 + Prisma TermsType enum
+
+export const TERMS_TYPES = [
+  "PRIVACY",
+  "ENTERPRISE",
+  "CANDIDATE",
+  "MARKETING",
+] as const;
+
+export const TERMS_TYPE_LABELS: Record<(typeof TERMS_TYPES)[number], string> = {
+  PRIVACY: "개인정보처리방침",
+  ENTERPRISE: "기업용 이용약관",
+  CANDIDATE: "지원자용 이용약관",
+  MARKETING: "마케팅 수신 동의",
+};
+
+export const termsSchema = z.object({
+  title: z
+    .string()
+    .trim()
+    .min(1, "약관명을 입력해주세요")
+    .max(200, "약관명이 너무 깁니다"),
+  type: z.enum(TERMS_TYPES),
+  content: z
+    .record(z.string(), z.any())
+    .refine((v) => typeof v === "object" && v !== null, "Invalid Tiptap JSON"),
+  version: z
+    .string()
+    .trim()
+    .min(1, "버전을 입력해주세요")
+    .max(40, "버전이 너무 깁니다"),
+  effectiveDate: z.string().datetime({ offset: true }),
+});
+
+export type TermsInput = z.infer<typeof termsSchema>;
+
 /**
  * 제목에서 슬러그 자동 생성.
  * 한글 유지 + 공백 → 하이픈 + 허용 문자만 남김.
