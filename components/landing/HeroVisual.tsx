@@ -23,8 +23,12 @@ export function HeroVisual() {
   return (
     // Stacked 모드: 480px 캡 + mx-auto 로 가운데 정렬, 자연 높이
     // 데스크톱(≥lg): aspect-square 복원, max-w 해제, justify-between 으로 셀 가득 분포
-    <div className="hero-visual relative mx-auto w-full max-w-[480px] lg:max-w-none lg:aspect-square">
-      {/* 배경 방사형 글로우 */}
+    //
+    // isolate: 새로운 stacking context 생성 — -z-10 글로우가 외부 레이어 간섭 없이 뒤로 감.
+    // overflow-x 측 누출 방지: 모바일에서 -inset-10 글로우가 body.scrollWidth 를 늘리던
+    // 이슈 (375px viewport 에서 +20px overflow) 를 차단.
+    <div className="hero-visual relative isolate mx-auto w-full max-w-[480px] overflow-x-hidden lg:max-w-none lg:aspect-square lg:overflow-x-visible">
+      {/* 배경 방사형 글로우 — -inset-10 로 부모를 40px 확장. 모바일에선 overflow-x-hidden 으로 클립 */}
       <div
         aria-hidden
         className="pointer-events-none absolute -inset-10 -z-10 rounded-full bg-gradient-radial from-[var(--color-primary-light)] to-transparent opacity-60 blur-3xl"

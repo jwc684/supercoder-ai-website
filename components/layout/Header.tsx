@@ -93,8 +93,11 @@ export function Header() {
         </nav>
       </div>
 
-      {/* 헤더 Row — relative z-10 로 오버레이 위에 렌더 */}
-      <div className="wp-container relative z-10 flex h-20 items-center justify-between gap-[3.5rem] bg-white/80 backdrop-blur-md lg:backdrop-blur-none">
+      {/* 헤더 Row — relative z-10 로 오버레이 위에 렌더.
+          gap: 모바일은 justify-between 이면 되므로 gap-3, 데스크톱은 Maki 스펙 3.5rem.
+          overflow-x-hidden: 매우 좁은 뷰포트(320px iPhone SE 1세대)에서 logo 191px + gap + button 64px
+          이 280px wp-container 를 초과해 body.scrollWidth 를 늘리던 이슈 방어. */}
+      <div className="wp-container relative z-10 flex h-20 items-center justify-between gap-3 overflow-x-hidden bg-white/80 backdrop-blur-md lg:gap-[3.5rem] lg:overflow-x-visible lg:backdrop-blur-none">
         {/* Logo */}
         <Link
           href="/"
@@ -141,7 +144,7 @@ export function Header() {
           aria-label={menuOpen ? "메뉴 닫기" : "메뉴 열기"}
           aria-expanded={menuOpen}
           aria-controls="mobile-menu"
-          className="-mr-2 inline-flex h-16 w-16 shrink-0 items-center justify-center lg:hidden"
+          className="-mr-1 inline-flex h-14 w-14 shrink-0 items-center justify-center sm:h-16 sm:w-16 sm:-mr-2 lg:hidden"
         >
           <span className="relative block h-[18px] w-6">
             <span
