@@ -223,6 +223,43 @@ export const termsSchema = z.object({
 
 export type TermsInput = z.infer<typeof termsSchema>;
 
+// ─── FAQ ──────────────────────────────────────────────────────────
+// Maki .c_faq 섹션용 질문/답변 카드.
+
+export const faqSchema = z.object({
+  question: z
+    .string()
+    .trim()
+    .min(1, "질문을 입력해주세요")
+    .max(300, "질문이 너무 깁니다"),
+  answer: z
+    .record(z.string(), z.any())
+    .refine((v) => typeof v === "object" && v !== null, "Invalid Tiptap JSON"),
+  order: z
+    .number()
+    .int()
+    .min(0, "순서는 0 이상이어야 합니다")
+    .max(9999)
+    .optional(),
+  isPublished: z.boolean().optional(),
+});
+
+export type FaqInput = z.infer<typeof faqSchema>;
+
+// 순서 재배치용 — [{id, order}, …]
+export const faqReorderSchema = z.object({
+  items: z
+    .array(
+      z.object({
+        id: z.string().min(1),
+        order: z.number().int().min(0).max(9999),
+      }),
+    )
+    .min(1, "재배치 대상이 없습니다"),
+});
+
+export type FaqReorderInput = z.infer<typeof faqReorderSchema>;
+
 /**
  * 제목에서 슬러그 자동 생성.
  * 한글 유지 + 공백 → 하이픈 + 허용 문자만 남김.

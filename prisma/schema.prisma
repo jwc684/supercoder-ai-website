@@ -92,6 +92,22 @@ enum TermsType {
   MARKETING // 마케팅 동의
 }
 
+// ─── FAQ ───
+// Maki .c_faq 섹션에 사용하는 질문/답변 카드.
+// 랜딩 페이지(공개) 에는 isPublished=true 만 order asc 로 노출.
+model Faq {
+  id          String   @id @default(cuid())
+  question    String
+  answer      Json // Tiptap JSON
+  order       Int      @default(0)
+  isPublished Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([isPublished, order])
+  @@map("faqs")
+}
+
 // ─── 도입 문의 ───
 model Inquiry {
   id            String        @id @default(cuid())

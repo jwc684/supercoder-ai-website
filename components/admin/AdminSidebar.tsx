@@ -9,6 +9,7 @@ import {
   ShieldCheck,
   MessageSquare,
   Download,
+  HelpCircle,
   LogOut,
 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
@@ -16,6 +17,7 @@ import { createClient } from "@/lib/supabase/client";
 const navItems = [
   { href: "/admin", label: "대시보드", icon: LayoutDashboard, exact: true },
   { href: "/admin/blog", label: "블로그", icon: FileText },
+  { href: "/admin/faqs", label: "FAQ", icon: HelpCircle },
   { href: "/admin/terms", label: "약관", icon: ShieldCheck },
   { href: "/admin/inquiries", label: "도입 문의", icon: MessageSquare },
   { href: "/admin/downloads", label: "소개서 다운로드", icon: Download },

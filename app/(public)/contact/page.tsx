@@ -12,6 +12,18 @@ import {
   INQUIRY_INTERESTS,
 } from "@/lib/validations";
 
+/**
+ * /contact — 데모 신청 페이지 (Maki /demo 구조 매칭).
+ *
+ * 12-col 2 컬럼 레이아웃:
+ *   ├ 좌측 (col 1–6, g_flex--dvlsb): top(G2 배지 + H1 + subtitle) + bottom(리뷰 카드 + 고객 로고)
+ *   └ 우측 (col 7–12, c_form): 옅은 파란색 배경 카드 안의 폼
+ *
+ * 반응형:
+ *   - < lg: 1 컬럼 stacked
+ *   - ≥ lg: 2 컬럼 대칭
+ */
+
 const hireSizeOptions: {
   value: (typeof HIRE_SIZE_VALUES)[number];
   label: string;
@@ -117,92 +129,104 @@ export default function ContactPage() {
   return (
     <div className="bg-white py-16 md:py-20 lg:py-24">
       <div className="wp-container">
-        <div className="grid gap-12 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] lg:gap-20">
-          {/* ── Left: Pitch + testimonial + trust ──────────────── */}
-          <div className="flex flex-col">
-            {/* G2-like rating badge */}
-            <div className="inline-flex items-center gap-2 self-start">
-              <div
-                className="flex items-center gap-0.5"
-                aria-label="5점 만점에 4.8점"
-              >
-                {[1, 2, 3, 4, 5].map((i) => (
-                  <Star
-                    key={i}
-                    className="h-4 w-4 fill-[#f59e0b] text-[#f59e0b]"
-                  />
-                ))}
+        <div className="grid gap-12 lg:grid-cols-12 lg:gap-16">
+          {/* ────────── 좌측 (col 1–6): Maki g_flex--dvlsb ────────── */}
+          <div className="flex flex-col lg:col-span-6">
+            {/* Top block — g_flex--dvlt : G2 배지 + H1 + subtitle */}
+            <div>
+              {/* G2-style badge (Maki .c_card_g2--badge 매칭) */}
+              <div className="inline-flex items-center gap-3 rounded-lg border border-[var(--color-border)] bg-white px-3 py-2">
+                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-[#ff492c] text-[10px] font-black text-white">
+                  G2
+                </div>
+                <div className="flex flex-col">
+                  <div
+                    className="flex items-center gap-0.5"
+                    aria-label="5점 만점에 4.7점"
+                  >
+                    {[1, 2, 3, 4, 5].map((i) => (
+                      <Star
+                        key={i}
+                        className="h-3 w-3 fill-[#f59e0b] text-[#f59e0b]"
+                      />
+                    ))}
+                  </div>
+                  <p className="mt-0.5 text-[12px] font-medium leading-none text-[#282828]">
+                    4.7 / 5 on G2.com
+                  </p>
+                </div>
               </div>
-              <span className="text-[14px] font-normal leading-[1.5] text-[#282828]">
-                4.8 / 5 고객 만족도
-              </span>
+
+              {/* H1 — Maki g_title--xl (4.25rem / 500 / 100%) */}
+              <h1 className="mt-5 text-[3rem] font-medium leading-[100%] tracking-normal text-[#282828] md:text-[4.25rem]">
+                코비가 어떻게
+                <br />
+                바꾸는지 직접 보세요
+              </h1>
+
+              {/* Subtitle — g_body--l_400 */}
+              <p className="mt-6 max-w-xl text-[18px] font-normal leading-[1.5] text-[#5f6363] md:text-[20px] md:leading-[30px]">
+                슈퍼코더 팀과 함께 귀사의 채용 프로세스에 맞춘 맞춤 데모를
+                진행합니다. 1 영업일 내 연락드려 일정을 잡아드립니다.
+              </p>
             </div>
 
-            {/* H1 — Maki title-xl scale (4.25rem → 3rem mobile) */}
-            <h1 className="mt-6 text-[3rem] font-medium leading-[100%] tracking-normal text-[#282828] md:text-[4.25rem]">
-              코비가 어떻게
-              <br />
-              바꾸는지 직접 보세요
-            </h1>
+            {/* Bottom block — c_demo_page--social_proof : 리뷰 카드 + 로고 */}
+            <div className="mt-14 md:mt-16">
+              {/* 리뷰 카드 — Maki .c_card_review_small */}
+              <figure className="rounded-2xl border border-[var(--color-border)] bg-white p-6 md:p-8">
+                <blockquote className="text-[18px] font-medium leading-[1.4] text-[#282828] md:text-[20px] md:leading-[28px]">
+                  “코비와 함께 채용한 뒤, 60일 걸리던 개발자 채용이 사흘로
+                  줄었습니다. 1차 스크리닝 품질이 올라가 2차 면접의 합격률이
+                  눈에 띄게 개선됐어요.”
+                </blockquote>
+                <figcaption className="mt-5 flex items-center gap-3 border-t border-[var(--color-border)] pt-5">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[var(--color-primary-light)] text-[14px] font-bold text-[var(--color-primary)]">
+                    박
+                  </div>
+                  <div>
+                    <p className="text-[14px] font-semibold text-[#282828]">
+                      박 CHRO
+                    </p>
+                    <p className="text-[13px] text-[#5f6363]">
+                      인사 총괄 · GlobalTech
+                    </p>
+                  </div>
+                </figcaption>
+              </figure>
 
-            {/* Description */}
-            <p className="mt-6 max-w-xl text-[18px] font-normal leading-[1.5] text-[#5f6363] md:text-[20px]">
-              슈퍼코더 팀과 함께 귀사의 채용 프로세스에 맞춘 맞춤 데모를
-              진행합니다. 1 영업일 내 연락드려 일정을 잡아드립니다.
-            </p>
-
-            {/* Testimonial quote */}
-            <figure className="mt-10 border-l-2 border-[var(--color-primary)] pl-6">
-              <blockquote className="text-[18px] font-medium leading-[1.4] text-[#282828] md:text-[20px]">
-                “코비와 함께 채용한 뒤, 60일 걸리던 개발자 채용이 사흘로
-                줄었습니다. 1차 스크리닝 품질이 올라가 2차 면접의 합격률이
-                눈에 띄게 개선됐어요.”
-              </blockquote>
-              <figcaption className="mt-4 flex items-center gap-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[var(--color-primary-light)] text-[14px] font-bold text-[var(--color-primary)]">
-                  박
+              {/* Trusted by — Maki .c_logos */}
+              <div className="mt-10 md:mt-12">
+                <p className="text-[13px] font-normal text-[#5f6363]">
+                  엔터프라이즈가 신뢰하는 파트너
+                </p>
+                <div className="mt-4 flex flex-wrap items-center gap-x-8 gap-y-4">
+                  {trustedCompanies.map((name) => (
+                    <span
+                      key={name}
+                      className="text-[16px] font-bold tracking-tight text-[#282828]/55"
+                    >
+                      {name}
+                    </span>
+                  ))}
                 </div>
-                <div>
-                  <p className="text-[14px] font-semibold text-[#282828]">
-                    박 CHRO
-                  </p>
-                  <p className="text-[13px] text-[#5f6363]">
-                    인사 총괄 · GlobalTech
-                  </p>
-                </div>
-              </figcaption>
-            </figure>
-
-            {/* Trusted by */}
-            <div className="mt-12">
-              <p className="text-[13px] font-normal text-[#5f6363]">
-                엔터프라이즈가 신뢰하는 파트너
-              </p>
-              <div className="mt-4 flex flex-wrap items-center gap-x-8 gap-y-4">
-                {trustedCompanies.map((name) => (
-                  <span
-                    key={name}
-                    className="text-[16px] font-bold tracking-tight text-[#282828]/55"
-                  >
-                    {name}
-                  </span>
-                ))}
               </div>
             </div>
           </div>
 
-          {/* ── Right: Form card ──────────────────────────────── */}
+          {/* ────────── 우측 (col 7–12): c_form 옅은 파란색 카드 ────────── */}
           <form
             onSubmit={handleSubmit(onSubmit)}
-            className="flex w-full flex-col gap-5 rounded-3xl border border-[var(--color-border)] bg-white p-8 md:p-10"
+            className="flex w-full flex-col gap-5 rounded-3xl bg-[#eff4ff] p-8 md:p-10 lg:col-span-6"
             noValidate
           >
+            {/* 폼 타이틀 — Maki g_title--s_sans */}
             <div>
-              <p className="text-[11px] font-semibold uppercase tracking-wider text-[var(--color-primary)]">
-                Contact Form
+              <p className="text-[22px] font-semibold leading-[1.3] text-[#282828] md:text-[24px]">
+                데모 신청
               </p>
-              <p className="mt-1.5 text-[18px] font-semibold text-[#282828]">
-                데모를 신청해주세요
+              <p className="mt-1.5 text-[13px] leading-[1.55] text-[#5f6363]">
+                아래 정보를 남겨주시면 1 영업일 내 담당자가 연락드립니다.
               </p>
             </div>
 
@@ -284,7 +308,7 @@ export default function ContactPage() {
                       onClick={() => toggleInterest(item)}
                       className={`inline-flex items-center rounded-full border px-3.5 py-1.5 text-[13px] font-medium transition-colors ${
                         active
-                          ? "border-[var(--color-primary)] bg-[var(--color-primary-light)] text-[var(--color-primary)]"
+                          ? "border-[var(--color-primary)] bg-[var(--color-primary)] text-white"
                           : "border-[var(--color-border)] bg-white text-[#5f6363] hover:border-[var(--color-primary)]/40"
                       }`}
                       aria-pressed={active}

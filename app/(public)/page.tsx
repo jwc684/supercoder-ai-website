@@ -11,8 +11,13 @@ import { CandidateExperience } from "@/components/landing/CandidateExperience";
 import { Metrics } from "@/components/landing/Metrics";
 import { CustomerLogos } from "@/components/landing/CustomerLogos";
 import { SecurityIntegration } from "@/components/landing/SecurityIntegration";
+import { Faqs } from "@/components/landing/Faqs";
 import { ContactCta } from "@/components/landing/ContactCta";
 import { FloatingCta } from "@/components/landing/FloatingCta";
+
+// ISR 60s — FAQ 가 DB 에 있고, Prisma 호출은 자동으로 dynamic 하지 않으므로
+// revalidate 를 명시해서 관리자 변경이 랜딩에 60초 내 반영되도록 한다.
+export const revalidate = 60;
 
 export default function HomePage() {
   return (
@@ -114,6 +119,9 @@ export default function HomePage() {
 
       {/* 기획문서 3.1 Section 11 — Security & Integration (ISO 27001, API, ATS, 커스터마이징) */}
       <SecurityIntegration />
+
+      {/* FAQ — Maki .c_faq 섹션 매칭. 관리자(/admin/faqs)에서 CRUD + 순서 + 공개 제어 */}
+      <Faqs />
 
       {/* 기획문서 3.1 Section 12 — Contact CTA (도입 문의) */}
       <ContactCta />

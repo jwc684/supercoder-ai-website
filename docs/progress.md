@@ -17,14 +17,16 @@
 | 4 | 관리자 — 문의/다운로드 리스트 | ✅ 완료 (2026-04-11) | 🟢 컨펌 (push 완료) |
 | 5 | 관리자 — 블로그 CRUD + Tiptap + Storage | ✅ 완료 (2026-04-11) | 🟢 컨펌 (push 완료) |
 | 6 | 공개 블로그 (목록 + 상세) | ✅ 완료 (2026-04-11) | 🟡 로컬 (push 전) |
-| 7 | 관리자 약관 + 공개 약관 페이지 | ⏳ 대기 | — |
+| 7 | 관리자 약관 + 공개 약관 페이지 | ✅ 완료 (2026-04-11) | 🟡 로컬 (push 전) |
+| + | FAQ 기능 (모델 + API + 관리자 + 랜딩) — 추가 | ✅ 완료 (2026-04-11) | 🟡 로컬 (push 전) |
+| + | Maki UI 폴리싱 (Blog CTA · Contact · FAQ 폭) — 추가 | ✅ 완료 (2026-04-11) | 🟡 로컬 (push 전) |
 | 8 | Trial 플레이스홀더 + SEO + 마무리 | ⏳ 대기 | — |
 | 9 | Vercel 배포 | ⏳ 대기 | — |
 
 ### 🔗 GitHub 리모트
 - Repo: https://github.com/jwc684/supercoder-ai-website
 - 최신 푸시: `109dda9 test: Vitest 기반 API 통합 테스트 4 파일 (30 tests 전부 통과)`
-- Phase 6 는 로컬 (미커밋)
+- 로컬 미커밋: Phase 6 · Phase 7 · FAQ 기능 · Maki UI 폴리싱
 
 ---
 
@@ -580,11 +582,209 @@ POST /api/upload (unauth) → 401
 
 ---
 
+## ✅ Phase 7 — 관리자 약관 CRUD + 공개 약관 페이지
+
+**완료일**: 2026-04-11
+**GitHub 커밋**: 🟡 로컬 진행 중
+**목표**: Terms 모델 CRUD + 동일 type 단일 활성화 규칙 + /privacy · /terms-enterprise · /terms-candidate 동적 렌더.
+
+### 완료한 작업
+
+**`lib/validations.ts` 확장**
+- `termsSchema`: title / type / content (Tiptap JSON) / version / effectiveDate
+- `TERMS_TYPES` 상수 (PRIVACY / ENTERPRISE / CANDIDATE / MARKETING)
+- `TERMS_TYPE_LABELS` 한글 레이블 매핑
+
+**API Routes** (모두 관리자 보호)
+- `GET /api/terms` — 목록 조회, type 필터 + limit
+- `POST /api/terms` — 신규 생성 (초기 `isActive: false`)
+- `GET/PUT/DELETE /api/terms/[id]`
+- `PATCH /api/terms/[id]/activate` — 활성화 토글
+  - body `{ active: boolean }`
+  - `active=true` 시 **트랜잭션**으로 동일 type 의 기존 활성 약관을 자동 비활성화 후 대상만 활성화
+- `GET /api/terms/active/[type]` — 공개용, 활성 약관 1건 반환 (인증 불필요)
+
+**`/admin/terms`** (목록)
+- 서버 컴포넌트 Prisma 직접 조회 (최대 200건)
+- 테이블: 약관명 / 유형 / 버전 / 상태 pill / 시행일 / 액션
+- 상태 pill: 활성 (녹색 ✓) / 비활성 (회색 ○)
+
+**`/admin/terms/new`, `/admin/terms/[id]`**
+- `TermsEditorForm` (재사용 클라이언트 컴포넌트)
+- 좌측: 약관명 대형 입력 + RichEditor (Phase 5 RichEditor 재사용)
+- 우측 사이드바:
+  1. 저장 버튼 (POST 또는 PUT) + 삭제 (edit mode)
+  2. **공개 상태 토글** (edit mode only) — window.confirm 경고 후 `/activate` PATCH 호출
+     - 활성화 시 "동일 유형의 기존 활성 약관이 자동 비활성화됩니다" 안내
+  3. 메타 정보: 유형 select / 버전 input / 시행일 `datetime-local`
+
+**공개 약관 페이지** (SSR + `revalidate = 60`)
+- `components/landing/TermsView.tsx` — `type` prop 받아 활성 약관을 조회, `.prose-blog` 로 렌더
+- 활성 약관이 없으면 플레이스홀더 ("약관 준비 중") 표시
+- `app/(public)/privacy/page.tsx` — PRIVACY
+- `app/(public)/terms-enterprise/page.tsx` — ENTERPRISE
+- `app/(public)/terms-candidate/page.tsx` — CANDIDATE
+- 각 페이지에 `metadata` (title / description / `robots: index:true`)
+
+### 검증 로그
+
+```
+GET /api/terms             (unauth) → 401
+GET /api/terms/active/PRIVACY       → 200 (no auth required)
+PATCH /api/terms/[id]/activate (unauth) → 401
+/admin/terms               (unauth) → 307
+/admin/terms/new           (unauth) → 307
+/privacy, /terms-enterprise, /terms-candidate → 200
+```
+
+- TypeScript 0 에러
+- 동일 type 에서 활성 약관은 항상 1건만 존재 (트랜잭션 보장)
+
+---
+
+## ✅ 추가 구현 — FAQ 기능 (원안 외)
+
+**완료일**: 2026-04-11
+**GitHub 커밋**: 🟡 로컬 진행 중
+**목표**: Maki `.c_faq` 섹션을 랜딩 페이지에 추가 + 관리자에서 CRUD/순서/공개 제어.
+
+### DB + Validation
+
+**`prisma/schema.prisma`** — `Faq` 모델 추가
+```prisma
+model Faq {
+  id          String   @id @default(cuid())
+  question    String
+  answer      Json      // Tiptap JSON
+  order       Int       @default(0)
+  isPublished Boolean   @default(false)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@index([isPublished, order])
+  @@map("faqs")
+}
+```
+- 마이그레이션: `20260411112343_add_faqs`
+
+**`lib/validations.ts`**
+- `faqSchema`: question / answer (Tiptap JSON) / order? / isPublished?
+- `faqReorderSchema`: `{ items: [{ id, order }, …] }`
+
+### API Routes (모두 `revalidatePath("/")` 무효화 포함)
+
+- `GET /api/faqs?published=1` — **공개용**, `isPublished=true` 만, 인증 불필요
+- `GET /api/faqs` — 관리자 전체
+- `POST /api/faqs` — 신규 생성, order 자동 부여 (max+1), isPublished 반영 시 캐시 무효화
+- `GET/PUT/DELETE /api/faqs/[id]` — 단일 CRUD
+- `PATCH /api/faqs/reorder` — 순서 일괄 재배치 (트랜잭션 + 캐시 무효화)
+
+### Admin UI (`/admin/faqs`)
+
+- **목록** (`page.tsx` + `FaqListClient.tsx`)
+  - ↑↓ 화살표로 순서 조정 (낙관적 업데이트 + PATCH reorder)
+  - 공개 상태 칩 토글 (인플레이스 GET → PUT)
+  - 삭제 + 편집 링크
+- **생성/수정** (`new/page.tsx`, `[id]/page.tsx` + `FaqEditorForm.tsx`)
+  - RichEditor 재사용 (답변 Tiptap JSON)
+  - 사이드바 **최상단**에 iOS-style 토글 스위치 (role="switch" + 키보드 지원)
+  - 저장 버튼 레이블이 상태 반영 ("공개로 저장" / "비공개로 저장")
+  - 신규 생성 시 기본값 `isPublished = true` — 저장 1회로 즉시 랜딩 반영
+- **AdminSidebar** 에 "FAQ" 메뉴 추가 (`HelpCircle` 아이콘)
+
+### Landing UI (`components/landing/Faqs.tsx` + `FaqAccordionItem.tsx`)
+
+- Maki `.c_faq` 매칭, 12-col 5|6 split:
+  - 좌측 col 1–5: `g_label` eyebrow ("FAQ") + g_title--l H2 ("자주 묻는 질문") + subtitle, `lg:sticky top-[120px]`
+  - **우측 col 7–12 (약 절반 너비)**: 아코디언 리스트
+- `Schema.org FAQPage + Question/Answer` microdata
+- 서버에서 `renderTiptap(answer)` 로 HTML 미리 생성 후 client accordion 에 전달
+- 클라이언트 `FaqAccordionItem`: chevron 회전 + `grid-rows` 트랜지션, `aria-expanded`/`aria-controls`
+- 공개 FAQ 가 0 개면 섹션 자체를 렌더하지 않음 (`return null`)
+- 배치: `app/(public)/page.tsx` 의 `SecurityIntegration` 과 `ContactCta` 사이
+
+### 캐싱
+
+- `app/(public)/page.tsx` 에 `export const revalidate = 60` (ISR 60초)
+- Prisma 직접 호출은 자동 dynamic 이 아니므로 명시적 revalidate 필요
+- API mutation 경로마다 `revalidatePath("/")` 호출 → 60 초 이전에도 즉시 반영
+
+### 검증 로그
+
+```
+/api/faqs?published=1   → 200 (공개용)
+/api/faqs               (unauth) → 401
+/api/faqs/reorder       (unauth) → 401
+/admin/faqs             (unauth) → 307
+/                       → 200 (FAQ 섹션 SSR 렌더 확인)
+```
+
+- TypeScript 0 에러
+- DB 직접 업데이트 → `/` HTML 에 "What is Maki People?" 렌더 확인
+
+### UX 개선 히스토리 (사용자 피드백 반영)
+
+1. **Landing 미노출 문제** — 등록한 FAQ 가 랜딩에 안 보임 → 원인은 `isPublished: false` 기본값
+   - **수정**: 새 FAQ 기본값 `true` + 토글을 사이드바 최상단으로 이동 + 저장 버튼 레이블 상태 반영
+2. **FAQ 리스트 폭** — Maki 처럼 약 절반 너비로 → 12-col grid `col-span-4|8` → `col-span-5|6 col-start-7`
+
+---
+
+## ✅ 추가 구현 — Maki UI 폴리싱
+
+**완료일**: 2026-04-11
+**GitHub 커밋**: 🟡 로컬 진행 중
+**목표**: 사용자 피드백 기반으로 Blog 푸터 CTA / `/contact` / FAQ 레이아웃을 Maki 원본에 가깝게 조정.
+
+### Blog 푸터 CTA (`components/landing/BlogFooterCta.tsx`)
+
+`/blog` 목록 + `/blog/[slug]` 상세 공용 푸터 CTA 컴포넌트:
+
+1. **1차 수정**: 배경색을 main blue (`var(--color-primary)`) 로 — 사용자 요청 ("옅은 파란 → main blue")
+2. **2차 수정**: full-bleed → **`wp-container` 안의 rounded 2xl 카드** 로 변경 (Maki `.c_footer_cta` 가 `g_page--container` 안에 배치된 구조 매칭)
+   - 컨텐츠 폭이 블로그 본문 폭과 정확히 일치
+   - 흰 헤딩 + 흰/반투명 subtitle + 흰 배경 primary 버튼 + outline 버튼
+   - 4개 stat card (60일→2일, 5×, 90%, 95%) 는 `border-t border-white/20` 구분선 포함
+
+### `/contact` 데모 신청 페이지 (`app/(public)/contact/page.tsx`)
+
+Maki `/demo` 구조로 재구성:
+
+- **12-col 6|6 split** (이전엔 `grid-cols-[1fr_1fr]`)
+- **좌측** (`g_flex--dvlsb` 매칭): top block + bottom social-proof block
+  - Top: G2-style 배지 카드 (빨간 G2 로고 박스 + 5-별 + "4.7/5 on G2.com") → H1 `g_title--xl` → subtitle
+  - Bottom (`c_demo_page--social_proof`): 리뷰 카드 (`rounded-2xl border` + 구분선 + 프로필) + "엔터프라이즈가 신뢰하는 파트너" + 로고 행
+- **우측** 폼 카드:
+  - **옅은 파란색 배경** `bg-[#eff4ff]` (사용자 요청)
+  - border 제거 — 배경색이 구분선 역할
+  - 타이틀 "데모 신청" (`g_title--s_sans` 톤, 22/24px) + 안내 subtitle
+  - 관심 서비스 pill 액티브 상태: primary-light → **solid primary + 흰 텍스트** (파란 카드 배경 대비)
+  - input/textarea/select 는 모두 `bg-white` 로 유지
+- Zod + RHF 폼 로직, `/api/inquiries` 연동, 성공 상태 화면 모두 유지
+
+### FAQ 레이아웃 (`components/landing/Faqs.tsx`)
+
+- 12-col grid: `col-span-4 | col-span-8` → **`col-span-5 | col-span-6 col-start-7`**
+- 결과: 아코디언 리스트가 약 절반 너비 (6/12), 헤딩과 1-col gutter 간격
+- `lg:sticky top-[120px]` 유지 (스크롤 시 헤딩 고정)
+
+### 검증 로그
+
+```
+/blog                → 200  (constrained blue card)
+/blog/[slug]         → 200  (동일)
+/contact             → 200  (6|6 split + 옅은 파란 폼 카드)
+/                    → 200  (FAQ 5|6 split)
+```
+
+- TypeScript 0 에러
+
+---
+
 ## 📋 남은 Phase 개요
 
 | Phase | 내용 | 주요 컴포넌트 |
 |---|---|---|
-| 7 | 약관 관리 + 공개 약관 | /admin/terms CRUD + 활성화 토글 (동일 type 이전 자동 비활성), /privacy · /terms-enterprise · /terms-candidate 동적 로딩 |
 | 8 | Trial 플레이스홀더 + SEO | /trial (곧 출시 안내 + CTA), sitemap.xml, robots.txt, OG 메타, 404/500, Vercel Analytics |
 | 9 | Vercel 배포 | GitHub → Vercel, 환경 변수 4종, Prisma `migrate deploy` postinstall, 프리뷰 → 프로덕션 → 도메인 |
 

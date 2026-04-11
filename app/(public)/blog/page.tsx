@@ -1,17 +1,18 @@
 import Link from "next/link";
 import Image from "next/image";
 import type { Metadata } from "next";
+import { ArrowLeft, ArrowRight } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { BLOG_CATEGORIES, BLOG_CATEGORY_LABELS } from "@/lib/validations";
+import { BlogFooterCta } from "@/components/landing/BlogFooterCta";
 
 /**
- * /blog — 공개 블로그 목록 (기획문서 3.2 + Maki /blog 매칭).
+ * /blog — 공개 블로그 목록 (Maki /blog 매칭).
  *
- * - H1: 68px / 500 / line-height 100% (Maki title-xl)
- * - 카드 (Maki .c_resource_card):
- *     border 1px #E3F0E7, radius 8px, flex-col
- *     cover (16:9 이미지) + content (tag + 제목 + 설명)
- *     tag 12px uppercase, 제목 20px (p 태그), 설명 16px
+ * - H1 g_title--xl 68px / 500 / 100%
+ * - 카테고리 필터 (탭 스타일, URL 쿼리 ?category=...)
+ * - 페이지네이션 (9/page, URL 쿼리 ?page=N)
+ * - Footer CTA + 4 stat cards (공용 컴포넌트 재사용)
  * - SSR + ISR 60s
  */
 
@@ -23,7 +24,9 @@ export const metadata: Metadata = {
     "AI 채용 · HR 인사이트 · 고객 사례 · 제품 업데이트 등 슈퍼코더의 최신 글을 읽어보세요.",
 };
 
-type SearchParams = Promise<{ category?: string }>;
+const POSTS_PER_PAGE = 9;
+
+type SearchParams = Promise<{ category?: string; page?: string }>;
 
 export default async function BlogListPage({
   searchParams,
@@ -31,35 +34,60 @@ export default async function BlogListPage({
   searchParams: SearchParams;
 }) {
   const params = await searchParams;
+
+  // 카테고리 파라미터 검증
   const activeCategory =
     params.category &&
     (BLOG_CATEGORIES as readonly string[]).includes(params.category)
       ? (params.category as (typeof BLOG_CATEGORIES)[number])
       : null;
 
-  const posts = await prisma.blogPost.findMany({
-    where: {
-      status: "PUBLISHED",
-      ...(activeCategory ? { category: activeCategory } : {}),
-    },
-    orderBy: [{ publishedAt: "desc" }, { createdAt: "desc" }],
-    take: 60,
-    select: {
-      id: true,
-      title: true,
-      slug: true,
-      excerpt: true,
-      thumbnail: true,
-      category: true,
-      publishedAt: true,
-      createdAt: true,
-    },
-  });
+  // 페이지 파라미터 검증 (1부터 시작)
+  const rawPage = Number(params.page);
+  const currentPage =
+    Number.isFinite(rawPage) && rawPage >= 1 ? Math.floor(rawPage) : 1;
+
+  const where = {
+    status: "PUBLISHED" as const,
+    ...(activeCategory ? { category: activeCategory } : {}),
+  };
+
+  const [totalCount, posts] = await Promise.all([
+    prisma.blogPost.count({ where }),
+    prisma.blogPost.findMany({
+      where,
+      orderBy: [{ publishedAt: "desc" }, { createdAt: "desc" }],
+      skip: (currentPage - 1) * POSTS_PER_PAGE,
+      take: POSTS_PER_PAGE,
+      select: {
+        id: true,
+        title: true,
+        slug: true,
+        excerpt: true,
+        thumbnail: true,
+        category: true,
+        publishedAt: true,
+        createdAt: true,
+      },
+    }),
+  ]);
+
+  const totalPages = Math.max(1, Math.ceil(totalCount / POSTS_PER_PAGE));
+  const normalizedPage = Math.min(currentPage, totalPages);
+
+  // 쿼리 빌더 헬퍼 — 카테고리 유지 + 페이지 변경
+  const buildHref = (page: number) => {
+    const qp = new URLSearchParams();
+    if (activeCategory) qp.set("category", activeCategory);
+    if (page > 1) qp.set("page", String(page));
+    const qs = qp.toString();
+    return qs ? `/blog?${qs}` : "/blog";
+  };
 
   return (
     <div className="bg-white">
-      {/* Header — Maki title-xl */}
-      <div className="wp-container pb-10 pt-16 md:pb-12 md:pt-20 lg:pt-24">
+      {/* ────────────── 1. Header — g_title--xl ────────────── */}
+      <div className="wp-container pb-10 pt-16 md:pb-12 md:pt-24 lg:pt-28">
         <div className="flex flex-col items-start">
           <span className="inline-flex items-center rounded-full border border-[#f0efe6] bg-white px-2 py-1 text-[12px] font-medium uppercase leading-[15.6px] tracking-normal text-[#5f6363]">
             Blog
@@ -76,11 +104,11 @@ export default async function BlogListPage({
         </div>
       </div>
 
-      {/* Category filter — 굵은 tab 스타일 */}
+      {/* ────────────── 2. 카테고리 필터 탭 ────────────── */}
       <div className="wp-container">
         <nav
           aria-label="카테고리 필터"
-          className="flex flex-wrap items-center gap-1 border-b border-[var(--color-border)] pb-0"
+          className="flex flex-wrap items-center gap-1 border-b border-[var(--color-border)]"
         >
           <CategoryTab
             label="전체"
@@ -98,20 +126,34 @@ export default async function BlogListPage({
         </nav>
       </div>
 
-      {/* 카드 그리드 */}
+      {/* ────────────── 3. 카드 그리드 ────────────── */}
       <div className="wp-container py-10 md:py-12 lg:py-16">
         {posts.length === 0 ? (
           <EmptyState hasFilter={activeCategory !== null} />
         ) : (
-          <ul className="grid gap-6 md:grid-cols-2 md:gap-6 lg:grid-cols-3 lg:gap-7">
-            {posts.map((post) => (
-              <li key={post.id}>
-                <BlogCard post={post} />
-              </li>
-            ))}
-          </ul>
+          <>
+            <ul className="grid gap-6 md:grid-cols-2 md:gap-6 lg:grid-cols-3 lg:gap-7">
+              {posts.map((post) => (
+                <li key={post.id}>
+                  <BlogCard post={post} />
+                </li>
+              ))}
+            </ul>
+
+            {/* 페이지네이션 — Maki .c_cms_grid_3--pagination 매칭 */}
+            {totalPages > 1 && (
+              <Pagination
+                currentPage={normalizedPage}
+                totalPages={totalPages}
+                buildHref={buildHref}
+              />
+            )}
+          </>
         )}
       </div>
+
+      {/* ────────────── 4. Footer CTA (공용) ────────────── */}
+      <BlogFooterCta />
     </div>
   );
 }
@@ -146,7 +188,73 @@ function CategoryTab({
   );
 }
 
-// ── Blog card (Maki .c_resource_card 매칭) ──────────────────────────
+// ── Pagination ───────────────────────────────────────────────────
+function Pagination({
+  currentPage,
+  totalPages,
+  buildHref,
+}: {
+  currentPage: number;
+  totalPages: number;
+  buildHref: (page: number) => string;
+}) {
+  const hasPrev = currentPage > 1;
+  const hasNext = currentPage < totalPages;
+
+  return (
+    <nav
+      role="navigation"
+      aria-label="페이지 탐색"
+      className="mt-14 flex items-center justify-center gap-4 md:mt-16"
+    >
+      {/* Prev */}
+      {hasPrev ? (
+        <Link
+          href={buildHref(currentPage - 1)}
+          className="inline-flex h-10 items-center gap-1.5 rounded-lg border border-[var(--color-border)] bg-white px-4 text-[13px] font-medium text-[#5f6363] transition-colors hover:border-[var(--color-primary)]/40 hover:text-[var(--color-primary)]"
+        >
+          <ArrowLeft className="h-3.5 w-3.5" />
+          Previous
+        </Link>
+      ) : (
+        <span
+          aria-hidden
+          className="inline-flex h-10 items-center gap-1.5 rounded-lg border border-[var(--color-border)]/60 bg-white px-4 text-[13px] font-medium text-[#cbd5e0]"
+        >
+          <ArrowLeft className="h-3.5 w-3.5" />
+          Previous
+        </span>
+      )}
+
+      {/* Counter */}
+      <p className="text-[13px] font-medium text-[#282828]">
+        {currentPage} <span className="text-[#9ca3af]">/</span>{" "}
+        <span className="text-[#5f6363]">{totalPages}</span>
+      </p>
+
+      {/* Next */}
+      {hasNext ? (
+        <Link
+          href={buildHref(currentPage + 1)}
+          className="inline-flex h-10 items-center gap-1.5 rounded-lg bg-[var(--color-primary)] px-4 text-[13px] font-medium text-white transition-colors hover:bg-[var(--color-primary-hover)]"
+        >
+          Next
+          <ArrowRight className="h-3.5 w-3.5" />
+        </Link>
+      ) : (
+        <span
+          aria-hidden
+          className="inline-flex h-10 items-center gap-1.5 rounded-lg border border-[var(--color-border)]/60 bg-white px-4 text-[13px] font-medium text-[#cbd5e0]"
+        >
+          Next
+          <ArrowRight className="h-3.5 w-3.5" />
+        </span>
+      )}
+    </nav>
+  );
+}
+
+// ── Blog card — Maki .c_resource_card 매칭 ──────────────────────
 type BlogCardPost = {
   id: string;
   title: string;
@@ -165,7 +273,7 @@ function BlogCard({ post }: { post: BlogCardPost }) {
       href={`/blog/${post.slug}`}
       className="group flex h-full flex-col overflow-hidden rounded-lg border border-[#e3f0e7] bg-white transition-all hover:-translate-y-0.5 hover:border-[var(--color-primary)]/40 hover:shadow-md"
     >
-      {/* Cover (이미지) — 16:9 */}
+      {/* Cover */}
       <div className="relative aspect-[16/9] overflow-hidden bg-[var(--color-primary-light)]">
         {post.thumbnail ? (
           <Image
@@ -194,26 +302,19 @@ function BlogCard({ post }: { post: BlogCardPost }) {
         )}
       </div>
 
-      {/* Content area — Maki .c_resource_card--content */}
+      {/* Content */}
       <div className="flex flex-1 flex-col gap-3 p-6">
-        {/* 카테고리 태그 — 12px uppercase #091010 */}
         <span className="text-[12px] font-medium uppercase leading-[1.3] tracking-wide text-[#091010]">
           {BLOG_CATEGORY_LABELS[post.category]}
         </span>
-
-        {/* 제목 — 20px / #282828 (Maki 는 p 태그 사용하지만 시맨틱을 위해 h2 유지) */}
         <h2 className="text-[20px] font-medium leading-[1.3] text-[#282828] transition-colors group-hover:text-[var(--color-primary)]">
           {post.title}
         </h2>
-
-        {/* Description — 16px / #5F6363 */}
         {post.excerpt && (
-          <p className="line-clamp-2 text-[16px] font-normal leading-[1.5] text-[#5f6363]">
+          <p className="line-clamp-3 text-[16px] font-normal leading-[1.5] text-[#5f6363]">
             {post.excerpt}
           </p>
         )}
-
-        {/* Footer — 날짜 + Read more */}
         <div className="mt-auto flex items-center justify-between pt-4 text-[12px] text-[#9ca3af]">
           <time dateTime={date.toISOString()}>{formatDate(date)}</time>
           <span className="inline-flex items-center gap-1 text-[12px] font-medium text-[var(--color-primary)]">
@@ -226,7 +327,11 @@ function BlogCard({ post }: { post: BlogCardPost }) {
               strokeWidth="2.5"
               aria-hidden
             >
-              <path d="M5 12h14M13 5l7 7-7 7" strokeLinecap="round" strokeLinejoin="round" />
+              <path
+                d="M5 12h14M13 5l7 7-7 7"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
             </svg>
           </span>
         </div>

@@ -10,6 +10,7 @@ import {
   estimateReadingTime,
   extractPlainText,
 } from "@/lib/tiptap";
+import { BlogFooterCta } from "@/components/landing/BlogFooterCta";
 
 /**
  * /blog/[slug] — 블로그 상세 페이지 (Maki /blog/:slug 구조 매칭).
@@ -82,14 +83,6 @@ export async function generateMetadata({
     },
   };
 }
-
-// Social proof stats — Maki .c_footer_cta--social_proof 대응 (기획문서 3.1 §9 매칭)
-const socialProofStats = [
-  { value: "60일 → 2일", label: "채용 기간 단축" },
-  { value: "5×", label: "합격률 상승" },
-  { value: "90%", label: "비용 절감" },
-  { value: "95%", label: "지원자 만족도" },
-];
 
 export default async function BlogDetailPage({ params }: { params: Params }) {
   const { slug } = await params;
@@ -354,52 +347,8 @@ export default async function BlogDetailPage({ params }: { params: Params }) {
         </div>
       )}
 
-      {/* ────────────── 4. Footer CTA section (centered + social proof) ────────────── */}
-      <div className="wp-container mt-20 pb-20 md:mt-24 md:pb-28">
-        <div className="border-t border-[var(--color-border)] pt-16 md:pt-20">
-          {/* 센터 정렬 heading + 버튼 */}
-          <div className="mx-auto flex max-w-2xl flex-col items-center text-center">
-            <h2 className="text-[2rem] font-medium leading-[1.1] text-[#282828] md:text-[3rem]">
-              코비와 함께 채용을 혁신하세요
-            </h2>
-            <p className="mt-5 text-[16px] leading-[1.55] text-[#5f6363] md:text-[18px]">
-              1 영업일 내 맞춤 데모 제안 · 무료 체험 30일 · 기업 보안 검토 완료
-            </p>
-            <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
-              <Link
-                href="/contact"
-                className="inline-flex items-center justify-center gap-2 rounded-lg bg-[var(--color-primary)] px-8 py-4 text-base font-semibold leading-[1.5] text-white transition-colors hover:bg-[var(--color-primary-hover)]"
-              >
-                데모 신청하기
-                <ArrowRight className="h-4 w-4" />
-              </Link>
-              <Link
-                href="/download"
-                className="inline-flex items-center justify-center gap-2 rounded-lg bg-transparent px-8 py-4 text-base font-semibold leading-[1.5] text-[#282828] shadow-[inset_0_0_0_1px_var(--color-border)] transition-colors hover:text-[var(--color-primary)] hover:shadow-[inset_0_0_0_1px_var(--color-primary)]"
-              >
-                소개서 받기
-              </Link>
-            </div>
-          </div>
-
-          {/* Social proof — Maki .c_footer_cta--social_proof 4 stat cards */}
-          <div className="mt-14 grid grid-cols-2 gap-6 border-t border-[var(--color-border)] pt-12 md:mt-16 md:grid-cols-4 md:gap-8 md:pt-14">
-            {socialProofStats.map((stat) => (
-              <div
-                key={stat.label}
-                className="flex flex-col items-center text-center"
-              >
-                <p className="text-[1.75rem] font-semibold leading-[1.1] text-[var(--color-primary)] md:text-[2.25rem]">
-                  {stat.value}
-                </p>
-                <p className="mt-2 text-[13px] font-normal leading-[1.45] text-[#5f6363] md:text-[14px]">
-                  {stat.label}
-                </p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
+      {/* ────────────── 4. Footer CTA (공용) ────────────── */}
+      <BlogFooterCta />
     </div>
   );
 }
