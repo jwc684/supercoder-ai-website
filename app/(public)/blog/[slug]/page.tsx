@@ -129,38 +129,41 @@ export default async function BlogDetailPage({ params }: { params: Params }) {
         </Link>
       </div>
 
-      {/* 제목 영역 */}
-      <header className="wp-container mt-6 md:mt-8">
+      {/* 제목 영역 — Maki title-l 매칭 (56px / 500 / 100%) */}
+      <header className="wp-container mt-6 md:mt-10">
         <div className="mx-auto max-w-3xl">
-          <div className="flex items-center gap-3">
-            <span className="inline-flex items-center rounded-md bg-[var(--color-primary-light)] px-2.5 py-1 text-[12px] font-semibold text-[var(--color-primary)]">
-              {BLOG_CATEGORY_LABELS[post.category]}
-            </span>
-            <span className="inline-flex items-center gap-1 text-[12px] text-[#9ca3af]">
-              <Clock className="h-3.5 w-3.5" />
-              {readMin} 분 읽기
-            </span>
-          </div>
+          {/* Eyebrow — Maki 12px uppercase #5f6363 */}
+          <p className="text-[12px] font-medium uppercase leading-[15.6px] tracking-normal text-[#5f6363]">
+            {BLOG_CATEGORY_LABELS[post.category]}
+          </p>
 
-          <h1 className="mt-5 text-[2.25rem] font-semibold leading-[1.2] tracking-tight text-[#282828] md:text-[3rem]">
+          {/* H1 — Maki title-l: 56px / 500 / 100% */}
+          <h1 className="mt-4 text-[2.25rem] font-medium leading-[100%] tracking-normal text-[#282828] md:text-[3.5rem]">
             {post.title}
           </h1>
 
+          {/* Description — Maki body-l: 20px / 30px / #5f6363 */}
           {post.excerpt && (
-            <p className="mt-5 text-[18px] leading-[1.6] text-[#5f6363] md:text-[19px]">
+            <p className="mt-6 text-[18px] font-normal leading-[1.5] text-[#5f6363] md:text-[20px] md:leading-[30px]">
               {post.excerpt}
             </p>
           )}
 
-          <div className="mt-6 flex items-center justify-between border-b border-[var(--color-border)] pb-6">
+          {/* Meta row — 날짜 + 읽기 시간 + 태그 */}
+          <div className="mt-8 flex flex-wrap items-center gap-x-5 gap-y-3 border-b border-[var(--color-border)] pb-6">
             <time
               dateTime={publishedDate.toISOString()}
-              className="text-[12.5px] text-[#5f6363]"
+              className="text-[14px] font-normal leading-[1.5] text-[#5f6363]"
             >
-              {formatDate(publishedDate)}
+              {formatDateLong(publishedDate)}
             </time>
+            <span className="h-3 w-px bg-[var(--color-border)]" aria-hidden />
+            <span className="inline-flex items-center gap-1.5 text-[14px] font-normal text-[#5f6363]">
+              <Clock className="h-3.5 w-3.5" />
+              {readMin} 분 읽기
+            </span>
             {post.tags.length > 0 && (
-              <div className="flex flex-wrap gap-1.5">
+              <div className="ml-auto flex flex-wrap gap-1.5">
                 {post.tags.slice(0, 4).map((t) => (
                   <span
                     key={t}
@@ -175,16 +178,16 @@ export default async function BlogDetailPage({ params }: { params: Params }) {
         </div>
       </header>
 
-      {/* 썸네일 */}
+      {/* Feature image — Maki 는 본문 영역 폭에 맞춰 가운데 정렬 */}
       {post.thumbnail && (
-        <div className="wp-container mt-8">
-          <div className="mx-auto max-w-4xl">
-            <div className="relative aspect-[16/9] overflow-hidden rounded-2xl border border-[var(--color-border)] bg-[#f8f9fa]">
+        <div className="wp-container mt-10 md:mt-12">
+          <div className="mx-auto max-w-3xl">
+            <div className="relative aspect-[16/9] overflow-hidden rounded-xl border border-[var(--color-border)] bg-[#f8f9fa]">
               <Image
                 src={post.thumbnail}
                 alt={post.title}
                 fill
-                sizes="(max-width: 1024px) 100vw, 1024px"
+                sizes="(max-width: 1024px) 100vw, 768px"
                 className="object-cover"
                 priority
               />
@@ -194,8 +197,8 @@ export default async function BlogDetailPage({ params }: { params: Params }) {
       )}
 
       {/* 본문 + TOC 사이드바 */}
-      <div className="wp-container mt-12 md:mt-16 lg:mt-20">
-        <div className="mx-auto grid max-w-5xl gap-10 lg:grid-cols-[minmax(0,1fr)_240px] lg:gap-16">
+      <div className="wp-container mt-12 md:mt-14 lg:mt-16">
+        <div className="mx-auto grid max-w-4xl gap-10 lg:grid-cols-[minmax(0,1fr)_220px] lg:gap-14">
           {/* Article body */}
           <article
             className="prose-blog"
@@ -324,4 +327,9 @@ function formatDate(d: Date): string {
   const m = String(d.getMonth() + 1).padStart(2, "0");
   const day = String(d.getDate()).padStart(2, "0");
   return `${y}.${m}.${day}`;
+}
+
+function formatDateLong(d: Date): string {
+  // "2026년 4월 3일" 형식 — Maki 의 "April 3, 2026" 한국어 변종
+  return `${d.getFullYear()}년 ${d.getMonth() + 1}월 ${d.getDate()}일`;
 }

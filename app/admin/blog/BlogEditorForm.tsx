@@ -197,7 +197,28 @@ export function BlogEditorForm({ mode, postId, initial }: BlogEditorFormProps) {
             placeholder="예) 코비가 채용을 바꾼 방법"
             className="mt-2 w-full border-0 bg-transparent text-[28px] font-medium leading-[1.2] text-[#282828] placeholder:text-[#9ca3af] focus:outline-none"
           />
-          <div className="mt-3 flex items-center gap-2">
+
+          {/* 설명 (Description) — 목록 카드와 상세 페이지 타이틀 아래에 노출 */}
+          <div className="mt-5 border-t border-[var(--color-border)] pt-5">
+            <label className="block text-[12px] font-medium text-[#282828]">
+              설명 (Description)
+            </label>
+            <p className="mt-1 text-[11px] leading-[1.5] text-[#9ca3af]">
+              블로그 목록 카드와 상세 페이지 타이틀 아래에 그대로 표시됩니다.
+              한두 문장으로 글을 요약해주세요.
+            </p>
+            <textarea
+              rows={3}
+              value={form.excerpt}
+              onChange={(e) =>
+                setForm((prev) => ({ ...prev, excerpt: e.target.value }))
+              }
+              placeholder="예) 코비가 60일 걸리던 개발자 채용을 사흘로 단축한 방법을 소개합니다."
+              className="mt-2 w-full rounded-lg border border-[var(--color-border)] bg-white px-4 py-3 text-[14px] leading-[1.6] text-[#282828] placeholder:text-[#9ca3af] focus:border-[var(--color-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]/20"
+            />
+          </div>
+
+          <div className="mt-5 flex items-center gap-2 border-t border-[var(--color-border)] pt-5">
             <span className="text-[11px] font-semibold uppercase text-[#5f6363]">
               /blog/
             </span>
@@ -410,25 +431,14 @@ export function BlogEditorForm({ mode, postId, initial }: BlogEditorFormProps) {
           />
         </div>
 
-        {/* 요약 + SEO */}
+        {/* SEO 메타 */}
         <div className="rounded-2xl border border-[var(--color-border)] bg-white p-5">
           <p className="text-[11px] font-semibold uppercase tracking-wider text-[#5f6363]">
-            메타 정보
+            SEO 메타 정보
           </p>
-          <div className="mt-4">
-            <label className="block text-[12px] font-medium text-[#5f6363]">
-              요약 (Excerpt)
-            </label>
-            <textarea
-              rows={3}
-              value={form.excerpt}
-              onChange={(e) =>
-                setForm((prev) => ({ ...prev, excerpt: e.target.value }))
-              }
-              placeholder="목록 카드에 표시될 한두 문장"
-              className="mt-2 w-full rounded-md border border-[var(--color-border)] bg-white px-3 py-2 text-[12px] leading-[1.55] text-[#282828] placeholder:text-[#9ca3af] focus:border-[var(--color-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]/20"
-            />
-          </div>
+          <p className="mt-1 text-[11px] leading-[1.5] text-[#9ca3af]">
+            검색 엔진 결과에 별도로 노출할 텍스트. 비우면 제목/설명이 사용됩니다.
+          </p>
           <div className="mt-4">
             <label className="block text-[12px] font-medium text-[#5f6363]">
               SEO 제목

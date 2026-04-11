@@ -3,13 +3,16 @@ import Image from "next/image";
 import type { Metadata } from "next";
 import { prisma } from "@/lib/prisma";
 import { BLOG_CATEGORIES, BLOG_CATEGORY_LABELS } from "@/lib/validations";
-import { estimateReadingTime } from "@/lib/tiptap";
 
 /**
- * /blog — 공개 블로그 목록 (기획문서 3.2).
+ * /blog — 공개 블로그 목록 (기획문서 3.2 + Maki /blog 매칭).
  *
- * SSR + ISR (60초 재검증). URL 쿼리 기반 카테고리 필터.
- * Status=PUBLISHED 만 노출.
+ * - H1: 68px / 500 / line-height 100% (Maki title-xl)
+ * - 카드 (Maki .c_resource_card):
+ *     border 1px #E3F0E7, radius 8px, flex-col
+ *     cover (16:9 이미지) + content (tag + 제목 + 설명)
+ *     tag 12px uppercase, 제목 20px (p 태그), 설명 16px
+ * - SSR + ISR 60s
  */
 
 export const revalidate = 60;
@@ -29,7 +32,8 @@ export default async function BlogListPage({
 }) {
   const params = await searchParams;
   const activeCategory =
-    params.category && (BLOG_CATEGORIES as readonly string[]).includes(params.category)
+    params.category &&
+    (BLOG_CATEGORIES as readonly string[]).includes(params.category)
       ? (params.category as (typeof BLOG_CATEGORIES)[number])
       : null;
 
@@ -47,23 +51,21 @@ export default async function BlogListPage({
       excerpt: true,
       thumbnail: true,
       category: true,
-      tags: true,
       publishedAt: true,
       createdAt: true,
-      content: true,
     },
   });
 
   return (
     <div className="bg-white">
-      {/* Header — wp-container 안에 타이틀 + 카테고리 필터 */}
-      <div className="wp-container py-16 md:py-24 lg:py-28">
+      {/* Header — Maki title-xl */}
+      <div className="wp-container pb-10 pt-16 md:pb-12 md:pt-20 lg:pt-24">
         <div className="flex flex-col items-start">
           <span className="inline-flex items-center rounded-full border border-[#f0efe6] bg-white px-2 py-1 text-[12px] font-medium uppercase leading-[15.6px] tracking-normal text-[#5f6363]">
             Blog
           </span>
           <h1 className="mt-4 text-[3rem] font-medium leading-[100%] tracking-normal text-[#282828] md:text-[4.25rem]">
-            AI 채용의
+            슈퍼코더의
             <br />
             최신 인사이트
           </h1>
@@ -72,19 +74,21 @@ export default async function BlogListPage({
             직접 쓴 글입니다.
           </p>
         </div>
+      </div>
 
-        {/* 카테고리 필터 칩 */}
+      {/* Category filter — 굵은 tab 스타일 */}
+      <div className="wp-container">
         <nav
           aria-label="카테고리 필터"
-          className="mt-10 flex flex-wrap items-center gap-2 md:mt-12"
+          className="flex flex-wrap items-center gap-1 border-b border-[var(--color-border)] pb-0"
         >
-          <CategoryChip
+          <CategoryTab
             label="전체"
             active={activeCategory === null}
             href="/blog"
           />
           {BLOG_CATEGORIES.map((c) => (
-            <CategoryChip
+            <CategoryTab
               key={c}
               label={BLOG_CATEGORY_LABELS[c]}
               active={activeCategory === c}
@@ -92,28 +96,28 @@ export default async function BlogListPage({
             />
           ))}
         </nav>
+      </div>
 
-        {/* 카드 그리드 */}
-        <div className="mt-10 md:mt-12">
-          {posts.length === 0 ? (
-            <EmptyState hasFilter={activeCategory !== null} />
-          ) : (
-            <ul className="grid gap-8 md:grid-cols-2 md:gap-6 lg:grid-cols-3 lg:gap-8">
-              {posts.map((post) => (
-                <li key={post.id}>
-                  <BlogCard post={post} />
-                </li>
-              ))}
-            </ul>
-          )}
-        </div>
+      {/* 카드 그리드 */}
+      <div className="wp-container py-10 md:py-12 lg:py-16">
+        {posts.length === 0 ? (
+          <EmptyState hasFilter={activeCategory !== null} />
+        ) : (
+          <ul className="grid gap-6 md:grid-cols-2 md:gap-6 lg:grid-cols-3 lg:gap-7">
+            {posts.map((post) => (
+              <li key={post.id}>
+                <BlogCard post={post} />
+              </li>
+            ))}
+          </ul>
+        )}
       </div>
     </div>
   );
 }
 
-// ── Category chip ────────────────────────────────────────────────
-function CategoryChip({
+// ── Category tab ─────────────────────────────────────────────────
+function CategoryTab({
   label,
   active,
   href,
@@ -125,18 +129,24 @@ function CategoryChip({
   return (
     <Link
       href={href}
-      className={`inline-flex items-center rounded-full border px-4 py-2 text-[13px] font-medium transition-colors ${
+      className={`relative inline-flex h-12 items-center px-4 text-[14px] font-medium transition-colors ${
         active
-          ? "border-[var(--color-primary)] bg-[var(--color-primary-light)] text-[var(--color-primary)]"
-          : "border-[var(--color-border)] bg-white text-[#5f6363] hover:border-[var(--color-primary)]/40 hover:text-[var(--color-primary)]"
+          ? "text-[var(--color-primary)]"
+          : "text-[#5f6363] hover:text-[#282828]"
       }`}
     >
       {label}
+      {active && (
+        <span
+          aria-hidden
+          className="absolute -bottom-px left-0 h-[2px] w-full bg-[var(--color-primary)]"
+        />
+      )}
     </Link>
   );
 }
 
-// ── Blog card ────────────────────────────────────────────────────
+// ── Blog card (Maki .c_resource_card 매칭) ──────────────────────────
 type BlogCardPost = {
   id: string;
   title: string;
@@ -144,21 +154,18 @@ type BlogCardPost = {
   excerpt: string | null;
   thumbnail: string | null;
   category: (typeof BLOG_CATEGORIES)[number];
-  tags: string[];
   publishedAt: Date | null;
   createdAt: Date;
-  content: unknown;
 };
 
 function BlogCard({ post }: { post: BlogCardPost }) {
-  const readMin = estimateReadingTime(post.content);
   const date = post.publishedAt ?? post.createdAt;
   return (
     <Link
       href={`/blog/${post.slug}`}
-      className="group flex h-full flex-col overflow-hidden rounded-2xl border border-[var(--color-border)] bg-white transition-all hover:-translate-y-0.5 hover:border-[var(--color-primary)]/40 hover:shadow-lg"
+      className="group flex h-full flex-col overflow-hidden rounded-lg border border-[#e3f0e7] bg-white transition-all hover:-translate-y-0.5 hover:border-[var(--color-primary)]/40 hover:shadow-md"
     >
-      {/* Thumbnail */}
+      {/* Cover (이미지) — 16:9 */}
       <div className="relative aspect-[16/9] overflow-hidden bg-[var(--color-primary-light)]">
         {post.thumbnail ? (
           <Image
@@ -187,28 +194,41 @@ function BlogCard({ post }: { post: BlogCardPost }) {
         )}
       </div>
 
-      {/* Body */}
-      <div className="flex flex-1 flex-col gap-3 p-5 md:p-6">
-        <div className="flex items-center gap-2">
-          <span className="inline-flex items-center rounded-md bg-[var(--color-primary-light)] px-2 py-0.5 text-[11px] font-semibold text-[var(--color-primary)]">
-            {BLOG_CATEGORY_LABELS[post.category]}
-          </span>
-          <span className="text-[11px] text-[#9ca3af]">·</span>
-          <span className="text-[11px] text-[#9ca3af]">{readMin} 분 읽기</span>
-        </div>
+      {/* Content area — Maki .c_resource_card--content */}
+      <div className="flex flex-1 flex-col gap-3 p-6">
+        {/* 카테고리 태그 — 12px uppercase #091010 */}
+        <span className="text-[12px] font-medium uppercase leading-[1.3] tracking-wide text-[#091010]">
+          {BLOG_CATEGORY_LABELS[post.category]}
+        </span>
 
-        <h2 className="text-[18px] font-semibold leading-[1.35] text-[#282828] transition-colors group-hover:text-[var(--color-primary)] md:text-[19px]">
+        {/* 제목 — 20px / #282828 (Maki 는 p 태그 사용하지만 시맨틱을 위해 h2 유지) */}
+        <h2 className="text-[20px] font-medium leading-[1.3] text-[#282828] transition-colors group-hover:text-[var(--color-primary)]">
           {post.title}
         </h2>
 
+        {/* Description — 16px / #5F6363 */}
         {post.excerpt && (
-          <p className="line-clamp-2 text-[13.5px] leading-[1.55] text-[#5f6363]">
+          <p className="line-clamp-2 text-[16px] font-normal leading-[1.5] text-[#5f6363]">
             {post.excerpt}
           </p>
         )}
 
-        <div className="mt-auto flex items-center justify-between pt-3 text-[11px] text-[#9ca3af]">
+        {/* Footer — 날짜 + Read more */}
+        <div className="mt-auto flex items-center justify-between pt-4 text-[12px] text-[#9ca3af]">
           <time dateTime={date.toISOString()}>{formatDate(date)}</time>
+          <span className="inline-flex items-center gap-1 text-[12px] font-medium text-[var(--color-primary)]">
+            Read more
+            <svg
+              viewBox="0 0 24 24"
+              className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2.5"
+              aria-hidden
+            >
+              <path d="M5 12h14M13 5l7 7-7 7" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+          </span>
         </div>
       </div>
     </Link>
@@ -218,7 +238,7 @@ function BlogCard({ post }: { post: BlogCardPost }) {
 // ── Empty state ──────────────────────────────────────────────────
 function EmptyState({ hasFilter }: { hasFilter: boolean }) {
   return (
-    <div className="flex flex-col items-center gap-4 rounded-3xl border border-dashed border-[var(--color-border)] bg-[#fafbfc] px-6 py-20 text-center">
+    <div className="flex flex-col items-center gap-4 rounded-lg border border-dashed border-[var(--color-border)] bg-[#fafbfc] px-6 py-20 text-center">
       <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-[var(--color-primary-light)] text-[var(--color-primary)]">
         <svg
           viewBox="0 0 24 24"
@@ -232,12 +252,14 @@ function EmptyState({ hasFilter }: { hasFilter: boolean }) {
         </svg>
       </div>
       <p className="text-[16px] font-medium text-[#282828]">
-        {hasFilter ? "이 카테고리의 글이 아직 없습니다" : "아직 발행된 글이 없습니다"}
+        {hasFilter
+          ? "이 카테고리의 글이 아직 없습니다"
+          : "아직 발행된 글이 없습니다"}
       </p>
       <p className="max-w-md text-[13px] leading-[1.5] text-[#5f6363]">
         {hasFilter
           ? "다른 카테고리를 선택하거나, 전체 글을 둘러보세요."
-          : "새 글이 발행되면 이곳에 표시됩니다. 조금만 기다려주세요."}
+          : "새 글이 발행되면 이곳에 표시됩니다."}
       </p>
       {hasFilter && (
         <Link
