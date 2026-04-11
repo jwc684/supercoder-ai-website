@@ -10,16 +10,21 @@
 
 | Phase | 내용 | 상태 | 컨펌 |
 |---|---|---|---|
-| 0 | 기반 구축 (Next.js + Supabase + Prisma + 레이아웃) | ✅ 완료 (2026-04-11) | 🟡 대기 |
-| 1 | 랜딩 페이지 12 섹션 | ⏳ 대기 | — |
-| 2 | 도입 문의 + 소개서 다운로드 (공개 폼) | ⏳ 대기 | — |
-| 3 | 관리자 인증 + 대시보드 | ⏳ 대기 | — |
+| 0 | 기반 구축 (Next.js + Supabase + Prisma + 레이아웃) | ✅ 완료 (2026-04-11) | 🟢 암묵 컨펌 (push 완료) |
+| 1 | 랜딩 페이지 12 섹션 | ✅ 완료 (2026-04-11) | 🟢 암묵 컨펌 (push 완료) |
+| 2 | 도입 문의 + 소개서 다운로드 (공개 폼) | ✅ 완료 (2026-04-11) | 🟢 암묵 컨펌 (push 완료) |
+| 3 | 관리자 인증 + 대시보드 | ✅ 완료 (2026-04-11) | 🟡 대기 (push 전) |
 | 4 | 관리자 — 문의/다운로드 리스트 | ⏳ 대기 | — |
 | 5 | 관리자 — 블로그 CRUD + Tiptap + Storage | ⏳ 대기 | — |
 | 6 | 공개 블로그 (목록 + 상세) | ⏳ 대기 | — |
 | 7 | 관리자 약관 + 공개 약관 페이지 | ⏳ 대기 | — |
 | 8 | Trial 플레이스홀더 + SEO + 마무리 | ⏳ 대기 | — |
 | 9 | Vercel 배포 | ⏳ 대기 | — |
+
+### 🔗 GitHub 리모트
+- Repo: https://github.com/jwc684/supercoder-ai-website
+- 최신 푸시: `a58e28b Phase 2: 공개 폼 구현 (도입 문의 + 소개서 다운로드)`
+- Phase 3 은 아직 로컬 커밋 전
 
 ---
 
@@ -149,18 +154,192 @@ proxy.ts               # Next 16 proxy (Auth 보호)
 
 ### 컨펌 상태
 
-🟡 **사용자 컨펌 대기 중** — Phase 1 진입 전 최종 확인 필요.
+🟢 **암묵 컨펌** — Phase 1 진입 및 GitHub 푸시로 컨펌 간주.
 
 ---
 
-## ⏳ Phase 1 — 랜딩 페이지 (예정)
+## ✅ Phase 1 — 랜딩 페이지 (12 섹션 + FloatingCta)
 
-**목표**: 기획문서 3.1 의 12 섹션 전체 구현.
+**완료일**: 2026-04-11
+**GitHub 커밋**: `a845e84`, `ad1235e`, `955149a` (3 batches)
+**목표**: 기획문서 3.1 의 12 섹션 + 모바일 FloatingCta.
 
-예정 섹션: Hero · Pain Points · Solution Bridge · 코비 소개 · 핵심 기능 · 작동 방식 · AI 서비스 상세 · 지원자 경험 · 성과 지표 · 고객 사례 · 보안/연동 · 도입 문의 CTA + Floating CTA (모바일).
+### 완료한 작업 (13 개 컴포넌트)
 
-**진입 조건**: Phase 0 사용자 컨펌.
+| # | 섹션 | 컴포넌트 | 배경 | 특이사항 |
+|---|---|---|---|---|
+| 1 | Hero | (app/page.tsx 내부) + HeroVisual | white | `<header>` 태그 + wp-container + 2-col grid + 5-step 시퀀셜 애니메이션 |
+| - | Logo Marquee | `LogoMarquee.tsx` | (hero 내부) | Maki .c_logo_marquee 매칭, 2-set 복제 seamless 루프, 500+ 기업 placeholder |
+| 2 | Pain Points | `PainPoints.tsx` | #eff4ff | 3 고충 카드 (시간/일관성/미스매칭) |
+| 3 | Solution Bridge | `SolutionBridge.tsx` | white | 3-stage flow 다이어그램 |
+| 4 | Kobi Intro | `KobiIntro.tsx` | white + 그라디언트 카드 | 2-col, 코비 그라디언트 카드 + 4 trait |
+| 5 | Core Features | `CoreFeatures.tsx` | white | 4단계 카드 1x4 grid |
+| 6 | How It Works | `HowItWorks.tsx` | #eff4ff | 5-step 타임라인 (셋업 10분 배지) |
+| 7 | AI Service Detail | `AiServiceDetail.tsx` | white | 2x2 큰 카드 + 소개서 CTA |
+| 8 | Candidate Experience | `CandidateExperience.tsx` | #eff4ff | 2-col + 인용구 블록 |
+| 9 | Metrics | `Metrics.tsx` | #0b1b4a (다크) | 60일→2일 · 5× · 90% 큰 숫자 |
+| 10 | Customer Logos | `CustomerLogos.tsx` | white | 로고 그리드 4x2 + testimonials 3개 |
+| 11 | Security & Integration | `SecurityIntegration.tsx` | #eff4ff | 2x2 카드 + tag chips (ISO 27001 등) |
+| 12 | Contact CTA | `ContactCta.tsx` | white (그라디언트 카드) | 큰 CTA 카드 + 미니 폼 preview |
+| + | Floating CTA | `FloatingCta.tsx` | fixed bottom | 모바일 전용, scroll 500px 후 슬라이드업, dismissable |
+
+### Maki 매칭 포인트
+
+- **컨테이너**: `.wp-container` (88rem max, 56px padding)
+- **타이포**: g_title--3xl (80/64px), g_title--l (56/40px), body-l (20/18px), g_label pill
+- **컬러**: #282828 (text-1), #5f6363 (text-2), #2563eb (primary)
+- **버튼**: .g_button_primary 스펙 (padding 16×32, 16/600/150%, radius 8)
+- **Hero 구조**: `<header> > wp-container > grid > [text cell | visual cell]` (Maki .g_page--section 매칭)
+- **모바일 메뉴**: 64×64 hamburger + slide-down overlay (header 자식 배치로 border paint-over)
+
+### 반응형
+
+- `<lg` (1024px) stacked 1-col
+- `≥lg` 2-col symmetric (1fr/1fr)
+- H1: 4rem mobile → 5rem desktop
+- Body: 18px mobile → 20px desktop
 
 ---
 
-*Phase 1 이상 각 Phase 완료 시 본 문서에 완료일/변경점/검증 로그 추가 예정.*
+## ✅ Phase 2 — 공개 폼 (도입 문의 + 소개서 다운로드)
+
+**완료일**: 2026-04-11
+**GitHub 커밋**: `a58e28b`
+**목표**: 두 공개 폼 페이지 + API + Supabase 저장.
+
+### 완료한 작업
+
+**Zod 스키마** (`lib/validations.ts`)
+- `inquirySchema` — 기획문서 3.4 의 9 필드
+- `downloadSchema` — 기획문서 3.3 의 6 필드
+- `privacyAgreed: z.boolean().refine(v => v === true)`
+- 상수: `HIRE_SIZE_VALUES`, `INQUIRY_INTERESTS`, `DOWNLOAD_INTERESTS`
+
+**API Routes**
+- `POST /api/inquiries` → Prisma `inquiry.create` → 201
+- `POST /api/downloads` → Prisma `download.create` → 201 + `downloadUrl`
+- 에러 핸들링: 400 (JSON), 400 (검증), 500 (DB)
+
+**`/contact` 페이지** (Maki /demo 2-column 매칭)
+- Left: 별점 배지 · H1 (68px title-xl / 500 / 100%) · description · testimonial · trust 기업 로고
+- Right: 9 필드 폼 카드 (RHF + zodResolver)
+- sonner 토스트 + 제출 후 감사 메시지
+
+**`/download` 페이지**
+- Left: PDF preview 카드 (gradient + bullets)
+- Right: 리드 수집 폼 (6 필드)
+- 제출 후 `/download/thank-you?url=...` 리다이렉트
+
+**`/download/thank-you` 페이지**
+- Next 16 `async searchParams` 패턴
+- `/files/` 접두사 화이트리스트 (URL 주입 방지)
+- 즉시 다운로드 버튼 + 다음 단계 안내
+
+**`public/files/supercoder-brochure.pdf`**
+- Placeholder PDF 1.4 (713 bytes, 1 페이지)
+- `scripts/make-brochure-pdf.mjs` 로 재생성 가능
+- 실제 브로셔는 Phase 5 에서 교체
+
+**`app/layout.tsx`**
+- `<Toaster position="top-right" richColors closeButton />` 배선
+
+### 검증 로그
+
+```
+GET /contact               → 200
+GET /download              → 200
+GET /download/thank-you    → 200
+GET /files/supercoder-brochure.pdf → 200
+POST /api/inquiries (empty) → 400 (Zod validation)
+POST /api/inquiries (valid) → 201, Supabase inquiries 에 저장 확인
+POST /api/downloads (valid) → 201 + downloadUrl, downloads 에 저장 확인
+
+📊 Row counts after tests:
+  inquiries       1
+  downloads       1
+```
+
+### 계획 대비 변경점
+
+| # | 원안 | 실제 적용 | 이유 |
+|---|---|---|---|
+| 1 | shadcn Form 컴포넌트 | React Hook Form + 커스텀 Field/SelectField | shadcn 미설치, 단순 커스텀 필드가 더 가벼움 |
+| 2 | 기본 3.4 필드 구조 | Maki /demo 참고 2-column 레이아웃 + 인용/로고 | 사용자 요청 — Maki 의 /demo 디자인 반영 |
+
+---
+
+## ✅ Phase 3 — 관리자 인증 + 대시보드
+
+**완료일**: 2026-04-11
+**GitHub 커밋**: 🟡 로컬 커밋 전 (다음 push 에 포함 예정)
+**목표**: Supabase Auth Email/Password + 보호된 /admin + 대시보드 위젯.
+
+### 완료한 작업
+
+**`app/admin/login/page.tsx`**
+- Client component, `supabase.auth.signInWithPassword`
+- Email + Password 폼, error 표시, sonner 토스트
+- `redirectTo` 쿼리 파라미터 지원 (로그인 후 돌아갈 위치)
+- 로그인 성공 시 `router.refresh() + router.push(redirectTo)`
+
+**`components/admin/AdminSidebar.tsx`**
+- Client component (usePathname 으로 active state)
+- 5 nav items: 대시보드 / 블로그 / 약관 / 도입 문의 / 소개서 다운로드
+- 사용자 이메일 표시 + 로그아웃 버튼 (supabase.auth.signOut)
+- Active 링크 하이라이트 (`bg-[var(--color-primary-light)]`)
+
+**`app/admin/layout.tsx`**
+- 서버 컴포넌트, Supabase 세션 확인
+- 로그인 상태일 때만 사이드바 렌더 (login 페이지는 사이드바 없음)
+- `robots: { index: false, follow: false }` 메타
+
+**`lib/auth.ts`**
+- `requireAdmin()` — 서버 컴포넌트용, 세션 없으면 `/admin/login` 리다이렉트
+- `getAdminUser()` — API route 용, null 반환 (호출부에서 401)
+
+**`app/admin/page.tsx`** (대시보드)
+- 서버 컴포넌트, Prisma `count` 직접 호출 (API 우회)
+- 3 stat card: 도입 문의 (신규 배지) / 소개서 다운로드 / 블로그 게시글
+- 최근 7일 trend + 누적 total 표시
+- Quick Actions 3개: 새 글 작성 / 문의 확인 / 약관 관리
+- 환영 메시지 (`{user.email?.split('@')[0]}`)
+
+**`app/api/admin/stats/route.ts`**
+- GET, `getAdminUser()` 로 인증 체크 (없으면 401)
+- Prisma `Promise.all` count: inquiries (total/recent/new) / downloads (total/recent) / blogPosts (total/published)
+
+### 검증 로그
+
+```
+/admin/login         → HTTP 200    (public 접근 가능)
+/admin (unauth)      → HTTP 307 → /admin/login?redirectTo=%2Fadmin   (proxy 보호 확인)
+```
+
+- 전체 타입 체크 통과 (0 에러)
+- Proxy.ts 의 admin 보호 로직 정상 동작
+- 아직 실제 관리자 계정으로 end-to-end 로그인 테스트 미진행 (Supabase 대시보드에서 초기 계정 생성 필요)
+
+### 남은 작업 (Phase 3 컨펌 전)
+
+1. **Supabase 대시보드에서 초기 관리자 계정 1개 생성**
+   - Supabase → Authentication → Users → Add user → Email + Password
+   - 또는 SQL Editor 에서 `INSERT INTO auth.users (...)` (권장 X, 대시보드 사용)
+2. **로컬 dev 에서 실제 로그인 → 대시보드 → 로그아웃 end-to-end 테스트**
+3. **Phase 3 commit/push** (모든 파일을 하나의 commit 으로)
+
+---
+
+## 📋 남은 Phase 개요
+
+| Phase | 내용 | 주요 컴포넌트 |
+|---|---|---|
+| 4 | 관리자 문의/다운로드 리스트 | /admin/inquiries, /admin/downloads + CSV 내보내기 |
+| 5 | 블로그 CRUD + Tiptap + Storage | /admin/blog/new, [id], Tiptap 에디터, 이미지 업로드 API, Supabase Storage 버킷 |
+| 6 | 공개 블로그 | /blog, /blog/[slug], SSG/ISR, Tiptap JSON → HTML 렌더 |
+| 7 | 약관 관리 + 공개 약관 | /admin/terms, /privacy, /terms-enterprise, /terms-candidate |
+| 8 | Trial 플레이스홀더 + SEO | /trial, sitemap, robots, 404/500, Vercel Analytics |
+| 9 | Vercel 배포 | GitHub → Vercel, 환경 변수, Prisma `migrate deploy`, 도메인 |
+
+---
+
+*각 Phase 완료 시 본 문서에 완료일/변경점/검증 로그 추가.*

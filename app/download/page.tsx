@@ -67,61 +67,62 @@ export default function DownloadPage() {
   return (
     <div className="bg-[#eff4ff] py-16 md:py-20 lg:py-24">
       <div className="wp-container">
-        {/* Header */}
-        <div className="mx-auto max-w-2xl text-center">
-          <span className="inline-flex items-center rounded-full border border-[#f0efe6] bg-white px-2 py-1 text-[12px] font-medium uppercase leading-[15.6px] tracking-normal text-[#5f6363]">
-            Brochure
-          </span>
-          <h1 className="mt-4 text-[2.5rem] font-medium leading-[110%] tracking-normal text-[#282828] md:text-[3.5rem]">
-            서비스 소개서 다운로드
-          </h1>
-          <p className="mt-5 text-[18px] font-normal leading-[1.5] text-[#5f6363] md:text-[20px]">
-            슈퍼코더 AI Interviewer 의 기능, 도입 사례, 가격 정책까지 한 번에
-            확인하세요.
-          </p>
-        </div>
+        <div className="grid gap-12 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] lg:gap-20">
+          {/* Left: Title + description + PDF preview */}
+          <div className="flex flex-col">
+            {/* Title 영역 — 좌측 상단 (Maki 레이아웃 패턴) */}
+            <span className="inline-flex items-center self-start rounded-full border border-[#f0efe6] bg-white px-2 py-1 text-[12px] font-medium uppercase leading-[15.6px] tracking-normal text-[#5f6363]">
+              Brochure
+            </span>
+            <h1 className="mt-6 text-[3rem] font-medium leading-[100%] tracking-normal text-[#282828] md:text-[4.25rem]">
+              서비스 소개서
+              <br />
+              다운로드
+            </h1>
+            <p className="mt-6 max-w-xl text-[18px] font-normal leading-[1.5] text-[#5f6363] md:text-[20px]">
+              슈퍼코더 AI Interviewer 의 기능, 도입 사례, 가격 정책까지 한 번에
+              확인하세요.
+            </p>
 
-        <div className="mx-auto mt-12 grid max-w-5xl gap-8 md:mt-16 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] lg:gap-10">
-          {/* Left: 소개서 preview */}
-          <aside className="flex flex-col gap-5 rounded-3xl border border-[var(--color-border)] bg-white p-8">
-            <div className="flex aspect-[3/4] items-center justify-center rounded-2xl bg-gradient-to-br from-[#eef4ff] via-white to-[#eef4ff] ring-1 ring-[var(--color-border)]">
-              <div className="flex flex-col items-center gap-4 text-center">
-                <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-[var(--color-primary)] text-white shadow-lg">
-                  <FileText className="h-8 w-8" />
+            {/* PDF preview 카드 — 타이틀 아래 */}
+            <div className="mt-10 flex flex-col gap-5 rounded-3xl border border-[var(--color-border)] bg-white p-6 md:p-8">
+              <div className="flex items-center gap-5">
+                <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl bg-[var(--color-primary)] text-white shadow-lg">
+                  <FileText className="h-7 w-7" />
                 </div>
-                <div>
+                <div className="min-w-0 flex-1">
                   <p className="text-[11px] font-semibold uppercase tracking-wider text-[var(--color-primary)]">
                     PDF · 약 12 페이지
                   </p>
-                  <p className="mt-2 text-[20px] font-semibold text-[#282828]">
+                  <p className="mt-1 text-[18px] font-semibold text-[#282828]">
                     슈퍼코더 AI Interviewer
                   </p>
-                  <p className="mt-1 text-[14px] text-[#5f6363]">
+                  <p className="mt-0.5 text-[13px] text-[#5f6363]">
                     Product Brochure 2026
                   </p>
                 </div>
               </div>
-            </div>
 
-            <ul className="flex flex-col gap-3 text-[13px] leading-[1.5] text-[#5f6363]">
-              <li className="flex gap-2">
-                <span className="mt-[6px] inline-block h-1 w-1 shrink-0 rounded-full bg-[var(--color-primary)]" />
-                핵심 기능 4단계 상세 설명
-              </li>
-              <li className="flex gap-2">
-                <span className="mt-[6px] inline-block h-1 w-1 shrink-0 rounded-full bg-[var(--color-primary)]" />
-                도입 사례 & 성과 지표
-              </li>
-              <li className="flex gap-2">
-                <span className="mt-[6px] inline-block h-1 w-1 shrink-0 rounded-full bg-[var(--color-primary)]" />
-                ATS 연동 & API 문서 요약
-              </li>
-              <li className="flex gap-2">
-                <span className="mt-[6px] inline-block h-1 w-1 shrink-0 rounded-full bg-[var(--color-primary)]" />
-                가격 정책 & 도입 프로세스
-              </li>
-            </ul>
-          </aside>
+              <ul className="flex flex-col gap-2.5 border-t border-[var(--color-border)] pt-5 text-[13px] leading-[1.5] text-[#5f6363]">
+                <li className="flex gap-2">
+                  <span className="mt-[6px] inline-block h-1 w-1 shrink-0 rounded-full bg-[var(--color-primary)]" />
+                  핵심 기능 4단계 상세 설명
+                </li>
+                <li className="flex gap-2">
+                  <span className="mt-[6px] inline-block h-1 w-1 shrink-0 rounded-full bg-[var(--color-primary)]" />
+                  도입 사례 & 성과 지표
+                </li>
+                <li className="flex gap-2">
+                  <span className="mt-[6px] inline-block h-1 w-1 shrink-0 rounded-full bg-[var(--color-primary)]" />
+                  ATS 연동 & API 문서 요약
+                </li>
+                <li className="flex gap-2">
+                  <span className="mt-[6px] inline-block h-1 w-1 shrink-0 rounded-full bg-[var(--color-primary)]" />
+                  가격 정책 & 도입 프로세스
+                </li>
+              </ul>
+            </div>
+          </div>
 
           {/* Right: 폼 */}
           <form
