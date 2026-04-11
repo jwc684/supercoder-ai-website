@@ -8,6 +8,11 @@ import { CoreFeatures } from "@/components/landing/CoreFeatures";
 import { HowItWorks } from "@/components/landing/HowItWorks";
 import { AiServiceDetail } from "@/components/landing/AiServiceDetail";
 import { CandidateExperience } from "@/components/landing/CandidateExperience";
+import { Metrics } from "@/components/landing/Metrics";
+import { CustomerLogos } from "@/components/landing/CustomerLogos";
+import { SecurityIntegration } from "@/components/landing/SecurityIntegration";
+import { ContactCta } from "@/components/landing/ContactCta";
+import { FloatingCta } from "@/components/landing/FloatingCta";
 
 export default function HomePage() {
   return (
@@ -100,6 +105,21 @@ export default function HomePage() {
 
       {/* 기획문서 3.1 Section 8 — Candidate Experience (공정성, 다국어, 멀티디바이스) */}
       <CandidateExperience />
+
+      {/* 기획문서 3.1 Section 9 — Metrics (60일→2일, 5배 합격률, 90% 비용 절감) */}
+      <Metrics />
+
+      {/* 기획문서 3.1 Section 10 — Customer Logos (100+ 기업 + testimonials) */}
+      <CustomerLogos />
+
+      {/* 기획문서 3.1 Section 11 — Security & Integration (ISO 27001, API, ATS, 커스터마이징) */}
+      <SecurityIntegration />
+
+      {/* 기획문서 3.1 Section 12 — Contact CTA (도입 문의) */}
+      <ContactCta />
+
+      {/* Floating CTA — 모바일 전용 고정 CTA 바 */}
+      <FloatingCta />
     </>
   );
 }
