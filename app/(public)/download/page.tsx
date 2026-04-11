@@ -4,12 +4,25 @@ import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
-import { FileText, Loader2 } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import {
   downloadSchema,
   type DownloadInput,
   DOWNLOAD_INTERESTS,
 } from "@/lib/validations";
+import { BlogFooterCta } from "@/components/landing/BlogFooterCta";
+
+/**
+ * /download — 서비스 소개서 다운로드 (Maki downloadable guide 구조 매칭).
+ *
+ * 구조:
+ *   Header section (g_page--section):
+ *     12-col, 6|6 split
+ *     ├ 좌측 (col 1–6, g_flex--dvlt): label "Guide" + H1 g_title--xl +
+ *     │   subtitle + rich-text 본문 설명 (5 단락)
+ *     └ 우측 (col 7–12, c_form): 옅은 파란색 폼 카드
+ *   Footer CTA (BlogFooterCta 재사용 — Maki .c_footer_cta 매칭)
+ */
 
 export default function DownloadPage() {
   const router = useRouter();
@@ -54,7 +67,6 @@ export default function DownloadPage() {
         throw new Error(json.error ?? "제출 실패");
       }
       toast.success("소개서 다운로드가 준비되었습니다.");
-      // thank-you 페이지로 이동 (downloadUrl 쿼리 파라미터로 전달)
       router.push(
         `/download/thank-you?url=${encodeURIComponent(json.downloadUrl)}`,
       );
@@ -65,78 +77,74 @@ export default function DownloadPage() {
   };
 
   return (
-    <div className="bg-[#eff4ff] py-16 md:py-20 lg:py-24">
-      <div className="wp-container">
-        <div className="grid gap-12 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] lg:gap-20">
-          {/* Left: Title + description + PDF preview */}
-          <div className="flex flex-col">
-            {/* Title 영역 — 좌측 상단 (Maki 레이아웃 패턴) */}
+    <div className="bg-white">
+      {/* ────────────── Header section ────────────── */}
+      <header className="wp-container pb-10 pt-16 md:pb-14 md:pt-24 lg:pt-28">
+        <div className="grid gap-12 lg:grid-cols-12 lg:gap-16">
+          {/* ── 좌측 (col 1–6): g_flex--dvlt ── */}
+          <div className="flex flex-col lg:col-span-6">
+            {/* Eyebrow — g_label */}
             <span className="inline-flex items-center self-start rounded-full border border-[#f0efe6] bg-white px-2 py-1 text-[12px] font-medium uppercase leading-[15.6px] tracking-normal text-[#5f6363]">
-              Brochure
+              Guide
             </span>
-            <h1 className="mt-6 text-[3rem] font-medium leading-[100%] tracking-normal text-[#282828] md:text-[4.25rem]">
-              서비스 소개서
+
+            {/* H1 — g_title--xl (4.25rem / 500 / 100%) */}
+            <h1 className="mt-4 text-[2.75rem] font-medium leading-[100%] tracking-normal text-[#282828] md:text-[4.25rem]">
+              슈퍼코더 AI Interviewer
               <br />
-              다운로드
+              서비스 소개서
             </h1>
-            <p className="mt-6 max-w-xl text-[18px] font-normal leading-[1.5] text-[#5f6363] md:text-[20px]">
-              슈퍼코더 AI Interviewer 의 기능, 도입 사례, 가격 정책까지 한 번에
-              확인하세요.
+
+            {/* Subtitle — g_body--l_400 */}
+            <p className="mt-6 text-[18px] font-normal leading-[1.5] text-[#5f6363] md:text-[20px] md:leading-[30px]">
+              도입 전 검토에 필요한 모든 자료를 한 PDF 에 담았습니다.
+              의사결정자에게 바로 공유하실 수 있도록 구성했어요.
             </p>
 
-            {/* PDF preview 카드 — 타이틀 아래 */}
-            <div className="mt-10 flex flex-col gap-5 rounded-3xl border border-[var(--color-border)] bg-white p-6 md:p-8">
-              <div className="flex items-center gap-5">
-                <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl bg-[var(--color-primary)] text-white shadow-lg">
-                  <FileText className="h-7 w-7" />
-                </div>
-                <div className="min-w-0 flex-1">
-                  <p className="text-[11px] font-semibold uppercase tracking-wider text-[var(--color-primary)]">
-                    PDF · 약 12 페이지
-                  </p>
-                  <p className="mt-1 text-[18px] font-semibold text-[#282828]">
-                    슈퍼코더 AI Interviewer
-                  </p>
-                  <p className="mt-0.5 text-[13px] text-[#5f6363]">
-                    Product Brochure 2026
-                  </p>
-                </div>
-              </div>
-
-              <ul className="flex flex-col gap-2.5 border-t border-[var(--color-border)] pt-5 text-[13px] leading-[1.5] text-[#5f6363]">
-                <li className="flex gap-2">
-                  <span className="mt-[6px] inline-block h-1 w-1 shrink-0 rounded-full bg-[var(--color-primary)]" />
-                  핵심 기능 4단계 상세 설명
-                </li>
-                <li className="flex gap-2">
-                  <span className="mt-[6px] inline-block h-1 w-1 shrink-0 rounded-full bg-[var(--color-primary)]" />
-                  도입 사례 & 성과 지표
-                </li>
-                <li className="flex gap-2">
-                  <span className="mt-[6px] inline-block h-1 w-1 shrink-0 rounded-full bg-[var(--color-primary)]" />
-                  ATS 연동 & API 문서 요약
-                </li>
-                <li className="flex gap-2">
-                  <span className="mt-[6px] inline-block h-1 w-1 shrink-0 rounded-full bg-[var(--color-primary)]" />
-                  가격 정책 & 도입 프로세스
-                </li>
-              </ul>
+            {/* Rich text body — Maki g_rich_text 매칭 (5 단락 핵심 가치) */}
+            <div className="mt-10 flex flex-col gap-5 text-[15px] leading-[1.65] text-[#5f6363] md:mt-14 md:text-[16px] md:leading-[1.7]">
+              <p>
+                AI 기반 채용은 더 이상 선택이 아니라 표준입니다. 그런데 대부분의
+                팀은 여전히 &quot;어떤 기능이 있는가&quot; 를 비교하는 단계에
+                머물러 있어요.
+              </p>
+              <p>
+                이 소개서는 채용 실무자가 가장 먼저 확인해야 할 것을 먼저
+                보여줍니다. 코비가 면접 전 과정을 어떻게 자동화하는지, 각 단계의
+                실제 출력물은 어떻게 생겼는지, 우리 팀은 무엇을 책임져야
+                하는지를 한 번에 이해할 수 있습니다.
+              </p>
+              <p>
+                내부 설득을 위한 자료도 포함했습니다. 60 일 걸리던 채용이 2 일로
+                줄어든 실제 사례, 합격률이 5 배 개선된 팀의 타임라인, 그리고
+                비용 구조 비교표까지.
+              </p>
+              <p>
+                기술 검토용 정보도 놓치지 않았습니다. 주요 ATS 연동 방식,
+                엔터프라이즈 보안 체크리스트, 그리고 데이터 레지던시 옵션에 대한
+                상세 스펙을 포함합니다.
+              </p>
+              <p>
+                의사결정자 · HR 리드 · 보안 담당자가 각각 확인해야 할 내용을
+                섹션별로 분리했습니다. 해당 페이지로 바로 건너뛸 수 있는 목차도
+                함께 제공합니다.
+              </p>
             </div>
           </div>
 
-          {/* Right: 폼 */}
+          {/* ── 우측 (col 7–12): c_form 옅은 파란색 카드 ── */}
           <form
             onSubmit={handleSubmit(onSubmit)}
-            className="flex flex-col gap-5 rounded-3xl border border-[var(--color-border)] bg-white p-8 md:p-10"
+            className="flex w-full flex-col gap-5 rounded-3xl bg-[#eff4ff] p-8 md:p-10 lg:col-span-6 lg:sticky lg:top-[120px] lg:self-start"
             noValidate
           >
+            {/* 폼 타이틀 — Maki g_title--s_sans */}
             <div>
-              <p className="text-[13px] font-semibold text-[var(--color-primary)]">
-                리드 정보
+              <p className="text-[22px] font-semibold leading-[1.3] text-[#282828] md:text-[24px]">
+                소개서 받기
               </p>
-              <p className="mt-1 text-[15px] font-semibold text-[#282828]">
-                아래 정보를 남기시면 소개서 다운로드 링크를 바로 받아보실 수
-                있습니다.
+              <p className="mt-1.5 text-[13px] leading-[1.55] text-[#5f6363]">
+                정보를 남겨주시면 바로 다운로드 링크를 안내해드립니다.
               </p>
             </div>
 
@@ -192,9 +200,9 @@ export default function DownloadPage() {
                       key={item}
                       type="button"
                       onClick={() => toggleInterest(item)}
-                      className={`inline-flex items-center rounded-full border px-4 py-2 text-[13px] font-medium transition-colors ${
+                      className={`inline-flex items-center rounded-full border px-3.5 py-1.5 text-[13px] font-medium transition-colors ${
                         active
-                          ? "border-[var(--color-primary)] bg-[var(--color-primary-light)] text-[var(--color-primary)]"
+                          ? "border-[var(--color-primary)] bg-[var(--color-primary)] text-white"
                           : "border-[var(--color-border)] bg-white text-[#5f6363] hover:border-[var(--color-primary)]/40"
                       }`}
                       aria-pressed={active}
@@ -221,7 +229,13 @@ export default function DownloadPage() {
             </p>
           </form>
         </div>
+      </header>
+
+      {/* ────────────── Divider + Footer CTA (Maki .c_footer_cta) ────────────── */}
+      <div className="wp-container mt-20 md:mt-24">
+        <div className="border-t border-[var(--color-border)]" />
       </div>
+      <BlogFooterCta />
     </div>
   );
 }

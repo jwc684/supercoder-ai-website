@@ -45,12 +45,20 @@ export async function POST(request: Request) {
       select: { id: true, createdAt: true },
     });
 
+    // 현재 활성 브로셔(최신 업로드) URL 을 반환. 없으면 정적 placeholder.
+    const latest = await prisma.brochure.findFirst({
+      orderBy: { createdAt: "desc" },
+      select: { url: true, filename: true },
+    });
+    const downloadUrl = latest?.url ?? "/files/supercoder-brochure.pdf";
+
     return NextResponse.json(
       {
         ok: true,
         id: record.id,
         createdAt: record.createdAt,
-        downloadUrl: "/files/supercoder-brochure.pdf",
+        downloadUrl,
+        filename: latest?.filename ?? "supercoder-brochure.pdf",
       },
       { status: 201 },
     );

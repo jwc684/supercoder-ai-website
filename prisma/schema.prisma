@@ -92,6 +92,22 @@ enum TermsType {
   MARKETING // 마케팅 동의
 }
 
+// ─── 서비스 소개서 (PDF) ───
+// 관리자가 업로드한 브로셔 파일 기록. 가장 최근(createdAt desc)이 "현재 활성" 브로셔.
+// 공개 /download 페이지는 이 테이블의 최신 레코드 URL 을 사용.
+model Brochure {
+  id        String   @id @default(cuid())
+  filename  String // 원본 파일명
+  url       String // Supabase Storage public URL
+  path      String // Storage 내부 경로 (삭제 시 사용)
+  size      Int // bytes
+  mime      String // 주로 application/pdf
+  createdAt DateTime @default(now())
+
+  @@index([createdAt])
+  @@map("brochures")
+}
+
 // ─── FAQ ───
 // Maki .c_faq 섹션에 사용하는 질문/답변 카드.
 // 랜딩 페이지(공개) 에는 isPublished=true 만 order asc 로 노출.

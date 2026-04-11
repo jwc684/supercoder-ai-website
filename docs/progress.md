@@ -17,16 +17,17 @@
 | 4 | 관리자 — 문의/다운로드 리스트 | ✅ 완료 (2026-04-11) | 🟢 컨펌 (push 완료) |
 | 5 | 관리자 — 블로그 CRUD + Tiptap + Storage | ✅ 완료 (2026-04-11) | 🟢 컨펌 (push 완료) |
 | 6 | 공개 블로그 (목록 + 상세) | ✅ 완료 (2026-04-11) | 🟡 로컬 (push 전) |
-| 7 | 관리자 약관 + 공개 약관 페이지 | ✅ 완료 (2026-04-11) | 🟡 로컬 (push 전) |
-| + | FAQ 기능 (모델 + API + 관리자 + 랜딩) — 추가 | ✅ 완료 (2026-04-11) | 🟡 로컬 (push 전) |
-| + | Maki UI 폴리싱 (Blog CTA · Contact · FAQ 폭) — 추가 | ✅ 완료 (2026-04-11) | 🟡 로컬 (push 전) |
-| 8 | Trial 플레이스홀더 + SEO + 마무리 | ⏳ 대기 | — |
+| 7 | 관리자 약관 + 공개 약관 페이지 | ✅ 완료 (2026-04-11) | 🟢 컨펌 (push 완료 `4713656`) |
+| + | FAQ 기능 (모델 + API + 관리자 + 랜딩) — 추가 | ✅ 완료 (2026-04-11) | 🟢 컨펌 (push 완료 `4713656`) |
+| + | Maki UI 폴리싱 (Blog CTA · Contact · FAQ 폭) — 추가 | ✅ 완료 (2026-04-11) | 🟢 컨펌 (push 완료 `4713656`) |
+| 8 | Trial 플레이스홀더 + SEO + 마무리 | ✅ 완료 (2026-04-11) | 🟡 로컬 (push 전) |
+| + | 브로셔 업로드 관리자 + /download Maki 매칭 — 추가 | ✅ 완료 (2026-04-11) | 🟡 로컬 (push 전) |
 | 9 | Vercel 배포 | ⏳ 대기 | — |
 
 ### 🔗 GitHub 리모트
 - Repo: https://github.com/jwc684/supercoder-ai-website
-- 최신 푸시: `109dda9 test: Vitest 기반 API 통합 테스트 4 파일 (30 tests 전부 통과)`
-- 로컬 미커밋: Phase 6 · Phase 7 · FAQ 기능 · Maki UI 폴리싱
+- 최신 푸시: `4713656 feat: FAQ 기능 추가 + Maki UI 폴리싱 (Blog CTA · /contact · FAQ 레이아웃)`
+- 로컬 미커밋: Phase 8 · 브로셔 admin · /download Maki 리디자인
 
 ---
 
@@ -781,12 +782,172 @@ Maki `/demo` 구조로 재구성:
 
 ---
 
+## ✅ Phase 8 — Trial 플레이스홀더 + SEO + 마무리
+
+**완료일**: 2026-04-11
+**GitHub 커밋**: 🟡 로컬 진행 중
+**목표**: /trial 안내 페이지 + sitemap/robots + OG 메타 확장 + 404/500 + Vercel Analytics.
+
+### 완료한 작업
+
+**`lib/site.ts`** — 사이트 상수 공유
+- `SITE_URL` (env `NEXT_PUBLIC_SITE_URL` override, 기본 `https://supercoder.ai`)
+- `SITE_NAME`, `SITE_DESCRIPTION`
+
+**`app/(public)/trial/page.tsx`** — "곧 출시" 플레이스홀더
+- Hero: "Coming soon" 배지 + g_title--xl H1 + subtitle + 2 CTA
+- 16:9 데모 영상 placeholder (PlayCircle 아이콘 + gradient bg)
+- 3-card benefits (10분 셋업 / 실제 사례 / 기업 보안)
+- 최종 CTA 배너 (main blue rounded card, BlogFooterCta 톤)
+
+**`app/sitemap.ts`** — 동적 sitemap
+- 정적 8 개: /, /blog, /contact, /download, /trial, /privacy, /terms-enterprise, /terms-candidate
+- 동적: 공개 블로그 글 slug (`PUBLISHED` 만, `lastModified` = updatedAt/publishedAt)
+- DB 쿼리 실패해도 sitemap 이 깨지지 않도록 try/catch
+
+**`app/robots.ts`** — robots.txt
+- `/admin`, `/admin/`, `/api/` disallow
+- 나머지 allow, sitemap 경로 참조
+
+**`app/layout.tsx`** — 루트 메타데이터 대폭 확장
+- title template `%s | 슈퍼코더 AI Interviewer`
+- keywords, authors, alternates.canonical
+- OpenGraph: siteName, locale ko_KR, images 1200×630 placeholder
+- Twitter: summary_large_image + 동일 이미지
+- `robots.googleBot`: `max-image-preview: large`, `max-snippet: -1`
+- `icons`: favicon.ico + icon.svg
+- `viewport`: themeColor `#2563eb`
+
+**`app/not-found.tsx`** — 전역 404
+- 404 eyebrow + 대형 H1 + 설명 + Home/Contact CTA
+
+**`app/error.tsx`** — 전역 500 (error boundary)
+- `"use client"` + `useEffect(console.error)` 로깅
+- `reset()` 버튼으로 재시도, `error.digest` 표시 (Vercel 로그 상관관계용)
+
+**Vercel Analytics**
+- `@vercel/analytics` 설치 (+1 패키지)
+- `app/layout.tsx body` 에 `<Analytics />` 배선
+
+### 검증 로그
+
+```
+/                → 200
+/trial           → 200
+/sitemap.xml     → 200 (8 static + N blog URLs)
+/robots.txt      → 200 (/admin, /api disallow 확인)
+/nonexistent     → 404 (전역 not-found.tsx 렌더)
+```
+
+---
+
+## ✅ 추가 구현 — 브로셔 업로드 관리자 + /download Maki 리디자인
+
+**완료일**: 2026-04-11
+**GitHub 커밋**: 🟡 로컬 진행 중
+**목표**: 관리자가 서비스 소개서 PDF 를 직접 업로드/교체, 공개 /download 페이지는 최신 업로드본을 자동 제공. /download 는 Maki downloadable guide 구조 매칭.
+
+### 1. DB + Storage
+
+**`prisma/schema.prisma`** — `Brochure` 모델 추가
+```prisma
+model Brochure {
+  id        String   @id @default(cuid())
+  filename  String   // 원본 파일명
+  url       String   // Supabase Storage public URL
+  path      String   // Storage 내부 경로 (삭제용)
+  size      Int      // bytes
+  mime      String   // application/pdf
+  createdAt DateTime @default(now())
+
+  @@index([createdAt])
+  @@map("brochures")
+}
+```
+- 마이그레이션: `20260411115903_add_brochures`
+
+**`scripts/setup-brochures-bucket.mjs`** — Supabase Storage 버킷 생성
+- `brochures` 버킷 (public, 20MB 제한, `application/pdf` MIME)
+- 실행 결과: `✅ 버킷 'brochures' 생성 완료`
+
+### 2. API
+
+**`GET /api/brochure`** (공개, 인증 불필요)
+- `prisma.brochure.findFirst({ orderBy: createdAt desc })` 로 최신 반환
+- 없으면 404 (공개 /download 플로우는 fallback 으로 정적 `/files/supercoder-brochure.pdf` 사용)
+
+**`POST /api/brochure`** (관리자 전용)
+- multipart/form-data `file` 필드
+- MIME 화이트리스트: `application/pdf` 만
+- 크기 제한: 20MB
+- Storage path: `YYYY/MM/<uuid>.pdf`
+- Supabase Storage 업로드 후 DB `Brochure` 레코드 생성
+- 응답: `{ ok, brochure }` 201
+
+**`DELETE /api/brochure/[id]`** (관리자)
+- Storage 객체 `remove([path])` + DB `delete`
+- Storage 삭제 실패해도 DB 는 지움 (고아 데이터 방지)
+
+**`/api/downloads` 와이어링**
+- 응답 `downloadUrl` 을 **DB 의 최신 브로셔 URL** 로 교체
+- 없으면 `/files/supercoder-brochure.pdf` 정적 fallback
+- 응답에 `filename` 필드 추가 (다운로드 시 파일명 표시용)
+
+### 3. Admin UI (`/admin/brochure`)
+
+**`app/admin/brochure/page.tsx`** (서버)
+- `requireAdmin()` + `prisma.brochure.findMany(createdAt desc)`
+- Date → ISO 직렬화 후 클라이언트로 전달
+
+**`app/admin/brochure/BrochureClient.tsx`** (461 줄, 클라이언트)
+- 3 섹션 레이아웃:
+  1. **Upload 카드** — "PDF 파일 선택" 버튼 + hidden `input[type=file]`, 20MB/MIME 클라이언트 검증, `FormData` POST, 낙관적 리스트 업데이트
+  2. **Current 카드** — `brochures[0]` (최신) 을 파란 테두리 + "활성" 녹색 배지 + 파일명/크기/일시 + 열기(새탭)/삭제
+  3. **History 리스트** — 이전 버전들, 각 행에 열기/삭제
+- 파일 없을 때 플레이스홀더 (dashed 테두리)
+- `formatSize` / `formatDateTime` 헬퍼
+
+**`components/admin/AdminSidebar.tsx`**
+- "소개서 파일" 메뉴 추가 (`FileDown` 아이콘, `/admin/brochure`)
+
+### 4. /download Maki Downloadable Guide 리디자인
+
+Maki reference HTML 분석 후 구조 매칭:
+- **Header section** (12-col, 6|6 split)
+  - **좌측** (`g_flex--dvlt`, col 1–6):
+    - `g_label` "Guide" 배지
+    - H1 `g_title--xl` "슈퍼코더 AI Interviewer 서비스 소개서"
+    - `g_body--l_400` subtitle
+    - `g_rich_text` **5 단락 본문** (왜 받아야 하는지, 내부 설득용 데이터, 기술 검토 정보, 섹션 구성 안내)
+  - **우측** (`c_form`, col 7–12, `lg:sticky top-[120px]`):
+    - **옅은 파란색 `#eff4ff`** 폼 카드 (Contact 페이지와 일관)
+    - 타이틀 "소개서 받기" + 안내
+    - 5 필드 + 관심분야 pill + 제출 버튼
+    - 관심분야 pill 액티브: solid primary + 흰 텍스트
+- **Footer CTA 섹션**: `wp-container` border-top divider + **`<BlogFooterCta />` 재사용** (Maki `.c_footer_cta` 매칭)
+
+기존 폼 로직 (Zod/RHF/API/성공 리다이렉트) 모두 유지. 이전 좌측 "PDF preview 카드" 제거.
+
+### 검증 로그
+
+```
+/download             → 200  (6|6 split + 파란 폼 카드 + BlogFooterCta)
+/api/brochure         → 404  (빈 DB, 정상)
+/admin/brochure       → 307  (auth 게이트)
+POST /api/brochure    (unauth) → 401
+DELETE /api/brochure/[id] (unauth) → 401
+```
+
+- TypeScript 0 에러
+- 업로드 후 `/download` 제출 시 응답의 `downloadUrl` 이 Supabase Storage URL 로 바뀜 확인
+
+---
+
 ## 📋 남은 Phase 개요
 
 | Phase | 내용 | 주요 컴포넌트 |
 |---|---|---|
-| 8 | Trial 플레이스홀더 + SEO | /trial (곧 출시 안내 + CTA), sitemap.xml, robots.txt, OG 메타, 404/500, Vercel Analytics |
-| 9 | Vercel 배포 | GitHub → Vercel, 환경 변수 4종, Prisma `migrate deploy` postinstall, 프리뷰 → 프로덕션 → 도메인 |
+| 9 | Vercel 배포 | GitHub → Vercel, 환경 변수 5종, Prisma `migrate deploy` postinstall, 프리뷰 → 프로덕션 → 도메인 |
 
 ---
 
