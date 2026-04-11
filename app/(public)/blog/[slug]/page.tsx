@@ -2,19 +2,23 @@ import Link from "next/link";
 import Image from "next/image";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
-import { ArrowRight, ArrowLeft, Clock } from "lucide-react";
+import { ArrowRight, ArrowLeft, Clock, Calendar, User } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { BLOG_CATEGORY_LABELS } from "@/lib/validations";
-import { renderTiptap, estimateReadingTime, extractPlainText } from "@/lib/tiptap";
+import {
+  renderTiptap,
+  estimateReadingTime,
+  extractPlainText,
+} from "@/lib/tiptap";
 
 /**
  * /blog/[slug] — 블로그 상세 페이지 (Maki /blog/:slug 구조 매칭).
  *
  * 레이아웃:
- *   1. Header section (6|5 split): text (category/h1/description/meta) + feature image 16:9
- *   2. Body section (7|4 split): article content + sticky dark CTA sidebar
- *   3. Related content section: H2 + 3 cards
- *   4. Footer CTA banner: full-width dark gradient
+ *   1. Header section (6|5 split): text + feature image 16:9
+ *   2. Body section (7|4 split): article + sticky sidebar (TOC + CTA)
+ *   3. Related content section: divider + H2 + 3 cards
+ *   4. Footer CTA section: divider + centered heading + buttons + 4 stat cards
  *
  * SSG + ISR 60s. Tiptap JSON → HTML server-side render.
  */
@@ -79,18 +83,32 @@ export async function generateMetadata({
   };
 }
 
+// Social proof stats — Maki .c_footer_cta--social_proof 대응 (기획문서 3.1 §9 매칭)
+const socialProofStats = [
+  { value: "60일 → 2일", label: "채용 기간 단축" },
+  { value: "5×", label: "합격률 상승" },
+  { value: "90%", label: "비용 절감" },
+  { value: "95%", label: "지원자 만족도" },
+];
+
 export default async function BlogDetailPage({ params }: { params: Params }) {
   const { slug } = await params;
 
-  const post = await prisma.blogPost.findUnique({ where: { slug } });
+  const post = await prisma.blogPost.findUnique({
+    where: { slug },
+    include: {
+      author: { select: { name: true, email: true } },
+    },
+  });
 
   if (!post || post.status !== "PUBLISHED") {
     notFound();
   }
 
-  const { html } = renderTiptap(post.content as object);
+  const { html, toc } = renderTiptap(post.content as object);
   const readMin = estimateReadingTime(post.content);
   const publishedDate = post.publishedAt ?? post.createdAt;
+  const authorName = post.author?.name ?? post.author?.email?.split("@")[0] ?? "Supercoder";
 
   // 관련 글 — 같은 카테고리 3건 (본 글 제외)
   const relatedPosts = await prisma.blogPost.findMany({
@@ -129,38 +147,30 @@ export default async function BlogDetailPage({ params }: { params: Params }) {
       {/* ────────────── 1. Header section (6 | 5 split) ────────────── */}
       <header className="wp-container mt-6 md:mt-8">
         <div className="grid items-center gap-10 lg:grid-cols-12 lg:gap-8">
-          {/* Left: 텍스트 영역 (span 6) */}
+          {/* Left: 텍스트 영역 (span 6) — Maki g_flex--dvlc_tvct */}
           <div className="flex flex-col lg:col-span-6">
-            {/* Category eyebrow — 12px uppercase #5f6363 */}
+            {/* Category eyebrow (g_label) — 12px uppercase */}
             <p className="text-[12px] font-medium uppercase leading-[15.6px] tracking-normal text-[#5f6363]">
               {BLOG_CATEGORY_LABELS[post.category]}
             </p>
 
-            {/* H1 — Maki g_title--l: 56px / 500 / 100% (모바일 2.25rem) */}
+            {/* H1 — Maki g_title--l: 56px / 500 / 100% */}
             <h1 className="mt-4 text-[2.25rem] font-medium leading-[100%] tracking-normal text-[#282828] md:text-[3.5rem]">
               {post.title}
             </h1>
 
-            {/* Description — body-l: 20px / 30px / #5f6363 */}
+            {/* Subtitle (g_body--l_400) — 20px / 400 / #282828 */}
             {post.excerpt && (
-              <p className="mt-6 text-[18px] font-normal leading-[1.5] text-[#5f6363] md:text-[20px] md:leading-[30px]">
+              <p className="mt-6 text-[18px] font-normal leading-[1.5] text-[#282828] md:text-[20px] md:leading-[30px]">
                 {post.excerpt}
               </p>
             )}
 
-            {/* Meta row — 날짜 + 읽기 시간 */}
-            <div className="mt-8 flex flex-wrap items-center gap-x-5 gap-y-2">
-              <time
-                dateTime={publishedDate.toISOString()}
-                className="text-[14px] font-normal leading-[1.5] text-[#5f6363]"
-              >
-                {formatDateLong(publishedDate)}
-              </time>
-              <span className="h-3 w-px bg-[var(--color-border)]" aria-hidden />
-              <span className="inline-flex items-center gap-1.5 text-[14px] font-normal text-[#5f6363]">
-                <Clock className="h-3.5 w-3.5" />
-                {readMin} 분 읽기
-              </span>
+            {/* Meta info — Maki .c_template_resource--card_infos 3개 */}
+            <div className="mt-8 flex flex-wrap items-center gap-x-6 gap-y-2">
+              <MetaItem icon={Calendar} text={formatDateLong(publishedDate)} />
+              <MetaItem icon={Clock} text={`${readMin} 분 읽기`} />
+              <MetaItem icon={User} text={authorName} />
             </div>
           </div>
 
@@ -178,7 +188,6 @@ export default async function BlogDetailPage({ params }: { params: Params }) {
                 />
               </div>
             ) : (
-              // Placeholder 그라디언트 (썸네일 없을 때)
               <div className="relative aspect-[16/9] overflow-hidden rounded-xl border border-[var(--color-border)] bg-gradient-to-br from-[#e0f0ff] via-[#eff4ff] to-[#f0fdf4]">
                 <div className="absolute inset-0 flex items-center justify-center">
                   <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-white/70 text-[var(--color-primary)]">
@@ -210,9 +219,43 @@ export default async function BlogDetailPage({ params }: { params: Params }) {
             dangerouslySetInnerHTML={{ __html: html }}
           />
 
-          {/* Right: Sticky dark CTA card (span 4) — Maki .c_card_cta is--mode_2 */}
+          {/* Right: Sticky sidebar — TOC + CTA (span 4) */}
           <aside className="lg:col-span-4 lg:col-start-9">
-            <div className="lg:sticky lg:top-[120px]">
+            <div className="flex flex-col gap-5 lg:sticky lg:top-[120px]">
+              {/* TOC card (Maki .c_template_resource--toc) */}
+              {toc.length > 0 && (
+                <nav
+                  aria-label="목차"
+                  className="rounded-lg border border-[var(--color-border)] bg-white p-5"
+                >
+                  <p className="text-[11px] font-semibold uppercase tracking-wider text-[#5f6363]">
+                    On this page
+                  </p>
+                  <ul className="mt-4 flex flex-col gap-2.5">
+                    {toc.map((h, i) => (
+                      <li
+                        key={`${h.id}-${i}`}
+                        className={
+                          h.level === 1
+                            ? ""
+                            : h.level === 2
+                              ? "pl-3"
+                              : "pl-6"
+                        }
+                      >
+                        <a
+                          href={`#${h.id}`}
+                          className="block text-[12.5px] leading-[1.5] text-[#5f6363] transition-colors hover:text-[var(--color-primary)]"
+                        >
+                          {h.text}
+                        </a>
+                      </li>
+                    ))}
+                  </ul>
+                </nav>
+              )}
+
+              {/* Dark CTA card — Maki .c_card_cta.is--mode_2 */}
               <div className="overflow-hidden rounded-lg bg-[#282828] p-6 text-white">
                 <p className="text-[18px] font-semibold leading-[1.3] text-white md:text-[20px]">
                   코비가 귀사의 채용을 어떻게 바꿀 수 있을까요?
@@ -229,9 +272,9 @@ export default async function BlogDetailPage({ params }: { params: Params }) {
                 </Link>
               </div>
 
-              {/* Tags (있으면 CTA 아래에) */}
+              {/* Tags card (있을 때) */}
               {post.tags.length > 0 && (
-                <div className="mt-5 rounded-lg border border-[var(--color-border)] bg-white p-5">
+                <div className="rounded-lg border border-[var(--color-border)] bg-white p-5">
                   <p className="text-[11px] font-semibold uppercase tracking-wider text-[#5f6363]">
                     Tags
                   </p>
@@ -252,10 +295,10 @@ export default async function BlogDetailPage({ params }: { params: Params }) {
         </div>
       </div>
 
-      {/* ────────────── 3. Related content ────────────── */}
+      {/* ────────────── 3. Related content section ────────────── */}
       {relatedPosts.length > 0 && (
-        <div className="wp-container mt-20 pt-16 md:mt-24 md:pt-20">
-          <div className="border-t border-[var(--color-border)] pt-16">
+        <div className="wp-container mt-20 md:mt-24">
+          <div className="border-t border-[var(--color-border)] pt-16 md:pt-20">
             <div className="flex items-center justify-between">
               <h2 className="text-[2rem] font-medium leading-[1.15] text-[#282828] md:text-[2.75rem]">
                 Related content
@@ -298,6 +341,10 @@ export default async function BlogDetailPage({ params }: { params: Params }) {
                           {p.excerpt}
                         </p>
                       )}
+                      <span className="mt-auto inline-flex items-center gap-1.5 pt-4 text-[13px] font-medium text-[var(--color-primary)]">
+                        Read More
+                        <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
+                      </span>
                     </div>
                   </Link>
                 </li>
@@ -307,24 +354,18 @@ export default async function BlogDetailPage({ params }: { params: Params }) {
         </div>
       )}
 
-      {/* ────────────── 4. Footer CTA banner (full-width 다크) ────────────── */}
-      <div className="wp-container mt-20 pb-20 md:mt-24 md:pb-24">
-        <div className="relative overflow-hidden rounded-2xl bg-[#091010] px-6 py-14 md:px-12 md:py-16 lg:px-16">
-          <div
-            aria-hidden
-            className="pointer-events-none absolute -right-24 -top-24 h-80 w-80 rounded-full bg-[var(--color-primary)]/20 blur-3xl"
-          />
-          <div className="relative grid gap-8 lg:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)] lg:items-center lg:gap-12">
-            <div>
-              <h2 className="text-[1.75rem] font-medium leading-[1.15] text-white md:text-[2.25rem]">
-                코비가 어떻게 채용을
-                <br className="hidden md:block" /> 바꾸는지 직접 보세요
-              </h2>
-              <p className="mt-4 text-[14.5px] leading-[1.55] text-white/70 md:text-[16px]">
-                귀사의 채용 프로세스에 맞춘 맞춤 데모를 1 영업일 내 제안해드립니다.
-              </p>
-            </div>
-            <div className="flex flex-wrap items-center gap-3 lg:justify-end">
+      {/* ────────────── 4. Footer CTA section (centered + social proof) ────────────── */}
+      <div className="wp-container mt-20 pb-20 md:mt-24 md:pb-28">
+        <div className="border-t border-[var(--color-border)] pt-16 md:pt-20">
+          {/* 센터 정렬 heading + 버튼 */}
+          <div className="mx-auto flex max-w-2xl flex-col items-center text-center">
+            <h2 className="text-[2rem] font-medium leading-[1.1] text-[#282828] md:text-[3rem]">
+              코비와 함께 채용을 혁신하세요
+            </h2>
+            <p className="mt-5 text-[16px] leading-[1.55] text-[#5f6363] md:text-[18px]">
+              1 영업일 내 맞춤 데모 제안 · 무료 체험 30일 · 기업 보안 검토 완료
+            </p>
+            <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
               <Link
                 href="/contact"
                 className="inline-flex items-center justify-center gap-2 rounded-lg bg-[var(--color-primary)] px-8 py-4 text-base font-semibold leading-[1.5] text-white transition-colors hover:bg-[var(--color-primary-hover)]"
@@ -334,15 +375,48 @@ export default async function BlogDetailPage({ params }: { params: Params }) {
               </Link>
               <Link
                 href="/download"
-                className="inline-flex items-center justify-center gap-2 rounded-lg bg-transparent px-8 py-4 text-base font-semibold leading-[1.5] text-white shadow-[inset_0_0_0_1px_rgba(255,255,255,0.25)] transition-colors hover:shadow-[inset_0_0_0_1px_rgba(255,255,255,0.5)]"
+                className="inline-flex items-center justify-center gap-2 rounded-lg bg-transparent px-8 py-4 text-base font-semibold leading-[1.5] text-[#282828] shadow-[inset_0_0_0_1px_var(--color-border)] transition-colors hover:text-[var(--color-primary)] hover:shadow-[inset_0_0_0_1px_var(--color-primary)]"
               >
                 소개서 받기
               </Link>
             </div>
           </div>
+
+          {/* Social proof — Maki .c_footer_cta--social_proof 4 stat cards */}
+          <div className="mt-14 grid grid-cols-2 gap-6 border-t border-[var(--color-border)] pt-12 md:mt-16 md:grid-cols-4 md:gap-8 md:pt-14">
+            {socialProofStats.map((stat) => (
+              <div
+                key={stat.label}
+                className="flex flex-col items-center text-center"
+              >
+                <p className="text-[1.75rem] font-semibold leading-[1.1] text-[var(--color-primary)] md:text-[2.25rem]">
+                  {stat.value}
+                </p>
+                <p className="mt-2 text-[13px] font-normal leading-[1.45] text-[#5f6363] md:text-[14px]">
+                  {stat.label}
+                </p>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     </div>
+  );
+}
+
+// ── Helpers ──────────────────────────────────────────────────────
+function MetaItem({
+  icon: Icon,
+  text,
+}: {
+  icon: React.ComponentType<{ className?: string }>;
+  text: string;
+}) {
+  return (
+    <span className="inline-flex items-center gap-1.5 text-[14px] font-normal leading-[1.5] text-[#5f6363]">
+      <Icon className="h-3.5 w-3.5 shrink-0" />
+      {text}
+    </span>
   );
 }
 
