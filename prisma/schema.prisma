@@ -157,6 +157,16 @@ model PageDwell {
   @@map("page_dwell")
 }
 
+// 시간대별 방문 — 0~23시 카운터 (서버 시각 기준, 누적 all-time)
+// "오후 2~4시에 방문 집중" 같은 패턴 파악용. 24 rows only.
+model HourlyView {
+  hour      Int      @unique // 0~23
+  viewCount Int      @default(0)
+  updatedAt DateTime @updatedAt
+
+  @@map("hourly_views")
+}
+
 // 디바이스별 방문 — UA 파싱 결과 카운터
 model DeviceView {
   id        String   @id @default(cuid())

@@ -3,6 +3,7 @@ import {
   Eye,
   MousePointer,
   Clock,
+  Clock3,
   TrendingDown,
   Monitor,
   Smartphone,
@@ -59,7 +60,7 @@ const SECTION_LABELS: Record<string, string> = {
 export default async function AdminAnalyticsPage() {
   await requireAdmin();
 
-  const [sections, ctas, dwells, deviceRows] = await Promise.all([
+  const [sections, ctas, dwells, deviceRows, hourlyRows] = await Promise.all([
     prisma.sectionView.findMany({
       where: { path: "/" },
       orderBy: { viewCount: "desc" },
@@ -76,6 +77,10 @@ export default async function AdminAnalyticsPage() {
       by: ["device"],
       _sum: { viewCount: true },
       orderBy: { _sum: { viewCount: "desc" } },
+    }),
+    // 시간대별 방문 (0~23시)
+    prisma.hourlyView.findMany({
+      orderBy: { hour: "asc" },
     }),
   ]);
 
@@ -105,6 +110,18 @@ export default async function AdminAnalyticsPage() {
     count: d._sum.viewCount ?? 0,
   }));
   const deviceTotal = deviceData.reduce((s, d) => s + d.count, 0);
+
+  // 시간대별 데이터 (0~23시, 빈 시간은 0으로 채움)
+  const hourlyMap = new Map(hourlyRows.map((h) => [h.hour, h.viewCount]));
+  const maxHourly = Math.max(1, ...hourlyRows.map((h) => h.viewCount));
+  const hourlyData = Array.from({ length: 24 }, (_, i) => ({
+    hour: i,
+    label: `${i}시`,
+    count: hourlyMap.get(i) ?? 0,
+    pct: Math.round(((hourlyMap.get(i) ?? 0) / maxHourly) * 100),
+  }));
+  // 피크 시간 찾기
+  const peakHour = hourlyData.reduce((a, b) => (b.count > a.count ? b : a), hourlyData[0]);
 
   const DEVICE_META: Record<
     string,
@@ -372,6 +389,71 @@ export default async function AdminAnalyticsPage() {
               })}
             </ul>
           )}
+        </div>
+
+        {/* 5. Hourly Traffic — 시간대별 방문 */}
+        <div className="rounded-2xl border border-[var(--color-border)] bg-white p-6 md:p-8 xl:col-span-2">
+          <div className="flex items-start justify-between gap-3">
+            <div>
+              <p className="text-[11px] font-semibold uppercase tracking-wider text-[#5f6363]">
+                Hourly Traffic
+              </p>
+              <p className="mt-1 text-[16px] font-semibold text-[#282828]">
+                시간대별 방문 분포 (0~23시)
+              </p>
+              {peakHour && peakHour.count > 0 && (
+                <p className="mt-0.5 text-[12px] text-[#9ca3af]">
+                  피크 시간: <span className="font-semibold text-[var(--color-primary)]">{peakHour.label}</span>{" "}
+                  ({peakHour.count.toLocaleString()} views)
+                </p>
+              )}
+            </div>
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#fef3c7] text-[#f59e0b]">
+              <Clock3 className="h-5 w-5" />
+            </div>
+          </div>
+
+          {hourlyData.every((h) => h.count === 0) ? (
+            <p className="mt-6 text-center text-[13px] text-[#5f6363]">
+              아직 기록된 방문 데이터가 없습니다
+            </p>
+          ) : (
+            <div className="mt-5 flex items-end gap-[3px] md:gap-1" style={{ height: 120 }}>
+              {hourlyData.map((h) => (
+                <div
+                  key={h.hour}
+                  className="group relative flex flex-1 flex-col items-center"
+                  style={{ height: "100%" }}
+                >
+                  {/* 바 */}
+                  <div className="flex w-full flex-1 items-end">
+                    <div
+                      className={`w-full rounded-t transition-all ${
+                        h.hour === peakHour.hour
+                          ? "bg-[var(--color-primary)]"
+                          : "bg-[var(--color-primary)]/40 group-hover:bg-[var(--color-primary)]/70"
+                      }`}
+                      style={{
+                        height: `${Math.max(h.pct, h.count > 0 ? 4 : 0)}%`,
+                        minHeight: h.count > 0 ? 4 : 0,
+                      }}
+                    />
+                  </div>
+                  {/* 시간 라벨 (짝수 시간만 표시 — 공간 절약) */}
+                  <span className="mt-1 text-[9px] tabular-nums text-[#9ca3af] md:text-[10px]">
+                    {h.hour % 2 === 0 ? h.hour : ""}
+                  </span>
+                  {/* Hover 툴팁 */}
+                  <div className="pointer-events-none absolute -top-8 left-1/2 -translate-x-1/2 rounded bg-[#282828] px-1.5 py-0.5 text-[10px] tabular-nums text-white opacity-0 transition-opacity group-hover:opacity-100">
+                    {h.label}: {h.count}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+          <p className="mt-2 text-right text-[10px] text-[#9ca3af]">
+            서버 시각 기준 (UTC+9 KST)
+          </p>
         </div>
       </div>
     </div>

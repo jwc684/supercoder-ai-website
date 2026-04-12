@@ -63,8 +63,9 @@ export async function POST(request: Request) {
       ? path.replace(/^\/blog\//, "").replace(/\/$/, "")
       : null;
 
-    // 디바이스 분류 (UA 파싱)
+    // 디바이스 분류 (UA 파싱) + 시간대 (서버 시각, 0~23)
     const device = detectDevice(userAgent ?? "");
+    const hour = new Date().getHours();
 
     const operations: Prisma.PrismaPromise<unknown>[] = [
       prisma.pageView.create({
@@ -83,6 +84,12 @@ export async function POST(request: Request) {
         where: { path_device: { path, device } },
         update: { viewCount: { increment: 1 } },
         create: { path, device, viewCount: 1 },
+      }),
+      // 시간대별 카운터 (0~23시, 누적)
+      prisma.hourlyView.upsert({
+        where: { hour },
+        update: { viewCount: { increment: 1 } },
+        create: { hour, viewCount: 1 },
       }),
     ];
     if (blogSlug) {
