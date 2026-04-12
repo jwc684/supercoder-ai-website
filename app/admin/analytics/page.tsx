@@ -1,15 +1,24 @@
 import Link from "next/link";
-import { Eye, MousePointer, Clock, TrendingDown } from "lucide-react";
+import {
+  Eye,
+  MousePointer,
+  Clock,
+  TrendingDown,
+  Monitor,
+  Smartphone,
+  Tablet,
+} from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "@/lib/auth";
 
 /**
  * /admin/analytics — 행동 분석 대시보드.
  *
- * 3 위젯:
+ * 4 위젯:
  *   1. Section Funnel (/) — 가로 바 차트 + drop-off %
  *   2. Top CTAs — 클릭 수 랭킹
  *   3. Average Dwell — 페이지별 평균 체류 시간
+ *   4. Device Breakdown — 디바이스별 방문 비율
  *
  * docs/analytics-spec.md 참고.
  */
@@ -50,7 +59,7 @@ const SECTION_LABELS: Record<string, string> = {
 export default async function AdminAnalyticsPage() {
   await requireAdmin();
 
-  const [sections, ctas, dwells] = await Promise.all([
+  const [sections, ctas, dwells, deviceRows] = await Promise.all([
     prisma.sectionView.findMany({
       where: { path: "/" },
       orderBy: { viewCount: "desc" },
@@ -61,6 +70,12 @@ export default async function AdminAnalyticsPage() {
     }),
     prisma.pageDwell.findMany({
       orderBy: { sampleCount: "desc" },
+    }),
+    // 디바이스별 방문 집계 (전체 경로 합산)
+    prisma.deviceView.groupBy({
+      by: ["device"],
+      _sum: { viewCount: true },
+      orderBy: { _sum: { viewCount: "desc" } },
     }),
   ]);
 
@@ -83,6 +98,22 @@ export default async function AdminAnalyticsPage() {
         : 0,
     samples: d.sampleCount,
   }));
+
+  // 디바이스 비율 계산
+  const deviceData = deviceRows.map((d) => ({
+    device: d.device,
+    count: d._sum.viewCount ?? 0,
+  }));
+  const deviceTotal = deviceData.reduce((s, d) => s + d.count, 0);
+
+  const DEVICE_META: Record<
+    string,
+    { label: string; icon: typeof Monitor; color: string; bg: string }
+  > = {
+    desktop: { label: "Desktop", icon: Monitor, color: "text-[var(--color-primary)]", bg: "bg-[var(--color-primary)]" },
+    mobile: { label: "Mobile", icon: Smartphone, color: "text-[#16a34a]", bg: "bg-[#16a34a]" },
+    tablet: { label: "Tablet", icon: Tablet, color: "text-[#f59e0b]", bg: "bg-[#f59e0b]" },
+  };
 
   return (
     <div className="px-6 py-8 md:px-10 md:py-10">
@@ -272,6 +303,73 @@ export default async function AdminAnalyticsPage() {
                   </div>
                 </li>
               ))}
+            </ul>
+          )}
+        </div>
+
+        {/* 4. Device Breakdown */}
+        <div className="rounded-2xl border border-[var(--color-border)] bg-white p-6 md:p-8">
+          <div className="flex items-start justify-between gap-3">
+            <div>
+              <p className="text-[11px] font-semibold uppercase tracking-wider text-[#5f6363]">
+                Device Breakdown
+              </p>
+              <p className="mt-1 text-[16px] font-semibold text-[#282828]">
+                디바이스별 방문 비율
+              </p>
+              {deviceTotal > 0 && (
+                <p className="mt-0.5 text-[12px] text-[#9ca3af]">
+                  Total: {deviceTotal.toLocaleString()} views
+                </p>
+              )}
+            </div>
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#eff4ff] text-[var(--color-primary)]">
+              <Monitor className="h-5 w-5" />
+            </div>
+          </div>
+
+          {deviceData.length === 0 ? (
+            <p className="mt-6 text-center text-[13px] text-[#5f6363]">
+              아직 기록된 방문 데이터가 없습니다
+            </p>
+          ) : (
+            <ul className="mt-5 flex flex-col gap-4">
+              {(["desktop", "mobile", "tablet"] as const).map((key) => {
+                const row = deviceData.find((d) => d.device === key);
+                const count = row?.count ?? 0;
+                const pct =
+                  deviceTotal > 0
+                    ? Math.round((count / deviceTotal) * 100)
+                    : 0;
+                const meta = DEVICE_META[key];
+                const Icon = meta.icon;
+                return (
+                  <li key={key} className="flex flex-col gap-2">
+                    <div className="flex items-center justify-between gap-3">
+                      <div className="flex items-center gap-2.5">
+                        <Icon className={`h-5 w-5 ${meta.color}`} />
+                        <span className="text-[14px] font-medium text-[#282828]">
+                          {meta.label}
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-3 text-[13px]">
+                        <span className="tabular-nums font-semibold text-[#282828]">
+                          {count.toLocaleString()}
+                        </span>
+                        <span className="w-10 text-right tabular-nums text-[#5f6363]">
+                          {pct}%
+                        </span>
+                      </div>
+                    </div>
+                    <div className="h-2.5 w-full overflow-hidden rounded-full bg-[#f0f1f3]">
+                      <div
+                        className={`h-full rounded-full ${meta.bg} transition-all`}
+                        style={{ width: `${pct}%` }}
+                      />
+                    </div>
+                  </li>
+                );
+              })}
             </ul>
           )}
         </div>

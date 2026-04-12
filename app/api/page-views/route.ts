@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
+import { detectDevice } from "@/lib/analytics/device";
 
 /**
  * POST /api/page-views — 공개 페이지 방문 기록.
@@ -62,6 +63,9 @@ export async function POST(request: Request) {
       ? path.replace(/^\/blog\//, "").replace(/\/$/, "")
       : null;
 
+    // 디바이스 분류 (UA 파싱)
+    const device = detectDevice(userAgent ?? "");
+
     const operations: Prisma.PrismaPromise<unknown>[] = [
       prisma.pageView.create({
         data: {
@@ -73,6 +77,12 @@ export async function POST(request: Request) {
       prisma.stats.update({
         where: { id: "singleton" },
         data: { pageViewsTotal: { increment: 1 } },
+      }),
+      // 디바이스별 카운터
+      prisma.deviceView.upsert({
+        where: { path_device: { path, device } },
+        update: { viewCount: { increment: 1 } },
+        create: { path, device, viewCount: 1 },
       }),
     ];
     if (blogSlug) {

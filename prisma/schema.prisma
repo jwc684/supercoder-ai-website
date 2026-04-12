@@ -157,6 +157,19 @@ model PageDwell {
   @@map("page_dwell")
 }
 
+// 디바이스별 방문 — UA 파싱 결과 카운터
+model DeviceView {
+  id        String   @id @default(cuid())
+  path      String
+  device    String // "desktop" | "mobile" | "tablet"
+  viewCount Int      @default(0)
+  updatedAt DateTime @updatedAt
+
+  @@unique([path, device])
+  @@index([device, viewCount(sort: Desc)])
+  @@map("device_views")
+}
+
 // ─── 통계 싱글톤 (카운터 캐시) ───
 // 대시보드의 COUNT 쿼리 9개를 단일 row 조회로 대체.
 // Mutation API 가 $transaction 으로 원자적 increment 수행.
