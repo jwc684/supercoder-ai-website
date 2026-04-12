@@ -74,6 +74,7 @@ export function FloatingCta() {
         {/* 우측: CTA + 닫기 */}
         <Link
           href="/contact"
+          data-track="cta_floating_inquiry"
           className="inline-flex h-10 shrink-0 items-center gap-1.5 rounded-lg bg-[var(--color-primary)] px-4 text-[13px] font-semibold text-white transition-colors hover:bg-[var(--color-primary-hover)]"
         >
           도입 문의

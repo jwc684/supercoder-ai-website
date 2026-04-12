@@ -12,6 +12,7 @@ import {
   HelpCircle,
   FileDown,
   Search,
+  BarChart3,
   LogOut,
 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
@@ -22,6 +23,7 @@ const navItems = [
   { href: "/admin/faqs", label: "FAQ", icon: HelpCircle },
   { href: "/admin/terms", label: "약관", icon: ShieldCheck },
   { href: "/admin/seo", label: "SEO", icon: Search },
+  { href: "/admin/analytics", label: "Analytics", icon: BarChart3 },
   { href: "/admin/brochure", label: "소개서 파일", icon: FileDown },
   { href: "/admin/inquiries", label: "도입 문의", icon: MessageSquare },
   { href: "/admin/downloads", label: "소개서 다운로드", icon: Download },

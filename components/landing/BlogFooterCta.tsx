@@ -38,6 +38,7 @@ export function BlogFooterCta() {
           <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
             <Link
               href="/contact"
+              data-track="cta_blog_footer_demo"
               className="inline-flex items-center justify-center gap-2 rounded-lg bg-white px-8 py-4 text-base font-semibold leading-[1.5] text-[var(--color-primary)] transition-colors hover:bg-white/90"
             >
               데모 신청하기
@@ -45,6 +46,7 @@ export function BlogFooterCta() {
             </Link>
             <Link
               href="/download"
+              data-track="cta_blog_footer_download"
               className="inline-flex items-center justify-center gap-2 rounded-lg bg-transparent px-8 py-4 text-base font-semibold leading-[1.5] text-white shadow-[inset_0_0_0_1px_rgba(255,255,255,0.5)] transition-colors hover:bg-white/10 hover:shadow-[inset_0_0_0_1px_rgba(255,255,255,0.9)]"
             >
               소개서 받기

@@ -1,6 +1,8 @@
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { PageViewTracker } from "@/components/analytics/PageViewTracker";
+import { ClickTracker } from "@/components/analytics/ClickTracker";
+import { DwellTracker } from "@/components/analytics/DwellTracker";
 
 /**
  * Public layout — 홈/블로그/문의/다운로드 등 공개 페이지 전용.
@@ -20,6 +22,8 @@ export default function PublicLayout({
       <main className="flex-1">{children}</main>
       <Footer />
       <PageViewTracker />
+      <ClickTracker />
+      <DwellTracker />
     </div>
   );
 }

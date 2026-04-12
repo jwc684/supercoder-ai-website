@@ -64,6 +64,7 @@ export function ContactCta() {
               <div className="mt-10 flex flex-wrap items-center gap-3">
                 <Link
                   href="/contact"
+                  data-track="cta_contactcta_demo"
                   className="inline-flex items-center justify-center gap-2 rounded-lg bg-white px-8 py-4 text-base font-semibold leading-[1.5] text-[var(--color-primary)] transition-transform hover:scale-[1.02]"
                 >
                   데모 신청하기
@@ -71,6 +72,7 @@ export function ContactCta() {
                 </Link>
                 <Link
                   href="/download"
+                  data-track="cta_contactcta_download"
                   className="inline-flex items-center justify-center gap-2 rounded-lg bg-white/10 px-8 py-4 text-base font-semibold leading-[1.5] text-white ring-1 ring-inset ring-white/25 backdrop-blur-sm transition-colors hover:bg-white/20"
                 >
                   소개서 받기

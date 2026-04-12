@@ -116,6 +116,47 @@ model PageMeta {
   @@map("page_meta")
 }
 
+// ─── 행동 분석 카운터 (docs/analytics-spec.md 참고) ───
+// Raw event 저장 안 함. 카운터 only (upsert + increment).
+// DB 행 수 O(섹션×페이지) = 상수.
+
+// 섹션 도달률 — IntersectionObserver 50% 가시 시 세션당 1회 카운트
+model SectionView {
+  id        String   @id @default(cuid())
+  path      String // 이벤트 발생 페이지 (보통 "/")
+  section   String // "hero", "pain_points", ...
+  viewCount Int      @default(0)
+  updatedAt DateTime @updatedAt
+
+  @@unique([path, section])
+  @@index([path, viewCount(sort: Desc)])
+  @@map("section_views")
+}
+
+// CTA 클릭 — data-track 속성이 있는 요소 클릭 시 매번 카운트
+model CtaClick {
+  id         String   @id @default(cuid())
+  path       String
+  label      String // "cta_hero_contact", "cta_floating_inquiry", ...
+  clickCount Int      @default(0)
+  updatedAt  DateTime @updatedAt
+
+  @@unique([path, label])
+  @@index([path, clickCount(sort: Desc)])
+  @@map("cta_clicks")
+}
+
+// 페이지 체류 시간 — pagehide/visibilitychange 시 ms 전송, 누적+샘플수
+model PageDwell {
+  id          String   @id @default(cuid())
+  path        String   @unique
+  totalMs     BigInt   @default(0) // 누적 ms (평균 = totalMs / sampleCount)
+  sampleCount Int      @default(0)
+  updatedAt   DateTime @updatedAt
+
+  @@map("page_dwell")
+}
+
 // ─── 통계 싱글톤 (카운터 캐시) ───
 // 대시보드의 COUNT 쿼리 9개를 단일 row 조회로 대체.
 // Mutation API 가 $transaction 으로 원자적 increment 수행.

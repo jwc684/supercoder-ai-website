@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { getStaticPageMeta } from "@/lib/seo";
+import { SectionTracker } from "@/components/analytics/SectionTracker";
 import { HeroVisual } from "@/components/landing/HeroVisual";
 import { LogoMarquee } from "@/components/landing/LogoMarquee";
 import { PainPoints } from "@/components/landing/PainPoints";
@@ -42,44 +43,37 @@ export default function HomePage() {
           - < lg: 1 컬럼 stacked (텍스트 위 / 시각 아래)
           - ≥ lg: 2 컬럼 [텍스트 1fr | 시각 1fr] 대칭
       */}
+      <SectionTracker id="hero">
       <header className="pb-8 pt-8 md:pb-10 md:pt-10 lg:pb-12 lg:pt-12">
         <div className="wp-container">
           <div className="grid gap-10 md:gap-14 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] lg:gap-16">
-            {/* 좌측: 텍스트 영역 — Maki g_flex--dvlc_tvct */}
+            {/* 좌측: 텍스트 영역 */}
             <div className="flex w-full flex-col items-center text-center lg:items-start lg:text-left">
-              {/* Eyebrow — Maki .g_label 매칭
-                  12px / 15.6px / uppercase / #5f6363
-                  border 1px solid + rounded-full pill + padding 4px 8px */}
               <span className="inline-flex items-center rounded-full border border-[#f0efe6] px-2 py-1 text-[12px] font-medium uppercase leading-[15.6px] tracking-normal text-[#5f6363]">
                 AI Agent 채용
               </span>
 
-              {/* H1 — Maki .g_title--3xl 매칭
-                  font-size: 5rem (80px), mobile ≤767px: 4rem (64px)
-                  font-weight: 500, line-height: 100%, color: #282828 */}
               <h1 className="mt-4 text-[4rem] font-medium leading-[100%] tracking-normal text-[#282828] md:text-[5rem]">
                 코비가 채용의 모든 과정을 자동화합니다.
               </h1>
 
-              {/* Body paragraph — Maki --font-size--body--l 반응형
-                  ≥768px: 20px / 1.5, ≤767px: 18px / 1.5 */}
               <p className="mt-6 w-full text-[18px] font-normal leading-[1.5] tracking-normal text-[#5f6363] md:text-[20px]">
                 슈퍼코더 AI Interviewer 는 채용공고 분석부터 역량 추출, 실시간
                 AI 면접, 평가 리포트까지 한 번에 처리하는 풀스택 채용 자동화
                 플랫폼입니다.
               </p>
 
-              {/* CTA buttons — Maki .g_button_primary / .g_button_secondary 매칭
-                  gap 0.5rem · radius 0.5rem · 16px / 600 / 150% · padding 1rem 2rem */}
               <div className="mt-8 flex flex-wrap items-center justify-center gap-3 lg:justify-start">
                 <Link
                   href="/contact"
+                  data-track="cta_hero_contact"
                   className="inline-flex items-center justify-center gap-2 rounded-lg bg-[var(--color-primary)] px-8 py-4 text-base font-semibold leading-[1.5] text-white transition-colors hover:bg-[var(--color-primary-hover)]"
                 >
                   도입 문의하기
                 </Link>
                 <Link
                   href="/download"
+                  data-track="cta_hero_download"
                   className="inline-flex items-center justify-center gap-2 rounded-lg bg-transparent px-8 py-4 text-base font-semibold leading-[1.5] text-[#282828] shadow-[inset_0_0_0_1px_var(--color-border)] transition-colors hover:text-[var(--color-primary)] hover:shadow-[inset_0_0_0_1px_var(--color-primary)]"
                 >
                   소개서 다운로드
@@ -87,52 +81,32 @@ export default function HomePage() {
               </div>
             </div>
 
-            {/* 우측(데스크톱) / 하단(모바일·태블릿) 시각 영역 — Maki .g_layout--row (width: 100%) */}
             <div className="flex w-full items-start lg:pt-4">
               <HeroVisual />
             </div>
           </div>
 
-          {/* 로고 티커 — Maki .c_logo_marquee (hero 내부 div) */}
           <LogoMarquee />
         </div>
       </header>
+      </SectionTracker>
 
-      {/* 기획문서 3.1 Section 2 — Pain Points (HR 담당자 3가지 고충) */}
-      <PainPoints />
+      <SectionTracker id="pain_points"><PainPoints /></SectionTracker>
+      <SectionTracker id="solution_bridge"><SolutionBridge /></SectionTracker>
+      <SectionTracker id="kobi_intro"><KobiIntro /></SectionTracker>
+      <SectionTracker id="core_features"><CoreFeatures /></SectionTracker>
+      <SectionTracker id="how_it_works"><HowItWorks /></SectionTracker>
+      <SectionTracker id="ai_service_detail"><AiServiceDetail /></SectionTracker>
+      <SectionTracker id="candidate_experience"><CandidateExperience /></SectionTracker>
+      <SectionTracker id="metrics"><Metrics /></SectionTracker>
+      <SectionTracker id="customer_logos"><CustomerLogos /></SectionTracker>
+      <SectionTracker id="security_integration"><SecurityIntegration /></SectionTracker>
 
-      {/* 기획문서 3.1 Section 3 — Solution Bridge (전환 섹션: 채용공고 하나로) */}
-      <SolutionBridge />
+      {/* Faqs 는 async server component — SectionTracker(client) 로 직접 감쌀 수 없으므로
+          Faqs 내부에서 자체 data-section 을 가지고 있음. 아래 div 로 래핑. */}
+      <SectionTracker id="faqs"><Faqs /></SectionTracker>
 
-      {/* 기획문서 3.1 Section 4 — Kobi Intro (AI Screening Agent 소개) */}
-      <KobiIntro />
-
-      {/* 기획문서 3.1 Section 5 — Core Features (4단계 핵심 기능) */}
-      <CoreFeatures />
-
-      {/* 기획문서 3.1 Section 6 — How It Works (5스텝 타임라인, 셋업 10분) */}
-      <HowItWorks />
-
-      {/* 기획문서 3.1 Section 7 — AI Service Detail (Deep dive, Proctoring, 리포트) */}
-      <AiServiceDetail />
-
-      {/* 기획문서 3.1 Section 8 — Candidate Experience (공정성, 다국어, 멀티디바이스) */}
-      <CandidateExperience />
-
-      {/* 기획문서 3.1 Section 9 — Metrics (60일→2일, 5배 합격률, 90% 비용 절감) */}
-      <Metrics />
-
-      {/* 기획문서 3.1 Section 10 — Customer Logos (100+ 기업 + testimonials) */}
-      <CustomerLogos />
-
-      {/* 기획문서 3.1 Section 11 — Security & Integration (ISO 27001, API, ATS, 커스터마이징) */}
-      <SecurityIntegration />
-
-      {/* FAQ — Maki .c_faq 섹션 매칭. 관리자(/admin/faqs)에서 CRUD + 순서 + 공개 제어 */}
-      <Faqs />
-
-      {/* 기획문서 3.1 Section 12 — Contact CTA (도입 문의) */}
-      <ContactCta />
+      <SectionTracker id="contact_cta"><ContactCta /></SectionTracker>
 
       {/* Floating CTA — 모바일 전용 고정 CTA 바 */}
       <FloatingCta />
