@@ -21,7 +21,7 @@ export default async function AdminLayout({
   return (
     <div className="flex min-h-[100dvh] flex-col bg-[#f8f9fa] lg:flex-row">
       {user && (
-        <div className="hidden lg:block">
+        <div className="hidden lg:sticky lg:top-0 lg:block lg:h-dvh">
           <AdminSidebar userEmail={user.email ?? null} />
         </div>
       )}
