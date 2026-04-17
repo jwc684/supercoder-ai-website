@@ -16,7 +16,7 @@ const items: Item[] = [
   {
     icon: ShieldCheck,
     title: "엔터프라이즈급 보안",
-    body: "ISO 27001 인증, AES-256 암호화, GDPR 준수. 고객사 데이터는 분리 저장됩니다.",
+    body: "ISO 27001 인증, AES-256 암호화, 고객사 데이터는 암호화되어 저장됩니다.",
     tags: ["ISO 27001", "AES-256", "GDPR"],
   },
   {
