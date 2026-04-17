@@ -10,7 +10,6 @@ type SolPoint = {
   icon: React.ComponentType<{ className?: string }>;
   title: string;
   body: string;
-  mapping: string;
   accent: "blue" | "indigo" | "emerald";
 };
 
@@ -19,21 +18,18 @@ const points: SolPoint[] = [
     icon: Search,
     title: "직무 역량 자동 추출 — 검증의 문제 해결",
     body: "JD를 분석해 Hard / Soft Skills를 분리하고, 이력서와 교차 비교합니다. HR이 직무를 몰라도 AI가 기준을 만듭니다.",
-    mapping: "→ Pain 1, 2, 7 해결",
     accent: "blue",
   },
   {
     icon: Clock3,
     title: "AI가 1차 면접 전체 진행 — 효율의 문제 해결",
     body: "구조화된 질문을 자동 생성하고, 실시간 꼬리 질문으로 깊이 파악합니다. 면접관 교육 없이 일관된 수준이 유지됩니다.",
-    mapping: "→ Pain 3, 4 해결",
     accent: "indigo",
   },
   {
     icon: ClipboardList,
     title: "모든 과정을 리포트로 — 투명성의 문제 해결",
     body: "역량별 점수, 답변 근거 인용, 영상 타임라인까지. \"왜 이 사람인가\"를 데이터로 경영진에게 보고할 수 있습니다.",
-    mapping: "→ Pain 5, 6 해결",
     accent: "emerald",
   },
 ];
@@ -83,9 +79,6 @@ export function SolutionBridge() {
                       <p className="mt-1.5 text-[14px] leading-[1.7] text-[#5f6363]">
                         {pt.body}
                       </p>
-                      <span className="mt-2.5 inline-flex items-center rounded-full border border-[var(--color-border)] bg-white px-2.5 py-1 text-[11px] font-medium text-[#6b7280]">
-                        {pt.mapping}
-                      </span>
                     </div>
                   </li>
                 );

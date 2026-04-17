@@ -23,14 +23,19 @@ const stats = [
   { value: "95%", label: "지원자 만족도" },
 ];
 
-export function BlogFooterCta() {
+export function BlogFooterCta({
+  title = "코비와 함께 채용을 혁신하세요",
+}: {
+  /** 섹션마다 다른 메인 카피 — 기본값은 블로그용. */
+  title?: string;
+} = {}) {
   return (
     <div className="wp-container mt-20 pb-20 md:mt-24 md:pb-28">
       <div className="overflow-hidden rounded-2xl bg-[var(--color-primary)] px-6 py-16 md:px-12 md:py-20 lg:px-16 lg:py-24">
         {/* c_footer_cta--content : centered heading + buttons */}
         <div className="mx-auto flex max-w-2xl flex-col items-center text-center">
           <h2 className="text-[2rem] font-medium leading-[1.1] text-white md:text-[3rem]">
-            코비와 함께 채용을 혁신하세요
+            {title}
           </h2>
           <p className="mt-5 text-[16px] leading-[1.55] text-white/80 md:text-[18px]">
             1 영업일 내 맞춤 데모 제안 · 무료 체험 30일 · 기업 보안 검토 완료

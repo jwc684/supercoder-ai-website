@@ -4,12 +4,11 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
-import { CheckCircle2, Loader2, Star } from "lucide-react";
+import { CheckCircle2, Loader2 } from "lucide-react";
 import {
   inquirySchema,
   type InquiryInput,
   HIRE_SIZE_VALUES,
-  INQUIRY_INTERESTS,
 } from "@/lib/validations";
 
 /**
@@ -24,15 +23,10 @@ import {
  *   - ≥ lg: 2 컬럼 대칭
  */
 
+// 회사 사이즈 — value 가 곧 admin/테이블에 그대로 보이는 라벨.
 const hireSizeOptions: {
   value: (typeof HIRE_SIZE_VALUES)[number];
-  label: string;
-}[] = [
-  { value: "1~10", label: "1~10 명" },
-  { value: "11~50", label: "11~50 명" },
-  { value: "51~100", label: "51~100 명" },
-  { value: "100+", label: "100 명 이상" },
-];
+}[] = HIRE_SIZE_VALUES.map((v) => ({ value: v }));
 
 const trustedCompanies = [
   "GlobalTech",
@@ -49,8 +43,6 @@ export default function ContactPage() {
     handleSubmit,
     formState: { errors, isSubmitting },
     reset,
-    watch,
-    setValue,
   } = useForm<InquiryInput>({
     resolver: zodResolver(inquirySchema),
     defaultValues: {
@@ -60,21 +52,10 @@ export default function ContactPage() {
       phone: "",
       jobTitle: "",
       hireSize: undefined,
-      interests: [],
       message: "",
       privacyAgreed: undefined as unknown as true,
     },
   });
-
-  const selectedInterests = watch("interests") ?? [];
-
-  const toggleInterest = (value: (typeof INQUIRY_INTERESTS)[number]) => {
-    const current = selectedInterests;
-    const next = current.includes(value)
-      ? current.filter((v) => v !== value)
-      : [...current, value];
-    setValue("interests", next, { shouldValidate: true, shouldDirty: true });
-  };
 
   const onSubmit = async (values: InquiryInput) => {
     try {
@@ -132,36 +113,13 @@ export default function ContactPage() {
         <div className="grid gap-12 lg:grid-cols-12 lg:gap-16">
           {/* ────────── 좌측 (col 1–6): Maki g_flex--dvlsb ────────── */}
           <div className="flex flex-col lg:col-span-6">
-            {/* Top block — g_flex--dvlt : G2 배지 + H1 + subtitle */}
+            {/* Top block — H1 + subtitle */}
             <div>
-              {/* G2-style badge (Maki .c_card_g2--badge 매칭) */}
-              <div className="inline-flex items-center gap-3 rounded-lg border border-[var(--color-border)] bg-white px-3 py-2">
-                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-[#ff492c] text-[10px] font-black text-white">
-                  G2
-                </div>
-                <div className="flex flex-col">
-                  <div
-                    className="flex items-center gap-0.5"
-                    aria-label="5점 만점에 4.7점"
-                  >
-                    {[1, 2, 3, 4, 5].map((i) => (
-                      <Star
-                        key={i}
-                        className="h-3 w-3 fill-[#f59e0b] text-[#f59e0b]"
-                      />
-                    ))}
-                  </div>
-                  <p className="mt-0.5 text-[12px] font-medium leading-none text-[#282828]">
-                    4.7 / 5 on G2.com
-                  </p>
-                </div>
-              </div>
-
               {/* H1 — Maki g_title--xl (4.25rem / 500 / 100%) */}
-              <h1 className="mt-5 text-[3rem] font-medium leading-[100%] tracking-normal text-[#282828] md:text-[4.25rem]">
-                코비가 어떻게
+              <h1 className="text-[3rem] font-medium leading-[100%] tracking-normal text-[#282828] md:text-[4.25rem]">
+                직감 말고 데이터로
                 <br />
-                바꾸는지 직접 보세요
+                채용하는 법, 직접 보여드립니다
               </h1>
 
               {/* Subtitle — g_body--l_400 */}
@@ -230,7 +188,7 @@ export default function ContactPage() {
               </p>
             </div>
 
-            {/* Row 1: 회사명 + 담당자 */}
+            {/* Row 1: 회사명 + 회사 사이즈 */}
             <div className="grid gap-5 sm:grid-cols-2">
               <Field
                 label="회사명"
@@ -239,6 +197,22 @@ export default function ContactPage() {
                 {...register("company")}
                 placeholder="예: 슈퍼코더"
               />
+              <SelectField
+                label="회사 사이즈"
+                error={errors.hireSize?.message}
+                {...register("hireSize")}
+              >
+                <option value="">선택 (선택 사항)</option>
+                {hireSizeOptions.map((o) => (
+                  <option key={o.value} value={o.value}>
+                    {o.value}
+                  </option>
+                ))}
+              </SelectField>
+            </div>
+
+            {/* Row 2: 담당자 + 직책 */}
+            <div className="grid gap-5 sm:grid-cols-2">
               <Field
                 label="담당자 이름"
                 required
@@ -246,9 +220,15 @@ export default function ContactPage() {
                 {...register("name")}
                 placeholder="홍길동"
               />
+              <Field
+                label="직책"
+                error={errors.jobTitle?.message}
+                {...register("jobTitle")}
+                placeholder="인사팀장 (선택)"
+              />
             </div>
 
-            {/* Row 2: 이메일 + 전화 */}
+            {/* Row 3: 이메일 + 전화 */}
             <div className="grid gap-5 sm:grid-cols-2">
               <Field
                 label="이메일"
@@ -266,58 +246,6 @@ export default function ContactPage() {
                 {...register("phone")}
                 placeholder="010-1234-5678"
               />
-            </div>
-
-            {/* Row 3: 직책 + 채용규모 */}
-            <div className="grid gap-5 sm:grid-cols-2">
-              <Field
-                label="직책"
-                error={errors.jobTitle?.message}
-                {...register("jobTitle")}
-                placeholder="인사팀장 (선택)"
-              />
-              <SelectField
-                label="월 평균 채용 규모"
-                error={errors.hireSize?.message}
-                {...register("hireSize")}
-              >
-                <option value="">선택 (선택 사항)</option>
-                {hireSizeOptions.map((o) => (
-                  <option key={o.value} value={o.value}>
-                    {o.label}
-                  </option>
-                ))}
-              </SelectField>
-            </div>
-
-            {/* Interests — multi pill */}
-            <div>
-              <span className="block text-[13px] font-medium text-[#282828]">
-                관심 서비스{" "}
-                <span className="text-[12px] font-normal text-[#5f6363]">
-                  (복수 선택)
-                </span>
-              </span>
-              <div className="mt-3 flex flex-wrap gap-2">
-                {INQUIRY_INTERESTS.map((item) => {
-                  const active = selectedInterests.includes(item);
-                  return (
-                    <button
-                      key={item}
-                      type="button"
-                      onClick={() => toggleInterest(item)}
-                      className={`inline-flex items-center rounded-full border px-3.5 py-1.5 text-[13px] font-medium transition-colors ${
-                        active
-                          ? "border-[var(--color-primary)] bg-[var(--color-primary)] text-white"
-                          : "border-[var(--color-border)] bg-white text-[#5f6363] hover:border-[var(--color-primary)]/40"
-                      }`}
-                      aria-pressed={active}
-                    >
-                      {item}
-                    </button>
-                  );
-                })}
-              </div>
             </div>
 
             {/* Message */}

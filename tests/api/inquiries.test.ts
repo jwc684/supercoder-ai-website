@@ -14,7 +14,7 @@ describe("POST /api/inquiries", () => {
       name: "테스트 홍길동",
       email: "vitest+inquiry@example.com",
       phone: "010-0000-0000",
-      hireSize: "11~50",
+      hireSize: "6-20명",
       interests: ["AI 면접", "역량 분석"],
       message: "Vitest 통합 테스트로 생성된 문의입니다.",
       privacyAgreed: true,

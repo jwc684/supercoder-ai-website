@@ -235,7 +235,7 @@ export default function DownloadPage() {
       <div className="wp-container mt-20 md:mt-24">
         <div className="border-t border-[var(--color-border)]" />
       </div>
-      <BlogFooterCta />
+      <BlogFooterCta title="도입 전 필요한 모든 자료를 한 PDF에" />
     </div>
   );
 }
