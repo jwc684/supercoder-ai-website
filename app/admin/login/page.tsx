@@ -34,8 +34,6 @@ export default function AdminLoginPage() {
       }
 
       toast.success("로그인되었습니다.");
-      // 서버 컴포넌트 재평가를 위해 router.refresh() 후 push
-      router.refresh();
       router.push(redirectTo);
     } catch (err) {
       const msg = err instanceof Error ? err.message : "알 수 없는 오류";

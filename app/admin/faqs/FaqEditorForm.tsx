@@ -79,7 +79,7 @@ export function FaqEditorForm({
       if (mode === "new") {
         router.push(`/admin/faqs/${json.id}`);
       } else {
-        router.refresh();
+        router.push("/admin/faqs");
       }
     } catch (err) {
       const msg = err instanceof Error ? err.message : "알 수 없는 오류";
