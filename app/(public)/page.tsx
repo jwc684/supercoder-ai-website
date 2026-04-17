@@ -34,8 +34,9 @@ export default function HomePage() {
         <header className="pb-8 pt-8 md:pb-10 md:pt-10 lg:pb-12 lg:pt-12">
           <div className="wp-container">
             <div className="grid gap-10 md:gap-14 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] lg:gap-16">
-              {/* 좌측: 텍스트 영역 — v3 Problem-first 헤드라인 */}
-              <div className="flex w-full flex-col items-start text-left">
+              {/* 좌측: 텍스트 영역 — v3 Problem-first 헤드라인
+                   모바일/태블릿(stacked) = 중앙 정렬, 데스크톱(≥lg, 2-col) = 좌측 정렬 */}
+              <div className="flex w-full flex-col items-center text-center lg:items-start lg:text-left">
                 <span className="inline-flex items-center gap-2 rounded-full border border-[var(--color-primary)]/25 bg-[var(--color-primary-light)]/60 px-3 py-1 text-[13px] font-medium leading-[1.5] text-[var(--color-primary)]">
                   <span
                     aria-hidden
@@ -58,23 +59,7 @@ export default function HomePage() {
                   채용팀의 판단이 데이터로 단단해집니다.
                 </p>
 
-                <div className="mt-7 inline-flex max-w-xl items-start gap-2.5 rounded-xl border border-[var(--color-border)] bg-[var(--color-bg-alt)] px-4 py-3">
-                  <span
-                    aria-hidden
-                    className="mt-[2px] shrink-0 text-[14px] leading-none"
-                  >
-                    💭
-                  </span>
-                  <p className="text-[13px] italic leading-[1.6] text-[#5f6363]">
-                    &ldquo;그동안{" "}
-                    <strong className="not-italic font-semibold text-[#282828]">
-                      직감에 의존해서
-                    </strong>{" "}
-                    뽑았던 게 맞는 말이긴 하지…&rdquo;
-                  </p>
-                </div>
-
-                <div className="mt-7 flex flex-wrap items-center gap-3">
+                <div className="mt-8 flex flex-wrap items-center justify-center gap-3 lg:justify-start">
                   <Link
                     href="/contact"
                     data-track="cta_hero_contact"

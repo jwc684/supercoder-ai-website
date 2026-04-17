@@ -1,5 +1,4 @@
 import { Search, Clock3, ClipboardList, Zap } from "lucide-react";
-import { ThoughtBubble } from "./ThoughtBubble";
 
 /**
  * SolutionBridge — v3 narrative 의 "Solution" 섹션.
@@ -49,11 +48,7 @@ export function SolutionBridge() {
   return (
     <div className="bg-[var(--color-bg-alt)] py-20 md:py-28 lg:py-32">
       <div className="wp-container">
-        <ThoughtBubble>
-          &ldquo;<strong className="not-italic font-semibold text-[#282828]">AI가 어떻게</strong> 이걸 해결한다는 거지? 직접 면접을 본다고?&rdquo;
-        </ThoughtBubble>
-
-        <div className="mt-10 grid gap-12 lg:mt-14 lg:grid-cols-2 lg:gap-16">
+        <div className="grid gap-12 lg:grid-cols-2 lg:gap-16">
           {/* 좌측: 헤더 + 3 points */}
           <div>
             <span className="inline-flex items-center rounded-full border border-[#f0efe6] bg-white px-2 py-1 text-[12px] font-semibold uppercase leading-[15.6px] tracking-[0.1em] text-[var(--color-primary)]">

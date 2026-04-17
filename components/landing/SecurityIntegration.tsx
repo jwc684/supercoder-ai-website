@@ -1,5 +1,4 @@
 import { ShieldCheck, Zap, Plug, Palette } from "lucide-react";
-import { ThoughtBubble } from "./ThoughtBubble";
 
 /**
  * SecurityIntegration — v3 narrative 의 "Enterprise" 섹션.
@@ -44,11 +43,7 @@ export function SecurityIntegration() {
   return (
     <div className="bg-[var(--color-bg-alt)] py-20 md:py-28 lg:py-32">
       <div className="wp-container">
-        <ThoughtBubble>
-          &ldquo;지원자 개인정보 들어가는데, <strong className="not-italic font-semibold text-[#282828]">보안 기준은 맞나?</strong> 기존 ATS와 연동되나?&rdquo;
-        </ThoughtBubble>
-
-        <div className="mt-10 flex flex-col items-center text-center md:mt-12">
+        <div className="flex flex-col items-center text-center">
           <span className="inline-flex items-center rounded-full border border-[#f0efe6] bg-white px-2 py-1 text-[12px] font-semibold uppercase leading-[15.6px] tracking-[0.1em] text-[var(--color-primary)]">
             보안 · 연동
           </span>

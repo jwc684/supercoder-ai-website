@@ -1,5 +1,4 @@
 import { Zap, Target, ClipboardList, Quote } from "lucide-react";
-import { ThoughtBubble } from "./ThoughtBubble";
 
 /**
  * CLevelPerspective — v3 narrative 의 경영진 관점 섹션.
@@ -35,11 +34,7 @@ export function CLevelPerspective() {
   return (
     <div className="bg-[var(--color-bg-alt)] py-20 md:py-28 lg:py-32">
       <div className="wp-container">
-        <ThoughtBubble>
-          &ldquo;<strong className="not-italic font-semibold text-[#282828]">경영진 입장에서</strong> AI 채용 도입이 어떤 의미인지 알고 싶은데.&rdquo;
-        </ThoughtBubble>
-
-        <div className="mt-10 grid gap-12 lg:mt-14 lg:grid-cols-2 lg:gap-16 lg:items-center">
+        <div className="grid gap-12 lg:grid-cols-2 lg:gap-16 lg:items-center">
           <div>
             <span className="inline-flex items-center rounded-full border border-[#f0efe6] bg-white px-2 py-1 text-[12px] font-semibold uppercase leading-[15.6px] tracking-[0.1em] text-[var(--color-primary)]">
               경영진 관점

@@ -1,5 +1,4 @@
 import { Quote } from "lucide-react";
-import { ThoughtBubble } from "./ThoughtBubble";
 
 /**
  * Metrics — v3 narrative 의 "Results" 섹션.
@@ -66,11 +65,7 @@ export function Metrics() {
   return (
     <div className="bg-white py-20 md:py-28 lg:py-32">
       <div className="wp-container">
-        <ThoughtBubble>
-          &ldquo;좋은 말은 다들 하지. <strong className="not-italic font-semibold text-[#282828]">실제로 쓴 회사 얘기</strong>를 봐야 알겠는데.&rdquo;
-        </ThoughtBubble>
-
-        <div className="mt-10 grid gap-12 lg:mt-14 lg:grid-cols-2 lg:gap-16">
+        <div className="grid gap-12 lg:grid-cols-2 lg:gap-16">
           {/* Left: header + 3 metric cards */}
           <div>
             <span className="inline-flex items-center rounded-full border border-[#f0efe6] bg-white px-2 py-1 text-[12px] font-semibold uppercase leading-[15.6px] tracking-[0.1em] text-[var(--color-primary)]">

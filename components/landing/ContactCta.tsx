@@ -1,6 +1,5 @@
 import Link from "next/link";
 import { ArrowRight, Check } from "lucide-react";
-import { ThoughtBubble } from "./ThoughtBubble";
 
 /**
  * ContactCta — v3 narrative 의 "Final CTA" 섹션.
@@ -18,11 +17,7 @@ export function ContactCta() {
   return (
     <div className="border-t border-[var(--color-border)] bg-[var(--color-bg-alt)] py-20 md:py-28 lg:py-32">
       <div className="wp-container">
-        <ThoughtBubble align="center">
-          &ldquo;<strong className="not-italic font-semibold text-[#282828]">한 번 써봐도 되겠다.</strong> 데이터로 뽑는다는 게 어떤 건지 직접 보고 싶다.&rdquo;
-        </ThoughtBubble>
-
-        <div className="mx-auto mt-10 max-w-[720px] rounded-3xl border border-[var(--color-primary)]/20 bg-gradient-to-br from-[var(--color-primary-light)]/50 via-white to-[#e8f1ff]/40 px-6 py-14 text-center md:mt-14 md:px-12 md:py-16">
+        <div className="mx-auto max-w-[720px] rounded-3xl border border-[var(--color-primary)]/20 bg-gradient-to-br from-[var(--color-primary-light)]/50 via-white to-[#e8f1ff]/40 px-6 py-14 text-center md:px-12 md:py-16">
           <span className="inline-flex items-center rounded-full border border-[#f0efe6] bg-white px-2 py-1 text-[12px] font-semibold uppercase leading-[15.6px] tracking-[0.1em] text-[var(--color-primary)]">
             지금 시작하기
           </span>

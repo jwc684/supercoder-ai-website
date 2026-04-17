@@ -1,5 +1,4 @@
 import { Search, Clock3, ClipboardList, Check } from "lucide-react";
-import { ThoughtBubble } from "./ThoughtBubble";
 
 /**
  * PainPoints — v3 narrative 의 "Problem" 섹션.
@@ -65,11 +64,7 @@ export function PainPoints() {
   return (
     <div className="bg-white py-20 md:py-28 lg:py-32">
       <div className="wp-container">
-        <ThoughtBubble>
-          &ldquo;맞아, <strong className="not-italic font-semibold text-[#282828]">정확히 우리 팀 얘기</strong>야. 나만 힘든 게 아니었구나.&rdquo;
-        </ThoughtBubble>
-
-        <div className="mt-10 flex flex-col items-start text-left md:mt-12">
+        <div className="flex flex-col items-start text-left">
           <span className="inline-flex items-center rounded-full border border-[#f0efe6] bg-white px-2 py-1 text-[12px] font-semibold uppercase leading-[15.6px] tracking-[0.1em] text-[var(--color-primary)]">
             채용팀의 현실
           </span>

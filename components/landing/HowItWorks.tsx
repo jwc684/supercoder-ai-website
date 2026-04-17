@@ -1,5 +1,3 @@
-import { ThoughtBubble } from "./ThoughtBubble";
-
 /**
  * HowItWorks — v3 narrative 의 "How It Works" 섹션.
  * 5 스텝 (가로 타임라인 데스크톱 / 세로 타임라인 모바일).
@@ -52,11 +50,7 @@ export function HowItWorks() {
   return (
     <div className="bg-white py-20 md:py-28 lg:py-32">
       <div className="wp-container">
-        <ThoughtBubble>
-          &ldquo;도입이 복잡하지 않을까? <strong className="not-italic font-semibold text-[#282828]">우리 팀이 빠르게 쓸 수 있을까?</strong>&rdquo;
-        </ThoughtBubble>
-
-        <div className="mt-10 flex flex-col items-center text-center md:mt-12">
+        <div className="flex flex-col items-center text-center">
           <span className="inline-flex items-center rounded-full border border-[#f0efe6] bg-white px-2 py-1 text-[12px] font-semibold uppercase leading-[15.6px] tracking-[0.1em] text-[var(--color-primary)]">
             사용 방법
           </span>

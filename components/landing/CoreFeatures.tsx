@@ -1,5 +1,4 @@
 import { Target, MessagesSquare, BarChart3, ShieldAlert } from "lucide-react";
-import { ThoughtBubble } from "./ThoughtBubble";
 
 /**
  * CoreFeatures — v3 narrative 의 "Features" 섹션.
@@ -61,11 +60,7 @@ export function CoreFeatures() {
   return (
     <div className="bg-white py-20 md:py-28 lg:py-32">
       <div className="wp-container">
-        <ThoughtBubble>
-          &ldquo;AI가 면접을 제대로 볼 수 있나? <strong className="not-italic font-semibold text-[#282828]">단순히 질문만 읽어주는 수준</strong> 아닐까?&rdquo;
-        </ThoughtBubble>
-
-        <div className="mt-10 flex flex-col items-start text-left md:mt-12">
+        <div className="flex flex-col items-start text-left">
           <span className="inline-flex items-center rounded-full border border-[#f0efe6] bg-white px-2 py-1 text-[12px] font-semibold uppercase leading-[15.6px] tracking-[0.1em] text-[var(--color-primary)]">
             주요 기능
           </span>
