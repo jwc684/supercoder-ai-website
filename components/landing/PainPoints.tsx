@@ -1,98 +1,130 @@
-import { Clock, Scale, Target } from "lucide-react";
+import { Search, Clock3, ClipboardList, Check } from "lucide-react";
+import { ThoughtBubble } from "./ThoughtBubble";
 
 /**
- * PainPoints — Hero 아래 첫 번째 콘텐츠 블록.
- * 기획문서 3.1 Section 2: "HR 담당자의 3가지 고충 (시간, 일관성, 미스매칭)"
- *
- * 구조:
- *   <div> (sibling of hero <header>, 별도 section 태그 없음)
- *     <div className="wp-container">
- *       <div>eyebrow + h2 + body</div>
- *       <div grid>3 cards</div>
+ * PainPoints — v3 narrative 의 "Problem" 섹션.
+ * 3-bucket 구조: 검증 / 효율 / 투명성.
+ * 각 버킷 = 태그 · 제목 · 3 개 pain · divider · ✓ 답변.
  */
 
-type PainPoint = {
+type Bucket = {
   icon: React.ComponentType<{ className?: string }>;
-  accent: string; // Tailwind bg class for icon wrapper채용 담당자가 매일 마주하는 3가지 고충
-
+  tag: string;
+  tagAccent: "blue" | "indigo" | "emerald";
   title: string;
-  description: string;
+  pains: string[];
+  answer: string;
 };
 
-const painPoints: PainPoint[] = [
+const buckets: Bucket[] = [
   {
-    icon: Clock,
-    accent: "bg-[#fff6e5] text-[#b45309]",
-    title: "시간",
-    description:
-      "채용 한 건 당 평균 60일. 면접 일정 조율만 해도 HR 담당자의 일과가 사라집니다.",
+    icon: Search,
+    tag: "검증의 문제",
+    tagAccent: "blue",
+    title: "\"무엇을 기준으로 누구를 뽑아야 할지 모르겠다\"",
+    pains: [
+      "이력서가 사실인지 확인할 방법이 없다",
+      "직무마다 \"좋은 사람\"의 기준이 달라서 혼자 정하기 어렵다",
+      "HR이 개발자, 디자이너, 세일즈 직무를 전부 알 수는 없다",
+    ],
+    answer: "AI가 JD를 읽고 직무 역량을 자동 추출합니다. HR이 직무를 몰라도 됩니다.",
   },
   {
-    icon: Scale,
-    accent: "bg-[#e8f1ff] text-[#2563eb]",
-    title: "일관성",
-    description:
-      "면접관마다 평가 기준이 다르고, 기록은 엑셀에 흩어져 있어 비교가 어렵습니다.",
+    icon: Clock3,
+    tag: "효율의 문제",
+    tagAccent: "indigo",
+    title: "\"채용 한 건에 너무 많은 시간과 사람이 들어간다\"",
+    pains: [
+      "면접 일정 조율, 진행, 평가 취합까지 전부 수작업",
+      "현업 팀장들에게 면접 잘 보는 법을 가르쳐야 하는데 방법도 모르겠다",
+      "면접관 교육을 위한 시간도, 방법도 없다",
+    ],
+    answer: "AI가 1차 면접 전체를 자동 진행합니다. 면접관 교육이 필요 없습니다.",
   },
   {
-    icon: Target,
-    accent: "bg-[#fef0ef] text-[#dc2626]",
-    title: "미스매칭",
-    description:
-      "스펙 중심의 스크리닝으로 뽑은 인재가 실무에서 맞지 않는 경우가 많습니다.",
+    icon: ClipboardList,
+    tag: "투명성의 문제",
+    tagAccent: "emerald",
+    title: "\"경영진은 더 높은 기준을 요구하는데 방법이 없다\"",
+    pains: [
+      "채용 과정이 블랙박스다 — 왜 이 사람을 뽑았는지 설명이 안 된다",
+      "AX 도입으로 채용 속도·품질을 동시에 높이라는 압박이 있다",
+      "면접 결과가 기억과 메모에만 남는다",
+    ],
+    answer: "모든 면접이 녹화·리포트화되어 근거 기반 보고가 가능합니다.",
   },
 ];
 
+const TAG_STYLES: Record<Bucket["tagAccent"], string> = {
+  blue: "bg-[#e8f1ff] text-[#2563eb]",
+  indigo: "bg-[#eef0ff] text-[#4338ca]",
+  emerald: "bg-[#e6f6ee] text-[#047857]",
+};
+
 export function PainPoints() {
   return (
-    // 브랜드 블루 계열 light blue 배경 (로고 #3A6FFF / 브랜드 #2563eb 의 톤다운 버전)
-    <div className="bg-[#eff4ff] py-16 md:py-24 lg:py-28">
+    <div className="bg-white py-20 md:py-28 lg:py-32">
       <div className="wp-container">
-        {/* 상단 헤더 영역 (eyebrow + h2 + body) */}
-        <div className="flex flex-col items-center text-center">
-          {/* Maki .g_label pill */}
-          <span className="inline-flex items-center rounded-full border border-[#f0efe6] bg-white px-2 py-1 text-[12px] font-medium uppercase leading-[15.6px] tracking-normal text-[#5f6363]">
-            CHALLENGES
+        <ThoughtBubble>
+          &ldquo;맞아, <strong className="not-italic font-semibold text-[#282828]">정확히 우리 팀 얘기</strong>야. 나만 힘든 게 아니었구나.&rdquo;
+        </ThoughtBubble>
+
+        <div className="mt-10 flex flex-col items-start text-left md:mt-12">
+          <span className="inline-flex items-center rounded-full border border-[#f0efe6] bg-white px-2 py-1 text-[12px] font-semibold uppercase leading-[15.6px] tracking-[0.1em] text-[var(--color-primary)]">
+            채용팀의 현실
           </span>
 
-          {/* H2 — Maki --font-size--title--l 스케일
-              ≥768: 3.5rem (56px) / ≤767: 2.5rem (40px)
-              weight 500 / line-height 100% / color #282828 */}
-          <h2 className="mt-4 max-w-3xl text-[2.5rem] font-medium leading-[110%] tracking-normal text-[#282828] md:text-[3.5rem]">
-            채용 담당자가 매일 마주하는 3가지 고충
+          <h2 className="mt-4 max-w-3xl text-[2rem] font-semibold leading-[1.2] tracking-[-0.02em] text-[#282828] md:text-[2.5rem]">
+            직감에 의존할 수밖에 없었던
+            <br />
+            세 가지 이유
           </h2>
 
-          {/* Body — body-l 반응형 (18/20) */}
-          <p className="mt-5 max-w-2xl text-[18px] font-normal leading-[1.5] text-[#5f6363] md:text-[20px]">
-            오랜 시간이 걸리고, 기준이 제각각이고, 그래서 또 다시 사람을 잘못
-            뽑습니다. 코비가 이 악순환을 끊습니다.
+          <p className="mt-5 max-w-2xl text-[17px] leading-[1.7] text-[#5f6363]">
+            기준도, 데이터도, 시간도 없었으니까요. 채용팀이 지쳐있는 건 당연한
+            일입니다.
           </p>
         </div>
 
-        {/* 3-card 그리드 */}
-        <div className="mt-12 grid gap-6 md:mt-16 md:grid-cols-3 md:gap-6 lg:gap-8">
-          {painPoints.map((point) => {
-            const Icon = point.icon;
+        <div className="mt-12 grid gap-5 md:mt-14 md:grid-cols-3 md:gap-6">
+          {buckets.map((bucket) => {
+            const Icon = bucket.icon;
             return (
               <article
-                key={point.title}
-                className="group flex flex-col gap-5 rounded-2xl border border-[var(--color-border)] bg-white p-6 transition-colors hover:border-[#d4d8de] md:p-8"
+                key={bucket.tag}
+                className="flex flex-col rounded-2xl border border-[var(--color-border)] bg-[var(--color-bg-alt)] p-7 md:p-8"
               >
-                {/* 아이콘 배지 */}
                 <div
-                  className={`inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-xl ${point.accent}`}
+                  className={`inline-flex w-fit items-center gap-2 rounded-md px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.08em] ${TAG_STYLES[bucket.tagAccent]}`}
                 >
-                  <Icon className="h-6 w-6" />
+                  <Icon className="h-3.5 w-3.5" />
+                  {bucket.tag}
                 </div>
 
-                {/* 카드 타이틀 — title-m 수준 (24px) */}
-                <h3 className="text-[24px] font-semibold leading-[130%] text-[#282828]">
-                  {point.title}
+                <h3 className="mt-5 text-[19px] font-semibold leading-[1.4] text-[#282828]">
+                  {bucket.title}
                 </h3>
 
-                {/* 카드 본문 */}
-                <p className="text-[16px] font-normal leading-[1.6] text-[#5f6363]">
-                  {point.description}
+                <ul className="mt-5 flex flex-col gap-2.5">
+                  {bucket.pains.map((p) => (
+                    <li
+                      key={p}
+                      className="flex items-start gap-2 text-[13.5px] leading-[1.6] text-[#5f6363]"
+                    >
+                      <span aria-hidden className="mt-[9px] h-[1.5px] w-2 shrink-0 bg-[#9099a3]" />
+                      <span>{p}</span>
+                    </li>
+                  ))}
+                </ul>
+
+                <div
+                  aria-hidden
+                  className="my-5 h-px bg-[var(--color-border)]"
+                />
+
+                <p className="flex items-start gap-2 text-[13.5px] font-medium leading-[1.6] text-[var(--color-success)]">
+                  <Check className="mt-[2px] h-4 w-4 shrink-0" />
+                  <span>{bucket.answer}</span>
                 </p>
               </article>
             );

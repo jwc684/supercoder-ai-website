@@ -1,101 +1,137 @@
-import { TrendingDown, TrendingUp, PiggyBank } from "lucide-react";
+import { Quote } from "lucide-react";
+import { ThoughtBubble } from "./ThoughtBubble";
 
 /**
- * Metrics — 기획문서 3.1 Section 9: "성과 데이터 (60일→2일, 5배 합격률, 90% 비용 절감)"
+ * Metrics — v3 narrative 의 "Results" 섹션.
+ * 좌측: 3 metric (2일 / 5× / 90%).
+ * 우측: 3 testimonials (CHRO · 채용 팀장 · 시니어 리크루터 — placeholder).
  */
 
 type Metric = {
-  icon: React.ComponentType<{ className?: string }>;
-  value: string;
-  unit: string;
-  label: string;
-  desc: string;
+  num: string;
+  title: string;
+  body: string;
+};
+
+type Testimonial = {
+  quote: string;
+  author: string;
+  role: string;
+  initial: string;
 };
 
 const metrics: Metric[] = [
   {
-    icon: TrendingDown,
-    value: "60일",
-    unit: "→ 2일",
-    label: "채용 기간 단축",
-    desc: "평균 채용 기간을 60일에서 2일로 대폭 축소",
+    num: "2일",
+    title: "평균 채용 기간 단축",
+    body: "기존 60일 → 도입 후 평균 2일",
   },
   {
-    icon: TrendingUp,
-    value: "5×",
-    unit: "배",
-    label: "합격률 상승",
-    desc: "1차 면접 통과자 중 최종 합격 비율이 5배 증가",
+    num: "5×",
+    title: "최종 합격률 향상",
+    body: "1차 통과자의 최종 합격 비율 5배 향상",
   },
   {
-    icon: PiggyBank,
-    value: "90%",
-    unit: "절감",
-    label: "비용 절감",
-    desc: "외부 헤드헌팅·면접관 인건비 대비 90% 비용 절감",
+    num: "90%",
+    title: "채용 비용 절감",
+    body: "헤드헌팅 · 면접관 인건비 대비",
+  },
+];
+
+const testimonials: Testimonial[] = [
+  {
+    quote:
+      "AI 리포트 덕분에 경영진에게 \"왜 이 사람을 뽑았는가\"를 처음으로 데이터로 설명할 수 있게 됐습니다. 채용팀 신뢰도가 올라갔어요.",
+    author: "박 ○○ CHRO",
+    role: "[고객사명 교체] — 인사 총괄",
+    initial: "박",
+  },
+  {
+    quote:
+      "개발자 면접을 현업 팀장이 직접 봐야 했는데, 이제 AI가 1차를 진행해줘서 팀장들 부담이 크게 줄었습니다. 면접 품질도 오히려 더 좋아졌어요.",
+    author: "이 ○○ 채용 팀장",
+    role: "[고객사명 교체] — 채용팀",
+    initial: "이",
+  },
+  {
+    quote:
+      "이력서에 적힌 내용이 실제인지 항상 의심스러웠는데, AI가 꼬리 질문으로 파고드니까 허위 기재를 걸러낼 수 있게 됐습니다.",
+    author: "최 ○○ 시니어 리크루터",
+    role: "[고객사명 교체] — HR",
+    initial: "최",
   },
 ];
 
 export function Metrics() {
   return (
-    <div className="bg-[#0b1b4a] py-20 md:py-28 lg:py-32">
-      {/* 어두운 브랜드 블루 배경으로 큰 숫자 강조 */}
+    <div className="bg-white py-20 md:py-28 lg:py-32">
       <div className="wp-container">
-        {/* Header */}
-        <div className="flex flex-col items-center text-center">
-          <span className="inline-flex items-center rounded-full border border-white/20 bg-white/5 px-2 py-1 text-[12px] font-medium uppercase leading-[15.6px] tracking-normal text-white/80">
-            Proven Results
-          </span>
+        <ThoughtBubble>
+          &ldquo;좋은 말은 다들 하지. <strong className="not-italic font-semibold text-[#282828]">실제로 쓴 회사 얘기</strong>를 봐야 알겠는데.&rdquo;
+        </ThoughtBubble>
 
-          <h2 className="mt-4 max-w-3xl text-[2.5rem] font-medium leading-[110%] tracking-normal text-white md:text-[3.5rem]">
-            숫자로 증명된 채용 혁신
-          </h2>
+        <div className="mt-10 grid gap-12 lg:mt-14 lg:grid-cols-2 lg:gap-16">
+          {/* Left: header + 3 metric cards */}
+          <div>
+            <span className="inline-flex items-center rounded-full border border-[#f0efe6] bg-white px-2 py-1 text-[12px] font-semibold uppercase leading-[15.6px] tracking-[0.1em] text-[var(--color-primary)]">
+              도입 효과
+            </span>
 
-          <p className="mt-5 max-w-2xl text-[18px] font-normal leading-[1.5] text-white/70 md:text-[20px]">
-            시간 · 품질 · 비용, 세 가지 지표에서 모두 측정 가능한 변화를
-            만듭니다.
-          </p>
-        </div>
+            <h2 className="mt-4 max-w-xl text-[2rem] font-semibold leading-[1.2] tracking-[-0.02em] text-[#282828] md:text-[2.5rem]">
+              숫자로 확인하는
+              <br />
+              채용 혁신
+            </h2>
 
-        {/* 3-column big metric cards */}
-        <div className="mt-14 grid gap-6 md:mt-20 md:grid-cols-3 md:gap-8">
-          {metrics.map((m) => {
-            const Icon = m.icon;
-            return (
-              <div
-                key={m.label}
-                className="relative overflow-hidden rounded-3xl bg-white/5 p-8 ring-1 ring-white/10 backdrop-blur-sm transition-colors hover:bg-white/[0.07] md:p-10"
-              >
-                {/* 배경 글로우 */}
-                <div
-                  aria-hidden
-                  className="pointer-events-none absolute -right-16 -top-16 h-48 w-48 rounded-full bg-[#3A6FFF]/20 blur-3xl"
-                />
-
-                <div className="relative flex items-center gap-3">
-                  <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-white/10 text-[#89b0ff]">
-                    <Icon className="h-5 w-5" />
+            <ul className="mt-8 flex flex-col gap-3.5">
+              {metrics.map((m) => (
+                <li
+                  key={m.title}
+                  className="flex items-center gap-5 rounded-2xl border border-[var(--color-border)] bg-[var(--color-bg-alt)] px-6 py-5 md:px-7 md:py-6"
+                >
+                  <span className="min-w-[88px] text-[32px] font-bold leading-none tracking-[-0.02em] text-[var(--color-primary)] md:text-[36px]">
+                    {m.num}
+                  </span>
+                  <div className="min-w-0">
+                    <p className="text-[14px] font-semibold text-[#282828]">
+                      {m.title}
+                    </p>
+                    <p className="mt-1 text-[13px] text-[#5f6363]">{m.body}</p>
                   </div>
-                  <p className="text-[11px] font-semibold uppercase tracking-wider text-white/60">
-                    {m.label}
-                  </p>
-                </div>
+                </li>
+              ))}
+            </ul>
+          </div>
 
-                <div className="relative mt-8 flex items-baseline gap-2">
-                  <span className="text-[64px] font-bold leading-none tracking-tight text-white md:text-[72px]">
-                    {m.value}
-                  </span>
-                  <span className="text-[18px] font-medium text-white/70 md:text-[20px]">
-                    {m.unit}
-                  </span>
-                </div>
-
-                <p className="relative mt-4 text-[14px] leading-[1.6] text-white/70 md:text-[15px]">
-                  {m.desc}
-                </p>
-              </div>
-            );
-          })}
+          {/* Right: 3 testimonials */}
+          <div className="flex flex-col gap-4">
+            {testimonials.map((t) => (
+              <figure
+                key={t.author}
+                className="rounded-2xl border border-[var(--color-border)] bg-[var(--color-bg-alt)] p-6 md:p-7"
+              >
+                <Quote
+                  aria-hidden
+                  className="h-5 w-5 text-[var(--color-primary)]"
+                  strokeWidth={2}
+                />
+                <blockquote className="mt-3 text-[14.5px] leading-[1.8] text-[#282828]">
+                  {t.quote}
+                </blockquote>
+                <figcaption className="mt-5 flex items-center gap-3">
+                  <div className="flex h-9 w-9 items-center justify-center rounded-full bg-white text-[13px] font-bold text-[#5f6363] ring-1 ring-[var(--color-border)]">
+                    {t.initial}
+                  </div>
+                  <div>
+                    <p className="text-[13px] font-semibold text-[#282828]">
+                      {t.author}
+                    </p>
+                    <p className="text-[12px] text-[#9099a3]">{t.role}</p>
+                  </div>
+                </figcaption>
+              </figure>
+            ))}
+          </div>
         </div>
       </div>
     </div>

@@ -15,6 +15,7 @@
     "db:generate": "prisma generate",
     "db:seed-stats": "dotenv -e .env.local -- node scripts/seed-stats.mjs",
     "db:seed-page-meta": "dotenv -e .env.local -- node scripts/seed-page-meta.mjs",
+    "db:seed-faqs": "dotenv -e .env.local -- node scripts/seed-faqs-v3.mjs",
     "make:og-image": "node scripts/make-og-image.mjs",
     "test": "vitest run",
     "test:watch": "vitest"

@@ -7,14 +7,34 @@
 const steps = [
   {
     id: 1,
-    label: "채용공고 분석",
-    sub: "JD 에서 핵심 역량 자동 추출",
+    label: "채용공고 업로드",
+    sub: "JD 텍스트 또는 PDF 붙여넣기",
     icon: "📄",
   },
-  { id: 2, label: "역량 추출", sub: "Hard / Soft Skills 가중치", icon: "🎯" },
-  { id: 3, label: "질문 추천", sub: "STAR / 상황 / 기술 검증", icon: "💡" },
-  { id: 4, label: "AI 면접", sub: "실시간 Deep Dive 꼬리질문", icon: "🎤" },
-  { id: 5, label: "AI 보고서", sub: "역량별 점수 + 리스크 분석", icon: "📊" },
+  {
+    id: 2,
+    label: "역량 자동 추출",
+    sub: "AI가 직무 역량 · 가중치 · 질문 생성",
+    icon: "🎯",
+  },
+  {
+    id: 3,
+    label: "지원자 링크 발송",
+    sub: "앱 설치 없이 링크만으로 참여",
+    icon: "📨",
+  },
+  {
+    id: 4,
+    label: "AI 면접 자동 진행",
+    sub: "음성 대화 · 실시간 꼬리 질문 · 다국어",
+    icon: "🎤",
+  },
+  {
+    id: 5,
+    label: "평가 리포트",
+    sub: "역량별 점수 · 근거 인용 · 경영진 공유",
+    icon: "📊",
+  },
 ];
 
 const STEP_COUNT = steps.length;

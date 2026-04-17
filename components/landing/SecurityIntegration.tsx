@@ -1,14 +1,15 @@
-import { ShieldCheck, Code2, Plug, Palette } from "lucide-react";
+import { ShieldCheck, Zap, Plug, Palette } from "lucide-react";
+import { ThoughtBubble } from "./ThoughtBubble";
 
 /**
- * SecurityIntegration — 기획문서 3.1 Section 11:
- * "보안 & 연동 (ISO 27001 · API · ATS 연동 · 커스터마이징)"
+ * SecurityIntegration — v3 narrative 의 "Enterprise" 섹션.
+ * 4-up grid: 보안 / API / ATS 연동 / 커스터마이징.
  */
 
 type Item = {
   icon: React.ComponentType<{ className?: string }>;
   title: string;
-  desc: string;
+  body: string;
   tags: string[];
 };
 
@@ -16,74 +17,76 @@ const items: Item[] = [
   {
     icon: ShieldCheck,
     title: "엔터프라이즈급 보안",
-    desc: "ISO 27001 인증과 엄격한 데이터 보호 정책. 고객사 데이터는 암호화되어 관리됩니다.",
+    body: "ISO 27001 인증, AES-256 암호화, GDPR 준수. 고객사 데이터는 분리 저장됩니다.",
     tags: ["ISO 27001", "AES-256", "GDPR"],
   },
   {
-    icon: Code2,
+    icon: Zap,
     title: "개발자 친화 API",
-    desc: "REST API 로 면접 생성, 리포트 조회, 결과 동기화 등 모든 기능을 프로그래밍적으로 제어.",
+    body: "REST API로 면접 생성, 리포트 조회, 결과 동기화 등 모든 기능을 제어합니다.",
     tags: ["REST API", "Webhooks", "OAuth 2.0"],
   },
   {
     icon: Plug,
     title: "ATS · HR 시스템 연동",
-    desc: "Greenhouse · Lever · 사내 ATS 등 주요 시스템과 연동 (일부 진행 중).",
+    body: "Greenhouse · Lever · 사내 ATS 등 주요 채용 시스템과 연동합니다.",
     tags: ["Greenhouse", "Lever", "사내 ATS"],
   },
   {
     icon: Palette,
     title: "완전한 커스터마이징",
-    desc: "면접 시간, 질문 수, 인사말, 리포트 색상/로고까지 브랜드에 맞춰 자유롭게 조정.",
-    tags: ["질문/시간", "UI 색상", "로고"],
+    body: "면접 시간, 질문 수, AI 인사말, 리포트 색상과 로고까지 브랜드에 맞게 조정.",
+    tags: ["질문/시간", "UI 색상", "로고 적용"],
   },
 ];
 
 export function SecurityIntegration() {
   return (
-    <div className="bg-[#eff4ff] py-20 md:py-28 lg:py-32">
+    <div className="bg-[var(--color-bg-alt)] py-20 md:py-28 lg:py-32">
       <div className="wp-container">
-        {/* Header */}
-        <div className="flex flex-col items-center text-center">
-          <span className="inline-flex items-center rounded-full border border-[#f0efe6] bg-white px-2 py-1 text-[12px] font-medium uppercase leading-[15.6px] tracking-normal text-[#5f6363]">
-            Security & Integration
+        <ThoughtBubble>
+          &ldquo;지원자 개인정보 들어가는데, <strong className="not-italic font-semibold text-[#282828]">보안 기준은 맞나?</strong> 기존 ATS와 연동되나?&rdquo;
+        </ThoughtBubble>
+
+        <div className="mt-10 flex flex-col items-center text-center md:mt-12">
+          <span className="inline-flex items-center rounded-full border border-[#f0efe6] bg-white px-2 py-1 text-[12px] font-semibold uppercase leading-[15.6px] tracking-[0.1em] text-[var(--color-primary)]">
+            보안 · 연동
           </span>
 
-          <h2 className="mt-4 max-w-3xl text-[2.5rem] font-medium leading-[110%] tracking-normal text-[#282828] md:text-[3.5rem]">
-            엔터프라이즈가 신뢰하는 인프라
+          <h2 className="mt-4 max-w-3xl text-[2rem] font-semibold leading-[1.2] tracking-[-0.02em] text-[#282828] md:text-[2.5rem]">
+            대기업도 신뢰하는 인프라
           </h2>
 
-          <p className="mt-5 max-w-2xl text-[18px] font-normal leading-[1.5] text-[#5f6363] md:text-[20px]">
-            보안 · API · ATS 연동 · 커스터마이징까지. 대기업 보안 요구를 충족하며,
-            기존 HR 시스템과 자연스럽게 연결됩니다.
+          <p className="mt-5 max-w-2xl text-[17px] leading-[1.7] text-[#5f6363]">
+            보안 · API · ATS 연동 · 커스터마이징. 기존 HR 시스템과 자연스럽게
+            연결됩니다.
           </p>
         </div>
 
-        {/* 2x2 카드 그리드 */}
-        <div className="mt-14 grid gap-5 md:mt-20 md:grid-cols-2 md:gap-6">
+        <div className="mt-12 grid gap-4 md:mt-14 md:grid-cols-2 md:gap-5 lg:grid-cols-4">
           {items.map((item) => {
             const Icon = item.icon;
             return (
               <article
                 key={item.title}
-                className="flex flex-col gap-4 rounded-2xl border border-[var(--color-border)] bg-white p-7 transition-colors hover:border-[var(--color-primary)]/30 md:p-8"
+                className="flex flex-col rounded-2xl border border-[var(--color-border)] bg-white p-6 text-center md:p-7"
               >
-                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-[var(--color-primary-light)] text-[var(--color-primary)]">
-                  <Icon className="h-6 w-6" />
+                <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-[var(--color-primary-light)] text-[var(--color-primary)]">
+                  <Icon className="h-5 w-5" />
                 </div>
-                <h3 className="text-[20px] font-semibold leading-[1.25] text-[#282828]">
+                <h3 className="mt-4 text-[15px] font-semibold leading-[1.35] text-[#282828]">
                   {item.title}
                 </h3>
-                <p className="text-[14.5px] leading-[1.6] text-[#5f6363]">
-                  {item.desc}
+                <p className="mt-2.5 text-[13px] leading-[1.6] text-[#5f6363]">
+                  {item.body}
                 </p>
-                <div className="mt-2 flex flex-wrap gap-2">
-                  {item.tags.map((tag) => (
+                <div className="mt-4 flex flex-wrap justify-center gap-1.5">
+                  {item.tags.map((t) => (
                     <span
-                      key={tag}
-                      className="inline-flex items-center rounded-md bg-[var(--color-primary-light)] px-2.5 py-1 text-[11px] font-medium text-[var(--color-primary)]"
+                      key={t}
+                      className="inline-flex items-center rounded-md border border-[var(--color-border)] bg-[var(--color-bg-alt)] px-2 py-0.5 text-[11px] text-[#6b7280]"
                     >
-                      {tag}
+                      {t}
                     </span>
                   ))}
                 </div>
