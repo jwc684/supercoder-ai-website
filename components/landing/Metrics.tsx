@@ -21,9 +21,9 @@ type Testimonial = {
 
 const metrics: Metric[] = [
   {
-    num: "2일",
+    num: "2주",
     title: "평균 채용 기간 단축",
-    body: "기존 60일 → 도입 후 평균 2일",
+    body: "기존 60일 → 도입 후 평균 2주",
   },
   {
     num: "5×",

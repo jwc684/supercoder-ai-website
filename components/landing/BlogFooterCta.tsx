@@ -17,7 +17,7 @@ import { ArrowRight } from "lucide-react";
  */
 
 const stats = [
-  { value: "60일 → 2일", label: "채용 기간 단축" },
+  { value: "60일 → 2주", label: "채용 기간 단축" },
   { value: "5×", label: "합격률 상승" },
   { value: "90%", label: "비용 절감" },
   { value: "95%", label: "지원자 만족도" },
