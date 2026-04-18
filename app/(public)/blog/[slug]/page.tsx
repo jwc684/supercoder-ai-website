@@ -272,7 +272,7 @@ export default async function BlogDetailPage({ params }: { params: Params }) {
               {/* Dark CTA card — Maki .c_card_cta.is--mode_2 */}
               <div className="overflow-hidden rounded-lg bg-[#282828] p-6 text-white">
                 <p className="text-[18px] font-semibold leading-[1.3] text-white md:text-[20px]">
-                  코비가 귀사의 채용을 어떻게 바꿀 수 있을까요?
+                  AI 면접이 채용을 어떻게 바꿀 수 있을까요?
                 </p>
                 <p className="mt-3 text-[13px] leading-[1.55] text-white/70">
                   1 영업일 내 맞춤 데모 제안 · 무료 체험 30일

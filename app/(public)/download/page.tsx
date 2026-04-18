@@ -1,20 +1,13 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
-import {
-  ArrowRight,
-  ChevronDown,
-  FileText,
-  Loader2,
-  Sparkles,
-  Zap,
-} from "lucide-react";
+import { ArrowRight, FileText, Loader2, Sparkles, Zap } from "lucide-react";
 import { downloadSchema, type DownloadInput } from "@/lib/validations";
+import { ConsentBlock } from "@/components/form/ConsentBlock";
 
 /**
  * /download — 서비스 소개서 다운로드 (v3 narrative 기준, 라이트 테마 포팅).
@@ -55,6 +48,8 @@ export default function DownloadPage() {
     register,
     handleSubmit,
     formState: { errors, isSubmitting },
+    watch,
+    setValue,
   } = useForm<DownloadInput>({
     resolver: zodResolver(downloadSchema),
     defaultValues: {
@@ -69,6 +64,23 @@ export default function DownloadPage() {
       marketingAgreed: false,
     },
   });
+
+  const age = watch("ageOver14");
+  const privacy = watch("privacyAgreed");
+  const marketing = watch("marketingAgreed") ?? false;
+  const requiredConsents = !!age && !!privacy;
+
+  const handleToggleAll = (next: boolean) => {
+    setValue("ageOver14", next, { shouldValidate: true, shouldDirty: true });
+    setValue("privacyAgreed", next, {
+      shouldValidate: true,
+      shouldDirty: true,
+    });
+    setValue("marketingAgreed", next, {
+      shouldValidate: true,
+      shouldDirty: true,
+    });
+  };
 
   const onSubmit = async (values: DownloadInput) => {
     try {
@@ -218,88 +230,27 @@ export default function DownloadPage() {
               placeholder="010-1234-5678 (선택)"
             />
 
-            {/* ─── 법적 동의 3종 ─── */}
-            <div className="mt-2 flex flex-col gap-2 rounded-xl border border-[var(--color-border)] bg-white p-4">
-              <ConsentRow
-                label="만 14세 이상입니다."
-                required
-                register={register("ageOver14")}
-                error={errors.ageOver14?.message}
-              />
-              <ConsentRow
-                label="개인정보 수집 및 이용 동의"
-                required
-                register={register("privacyAgreed")}
-                error={errors.privacyAgreed?.message}
-                detail={
-                  <ConsentTable
-                    rows={[
-                      {
-                        label: "수집 목적",
-                        value:
-                          "슈퍼코더 AI Interviewer 서비스 소개서 발송 대상 식별 및 발송 (이메일)",
-                      },
-                      {
-                        label: "수집 항목",
-                        value:
-                          "회사명, 담당자 이름, 회사 이메일, 직책, 휴대전화번호",
-                      },
-                      {
-                        label: "보유 및 이용 기간",
-                        value:
-                          "소개서 신청일로부터 1년 보관 또는 개인정보 삭제 요청 시까지",
-                      },
-                      {
-                        label: "거부 권리",
-                        value:
-                          "이용자는 개인정보 수집 및 이용에 거부할 권리가 있습니다. 다만, 거부 시 소개서 발송이 제한될 수 있습니다.",
-                      },
-                    ]}
-                  />
-                }
-              />
-              <ConsentRow
-                label="마케팅 정보 수신 동의"
-                optional
-                register={register("marketingAgreed")}
-                detail={
-                  <ConsentTable
-                    rows={[
-                      {
-                        label: "수집 목적",
-                        value:
-                          "슈퍼코더 AI Interviewer 도입 안내, 무료체험 안내, 미팅 확정 및 진행, 서비스 업데이트, 이벤트 공지",
-                      },
-                      {
-                        label: "수집 항목",
-                        value:
-                          "이름, 이메일 주소, 휴대전화번호, 회사명",
-                      },
-                      {
-                        label: "보유 및 이용 기간",
-                        value:
-                          "동의일로부터 3년 혹은 '수신 거부' 요청 시까지",
-                      },
-                      {
-                        label: "거부 권리",
-                        value:
-                          "이용자는 마케팅 정보 수신 동의를 거부할 수 있으며, 거부 시 슈퍼코더의 서비스 및 이벤트 소식에서 제외됩니다.",
-                      },
-                      {
-                        label: "수신 동의 철회",
-                        value:
-                          "이메일 하단 수신 거부 링크, 고객 지원, 또는 contact@supercoder.ai 로 언제든 요청 가능합니다.",
-                      },
-                    ]}
-                  />
-                }
-              />
-            </div>
+            {/* 동의 3종 + 전체 동의 */}
+            <ConsentBlock
+              state={{
+                ageOver14: !!age,
+                privacyAgreed: !!privacy,
+                marketingAgreed: !!marketing,
+              }}
+              ageOver14Register={register("ageOver14")}
+              privacyAgreedRegister={register("privacyAgreed")}
+              marketingAgreedRegister={register("marketingAgreed")}
+              onToggleAll={handleToggleAll}
+              errors={{
+                ageOver14: errors.ageOver14?.message,
+                privacyAgreed: errors.privacyAgreed?.message,
+              }}
+            />
 
             <button
               type="submit"
-              disabled={isSubmitting}
-              className="mt-3 inline-flex items-center justify-center gap-2 rounded-lg bg-[var(--color-primary)] px-8 py-4 text-base font-semibold leading-[1.5] text-white transition-colors hover:bg-[var(--color-primary-hover)] disabled:cursor-not-allowed disabled:opacity-60"
+              disabled={isSubmitting || !requiredConsents}
+              className="mt-3 inline-flex items-center justify-center gap-2 rounded-lg bg-[var(--color-primary)] px-8 py-4 text-base font-semibold leading-[1.5] text-white transition-colors hover:bg-[var(--color-primary-hover)] disabled:cursor-not-allowed disabled:opacity-50"
             >
               {isSubmitting ? (
                 <Loader2 className="h-4 w-4 animate-spin" />
@@ -391,95 +342,3 @@ function Field({
   );
 }
 
-/**
- * ConsentRow — 체크박스 + [필수]/[선택] 태그 + (옵션) 상세 보기 아코디언.
- * register 는 react-hook-form 의 register(name) 반환값을 그대로 넘긴다.
- */
-function ConsentRow({
-  label,
-  required,
-  optional,
-  register,
-  error,
-  detail,
-}: {
-  label: string;
-  required?: boolean;
-  optional?: boolean;
-  register: ReturnType<ReturnType<typeof useForm<DownloadInput>>["register"]>;
-  error?: string;
-  detail?: React.ReactNode;
-}) {
-  const [open, setOpen] = useState(false);
-
-  return (
-    <div>
-      <div className="flex items-center gap-2.5">
-        <input
-          type="checkbox"
-          {...register}
-          className="h-4 w-4 shrink-0 rounded border-[var(--color-border)] text-[var(--color-primary)] focus:ring-[var(--color-primary)]"
-        />
-        {required && (
-          <span className="shrink-0 rounded-md bg-[var(--color-primary-light)] px-1.5 py-0.5 text-[10px] font-semibold text-[var(--color-primary)]">
-            필수
-          </span>
-        )}
-        {optional && (
-          <span className="shrink-0 rounded-md bg-[var(--color-bg-alt)] px-1.5 py-0.5 text-[10px] font-semibold text-[#6b7280]">
-            선택
-          </span>
-        )}
-        <span className="flex-1 text-[13px] leading-[1.5] text-[#282828]">
-          {label}
-        </span>
-        {detail && (
-          <button
-            type="button"
-            onClick={() => setOpen((v) => !v)}
-            aria-expanded={open}
-            className="inline-flex shrink-0 items-center gap-1 text-[11.5px] font-medium text-[#6b7280] transition-colors hover:text-[var(--color-primary)]"
-          >
-            자세히
-            <ChevronDown
-              aria-hidden
-              className={`h-3 w-3 transition-transform ${open ? "rotate-180" : ""}`}
-            />
-          </button>
-        )}
-      </div>
-      {open && detail && <div className="mt-2.5">{detail}</div>}
-      {error && (
-        <p className="mt-1.5 pl-6 text-[11.5px] text-[var(--color-error)]">
-          {error}
-        </p>
-      )}
-    </div>
-  );
-}
-
-function ConsentTable({
-  rows,
-}: {
-  rows: { label: string; value: string }[];
-}) {
-  return (
-    <div className="overflow-hidden rounded-lg border border-[var(--color-border)] bg-[var(--color-bg-alt)]">
-      <dl className="divide-y divide-[var(--color-border)]">
-        {rows.map((row) => (
-          <div
-            key={row.label}
-            className="flex flex-col gap-0.5 px-3 py-2.5 sm:flex-row sm:gap-3"
-          >
-            <dt className="shrink-0 text-[11px] font-semibold text-[#6b7280] sm:w-[88px]">
-              {row.label}
-            </dt>
-            <dd className="flex-1 text-[11.5px] leading-[1.6] text-[#5f6363]">
-              {row.value}
-            </dd>
-          </div>
-        ))}
-      </dl>
-    </div>
-  );
-}

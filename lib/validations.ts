@@ -63,9 +63,14 @@ export const inquirySchema = z.object({
     .max(2000, "문의 내용이 너무 깁니다")
     .optional()
     .or(z.literal("").transform(() => undefined)),
+  // ─ 법적 동의 3종 ─
+  ageOver14: z
+    .boolean()
+    .refine((v) => v === true, "만 14세 이상 동의가 필요합니다"),
   privacyAgreed: z
     .boolean()
-    .refine((v) => v === true, "개인정보 수집 동의가 필요합니다"),
+    .refine((v) => v === true, "개인정보 수집 및 이용 동의가 필요합니다"),
+  marketingAgreed: z.boolean().optional(),
 });
 
 export type InquiryInput = z.infer<typeof inquirySchema>;

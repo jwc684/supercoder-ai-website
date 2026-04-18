@@ -256,7 +256,10 @@ model Inquiry {
   hireSize      String?
   interests     String[]
   message       String?
-  privacyAgreed Boolean       @default(true)
+  // ─ 법적 동의 3종 ─
+  ageOver14       Boolean @default(false)
+  privacyAgreed   Boolean @default(true) // 과거 row 호환 — 기존엔 제출 = true 간주
+  marketingAgreed Boolean @default(false)
   status        InquiryStatus @default(NEW)
   adminNote     String?
   createdAt     DateTime      @default(now())

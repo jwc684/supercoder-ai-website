@@ -17,7 +17,9 @@ describe("POST /api/inquiries", () => {
       hireSize: "6-20명",
       interests: ["AI 면접", "역량 분석"],
       message: "Vitest 통합 테스트로 생성된 문의입니다.",
+      ageOver14: true,
       privacyAgreed: true,
+      marketingAgreed: false,
     };
     const res = await api<{ ok: boolean; id: string; createdAt: string }>(
       "/api/inquiries",

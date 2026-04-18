@@ -10,6 +10,7 @@ import {
   type InquiryInput,
   HIRE_SIZE_VALUES,
 } from "@/lib/validations";
+import { ConsentBlock } from "@/components/form/ConsentBlock";
 
 /**
  * /contact — 데모 신청 페이지 (Maki /demo 구조 매칭).
@@ -43,6 +44,8 @@ export default function ContactPage() {
     handleSubmit,
     formState: { errors, isSubmitting },
     reset,
+    watch,
+    setValue,
   } = useForm<InquiryInput>({
     resolver: zodResolver(inquirySchema),
     defaultValues: {
@@ -53,9 +56,28 @@ export default function ContactPage() {
       jobTitle: "",
       hireSize: undefined,
       message: "",
-      privacyAgreed: undefined as unknown as true,
+      ageOver14: false,
+      privacyAgreed: false,
+      marketingAgreed: false,
     },
   });
+
+  const age = watch("ageOver14");
+  const privacy = watch("privacyAgreed");
+  const marketing = watch("marketingAgreed") ?? false;
+  const requiredConsents = !!age && !!privacy;
+
+  const handleToggleAll = (next: boolean) => {
+    setValue("ageOver14", next, { shouldValidate: true, shouldDirty: true });
+    setValue("privacyAgreed", next, {
+      shouldValidate: true,
+      shouldDirty: true,
+    });
+    setValue("marketingAgreed", next, {
+      shouldValidate: true,
+      shouldDirty: true,
+    });
+  };
 
   const onSubmit = async (values: InquiryInput) => {
     try {
@@ -266,34 +288,28 @@ export default function ContactPage() {
               )}
             </div>
 
-            {/* Privacy 동의 */}
-            <div>
-              <label className="flex items-start gap-3">
-                <input
-                  type="checkbox"
-                  {...register("privacyAgreed")}
-                  className="mt-1 h-4 w-4 shrink-0 rounded border-[var(--color-border)] text-[var(--color-primary)] focus:ring-[var(--color-primary)]"
-                />
-                <span className="text-[12.5px] leading-[1.5] text-[#5f6363]">
-                  <span className="font-medium text-[#282828]">
-                    개인정보 수집 및 이용에 동의합니다.
-                  </span>{" "}
-                  수집된 정보는 도입 문의 응대와 영업 연락 목적으로만 사용되며,
-                  자세한 내용은 개인정보처리방침을 따릅니다.
-                </span>
-              </label>
-              {errors.privacyAgreed?.message && (
-                <p className="mt-1.5 text-[12px] text-[var(--color-error)]">
-                  {errors.privacyAgreed.message}
-                </p>
-              )}
-            </div>
+            {/* 동의 3종 + 전체 동의 */}
+            <ConsentBlock
+              state={{
+                ageOver14: !!age,
+                privacyAgreed: !!privacy,
+                marketingAgreed: !!marketing,
+              }}
+              ageOver14Register={register("ageOver14")}
+              privacyAgreedRegister={register("privacyAgreed")}
+              marketingAgreedRegister={register("marketingAgreed")}
+              onToggleAll={handleToggleAll}
+              errors={{
+                ageOver14: errors.ageOver14?.message,
+                privacyAgreed: errors.privacyAgreed?.message,
+              }}
+            />
 
-            {/* Submit */}
+            {/* Submit — 필수 2개 동의 전엔 비활성화 */}
             <button
               type="submit"
-              disabled={isSubmitting}
-              className="mt-2 inline-flex items-center justify-center gap-2 rounded-lg bg-[var(--color-primary)] px-8 py-4 text-base font-semibold leading-[1.5] text-white transition-colors hover:bg-[var(--color-primary-hover)] disabled:cursor-not-allowed disabled:opacity-60"
+              disabled={isSubmitting || !requiredConsents}
+              className="mt-2 inline-flex items-center justify-center gap-2 rounded-lg bg-[var(--color-primary)] px-8 py-4 text-base font-semibold leading-[1.5] text-white transition-colors hover:bg-[var(--color-primary-hover)] disabled:cursor-not-allowed disabled:opacity-50"
             >
               {isSubmitting && <Loader2 className="h-4 w-4 animate-spin" />}
               {isSubmitting ? "전송 중…" : "데모 신청하기"}

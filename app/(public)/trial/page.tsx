@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { ArrowRight, Sparkles, PlayCircle, Clock, Shield } from "lucide-react";
+import { ArrowRight, Sparkles, Clock, Shield } from "lucide-react";
 import { getStaticPageMeta } from "@/lib/seo";
 
 /**
@@ -78,23 +78,16 @@ export default function TrialPage() {
         </div>
       </header>
 
-      {/* ────────────── 2. Video placeholder 16:9 ────────────── */}
+      {/* ────────────── 2. Demo video — YouTube 16:9 ────────────── */}
       <div className="wp-container pb-16 md:pb-24">
-        <div className="relative aspect-[16/9] overflow-hidden rounded-2xl border border-[var(--color-border)] bg-gradient-to-br from-[#e0f0ff] via-[#eff4ff] to-[#f0fdf4]">
-          <div className="absolute inset-0 flex flex-col items-center justify-center gap-5 text-center">
-            <div className="flex h-20 w-20 items-center justify-center rounded-full bg-white/80 text-[var(--color-primary)] shadow-lg backdrop-blur-sm md:h-24 md:w-24">
-              <PlayCircle className="h-10 w-10 md:h-12 md:w-12" />
-            </div>
-            <div>
-              <p className="text-[18px] font-semibold text-[#282828] md:text-[22px]">
-                데모 영상 준비 중
-              </p>
-              <p className="mt-2 max-w-md px-6 text-[13px] leading-[1.55] text-[#5f6363] md:text-[14px]">
-                실제 면접 플로우를 2 분 안에 보여드리는 영상이 곧 공개됩니다.
-                먼저 보고 싶다면 데모 신청 시 안내해 드려요.
-              </p>
-            </div>
-          </div>
+        <div className="relative aspect-[16/9] overflow-hidden rounded-2xl border border-[var(--color-border)] bg-black">
+          <iframe
+            src="https://www.youtube.com/embed/YQztpRr55ro?rel=0&modestbranding=1"
+            title="슈퍼코더 AI Interviewer — 데모 영상"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+            allowFullScreen
+            className="absolute inset-0 h-full w-full"
+          />
         </div>
       </div>
 
