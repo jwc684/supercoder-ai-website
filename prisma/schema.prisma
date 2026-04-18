@@ -245,6 +245,22 @@ model Faq {
   @@map("faqs")
 }
 
+// ─── 레퍼런스 고객 로고 ───
+// 랜딩 페이지 LogoMarquee 에 노출. admin 에서 업로드·이름·순서·공개 여부 관리.
+model Logo {
+  id          String   @id @default(cuid())
+  name        String   // 업체명 (관리자가 편집)
+  url         String   // Supabase public URL
+  storagePath String   // Supabase storage path (delete 시 사용)
+  sortOrder   Int      @default(0)
+  isVisible   Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([isVisible, sortOrder])
+  @@map("logos")
+}
+
 // ─── 도입 문의 ───
 model Inquiry {
   id            String        @id @default(cuid())

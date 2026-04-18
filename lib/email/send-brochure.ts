@@ -61,6 +61,9 @@ const EMAIL_BASE_URL =
   "https://supercoder-ai-website.vercel.app";
 const EMAIL_LOGO_URL =
   "https://eifrhwclbojdrlxgwbzn.supabase.co/storage/v1/object/public/seo-images/email/logo-horizontal-email.png";
+// CTA 위 preview 이미지 — '평가 기준 자동 생성' 화면 스냅샷 (1200×1006).
+const EMAIL_PREVIEW_IMAGE_URL =
+  "https://eifrhwclbojdrlxgwbzn.supabase.co/storage/v1/object/public/seo-images/email/criteria-preview.png";
 
 export async function sendBrochureEmail(input: BrochureMailInput): Promise<void> {
   const fromName = process.env.BROCHURE_FROM_NAME ?? "슈퍼코더 AI Interviewer";
@@ -77,7 +80,7 @@ export async function sendBrochureEmail(input: BrochureMailInput): Promise<void>
   const clickUrl = `${EMAIL_BASE_URL}/api/downloads/${encodeURIComponent(input.downloadId)}/file`;
   const openUrl = `${EMAIL_BASE_URL}/api/downloads/${encodeURIComponent(input.downloadId)}/open`;
 
-  const subject = "✉️ 신청하신 슈퍼코더 AI Interviewer 소개서를 보내드립니다";
+  const subject = "✉️ 신청하신 슈퍼코더 AI 면접 소개서를 보내드립니다";
   const text = buildPlainText({ ...input, clickUrl });
   const html = buildHtml({ ...input, fromName, clickUrl, openUrl });
 
@@ -317,8 +320,19 @@ function buildHtml(
               </p>
             </td>
           </tr>
+          <!-- Preview 이미지 (소개서 대표 화면) -->
           <tr>
             <td style="padding:24px 32px 0 32px;">
+              <a href="${safeClickUrl}" style="text-decoration:none;border:0;display:block;">
+                <img src="${EMAIL_PREVIEW_IMAGE_URL}"
+                     alt="소개서 미리보기 — 평가 기준 자동 생성"
+                     width="536"
+                     style="display:block;width:100%;max-width:536px;height:auto;border:1px solid #e5e7eb;border-radius:12px;" />
+              </a>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding:20px 32px 0 32px;">
               <table role="presentation" cellpadding="0" cellspacing="0" border="0">
                 <tr>
                   <td align="center" style="background:#2563eb;border-radius:10px;">

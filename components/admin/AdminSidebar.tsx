@@ -14,6 +14,7 @@ import {
   FileDown,
   Search,
   BarChart3,
+  Image as ImageIcon,
   LogOut,
   GripVertical,
   ArrowUp,
@@ -36,6 +37,7 @@ const DEFAULT_NAV_ITEMS = [
   { href: "/admin/seo", label: "SEO", icon: Search },
   { href: "/admin/analytics", label: "Analytics", icon: BarChart3 },
   { href: "/admin/brochure", label: "소개서 파일", icon: FileDown },
+  { href: "/admin/logos", label: "레퍼런스 로고", icon: ImageIcon },
   { href: "/admin/inquiries", label: "도입 문의", icon: MessageSquare },
   { href: "/admin/downloads", label: "소개서 다운로드", icon: Download },
 ] as const;
