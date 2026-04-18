@@ -283,6 +283,10 @@ model Download {
   jobTitle  String?
   phone     String?
   interests String[]
+  // ─ 법적 동의 (2026-04+ 추가) ─
+  ageOver14       Boolean  @default(false)
+  privacyAgreed   Boolean  @default(false)
+  marketingAgreed Boolean  @default(false)
   createdAt DateTime @default(now())
 
   @@index([createdAt])

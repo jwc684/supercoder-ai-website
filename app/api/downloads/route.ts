@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { downloadSchema } from "@/lib/validations";
 import { getAdminUser } from "@/lib/auth";
+import { sendBrochureEmail } from "@/lib/email/send-brochure";
 
 /**
  * POST /api/downloads — 공개 소개서 다운로드 리드 등록.
@@ -43,6 +44,9 @@ export async function POST(request: Request) {
           jobTitle: data.jobTitle ?? null,
           phone: data.phone ?? null,
           interests: data.interests ?? [],
+          ageOver14: data.ageOver14,
+          privacyAgreed: data.privacyAgreed,
+          marketingAgreed: data.marketingAgreed ?? false,
         },
         select: { id: true, createdAt: true },
       }),
@@ -58,6 +62,27 @@ export async function POST(request: Request) {
       select: { url: true, filename: true },
     });
     const downloadUrl = latest?.url ?? "/files/supercoder-brochure.pdf";
+    const filename = latest?.filename ?? "supercoder-brochure.pdf";
+
+    // 이메일 발송 — 실패해도 클라이언트 흐름은 유지 (즉시 다운로드 UX 보존)
+    // downloadUrl 이 상대 경로면 절대화해서 메일 속 링크가 유효하도록 한다.
+    const absoluteUrl = downloadUrl.startsWith("http")
+      ? downloadUrl
+      : new URL(downloadUrl, request.url).toString();
+
+    try {
+      await sendBrochureEmail({
+        to: data.email,
+        name: data.name,
+        company: data.company,
+        downloadUrl: absoluteUrl,
+        filename,
+        marketingOptIn: data.marketingAgreed ?? false,
+      });
+    } catch (mailErr) {
+      // 메일 실패만으로 500 을 내리지 않는다 — DB 기록·다운로드 링크는 살아 있음.
+      console.error("[api/downloads] brochure email failed:", mailErr);
+    }
 
     return NextResponse.json(
       {
@@ -65,7 +90,7 @@ export async function POST(request: Request) {
         id: record.id,
         createdAt: record.createdAt,
         downloadUrl,
-        filename: latest?.filename ?? "supercoder-brochure.pdf",
+        filename,
       },
       { status: 201 },
     );

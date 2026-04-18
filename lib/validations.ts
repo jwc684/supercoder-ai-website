@@ -109,6 +109,14 @@ export const downloadSchema = z.object({
     .optional()
     .or(z.literal("").transform(() => undefined)),
   interests: z.array(z.enum(DOWNLOAD_INTERESTS)).optional(),
+  // ─ 법적 동의 3종 ─
+  ageOver14: z
+    .boolean()
+    .refine((v) => v === true, "만 14세 이상 동의가 필요합니다"),
+  privacyAgreed: z
+    .boolean()
+    .refine((v) => v === true, "개인정보 수집 및 이용 동의가 필요합니다"),
+  marketingAgreed: z.boolean().optional(),
 });
 
 export type DownloadInput = z.infer<typeof downloadSchema>;
