@@ -134,7 +134,7 @@ export default function ContactPage() {
               {/* 리뷰 카드 — Maki .c_card_review_small */}
               <figure className="rounded-2xl border border-[var(--color-border)] bg-white p-6 md:p-8">
                 <blockquote className="text-[18px] font-medium leading-[1.4] text-[#282828] md:text-[20px] md:leading-[28px]">
-                  “코비와 함께 채용한 뒤, 60일 걸리던 개발자 채용이 사흘로
+                  “AI 면접과 함께 채용한 뒤, 60일 걸리던 개발자 채용이 사흘로
                   줄었습니다. 1차 스크리닝 품질이 올라가 2차 면접의 합격률이
                   눈에 띄게 개선됐어요.”
                 </blockquote>

@@ -66,7 +66,7 @@ export function FloatingCta() {
               AI Agent 채용
             </p>
             <p className="truncate text-[14px] font-semibold text-white">
-              코비와 3분이면 충분합니다
+              AI 면접과 3분이면 충분합니다
             </p>
           </div>
         </div>

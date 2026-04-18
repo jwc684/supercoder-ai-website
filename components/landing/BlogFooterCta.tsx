@@ -24,7 +24,7 @@ const stats = [
 ];
 
 export function BlogFooterCta({
-  title = "코비와 함께 채용을 혁신하세요",
+  title = "AI 면접과 함께 채용을 혁신하세요",
 }: {
   /** 섹션마다 다른 메인 카피 — 기본값은 블로그용. */
   title?: string;

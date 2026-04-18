@@ -31,8 +31,8 @@ export function Footer() {
               슈퍼코더
             </Link>
             <p className="mt-3 max-w-xs text-sm leading-relaxed text-[var(--color-text-sub)]">
-              코비가 채용의 모든 과정을 자동화합니다. 채용공고 분석부터 실시간 AI
-              면접, 리포트까지.
+              AI 면접이 채용의 모든 과정을 자동화합니다. 채용공고 분석부터 실시간
+              AI 면접, 리포트까지.
             </p>
           </div>
 
