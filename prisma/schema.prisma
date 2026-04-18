@@ -287,6 +287,13 @@ model Download {
   ageOver14       Boolean  @default(false)
   privacyAgreed   Boolean  @default(false)
   marketingAgreed Boolean  @default(false)
+  // ─ 이메일 트래킹 (2026-04+ 추가) ─
+  emailSentAt         DateTime?
+  emailSendError      String?   // 발송 실패 시 에러 메시지 (최대 500 char trim)
+  emailOpenCount      Int       @default(0)
+  emailFirstOpenedAt  DateTime?
+  emailClickCount     Int       @default(0)
+  emailFirstClickedAt DateTime?
   createdAt DateTime @default(now())
 
   @@index([createdAt])

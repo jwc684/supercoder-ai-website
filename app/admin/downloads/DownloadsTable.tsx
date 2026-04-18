@@ -14,6 +14,12 @@ type DownloadRow = {
   phone: string | null;
   interests: string[];
   createdAt: string;
+  emailSentAt: string | null;
+  emailSendError: string | null;
+  emailOpenCount: number;
+  emailFirstOpenedAt: string | null;
+  emailClickCount: number;
+  emailFirstClickedAt: string | null;
 };
 
 export function DownloadsTable({
@@ -41,6 +47,27 @@ export function DownloadsTable({
       { header: "직책", accessor: (r) => r.jobTitle },
       { header: "전화번호", accessor: (r) => r.phone },
       { header: "관심분야", accessor: (r) => r.interests },
+      {
+        header: "이메일 발송",
+        accessor: (r) =>
+          r.emailSentAt
+            ? new Date(r.emailSentAt)
+            : r.emailSendError
+              ? `실패: ${r.emailSendError}`
+              : "미발송",
+      },
+      { header: "열람 횟수", accessor: (r) => r.emailOpenCount },
+      {
+        header: "최초 열람",
+        accessor: (r) =>
+          r.emailFirstOpenedAt ? new Date(r.emailFirstOpenedAt) : null,
+      },
+      { header: "다운로드 클릭", accessor: (r) => r.emailClickCount },
+      {
+        header: "최초 클릭",
+        accessor: (r) =>
+          r.emailFirstClickedAt ? new Date(r.emailFirstClickedAt) : null,
+      },
     ];
     const csv = toCsv(filtered, columns);
     const today = new Date().toISOString().split("T")[0];
@@ -83,7 +110,7 @@ export function DownloadsTable({
 
       {/* Table */}
       <div className="mt-5 overflow-x-auto rounded-2xl border border-[var(--color-border)] bg-white">
-        <table className="w-full min-w-[900px] text-left">
+        <table className="w-full min-w-[1100px] text-left">
           <thead className="bg-[#fafbfc]">
             <tr className="border-b border-[var(--color-border)] text-[11px] font-semibold uppercase tracking-wider text-[#5f6363]">
               <th className="px-4 py-3">회사</th>
@@ -91,14 +118,17 @@ export function DownloadsTable({
               <th className="px-4 py-3">이메일</th>
               <th className="px-4 py-3">직책</th>
               <th className="px-4 py-3">관심분야</th>
-              <th className="px-4 py-3">다운로드일</th>
+              <th className="px-4 py-3">이메일 상태</th>
+              <th className="px-4 py-3 text-center">열람</th>
+              <th className="px-4 py-3 text-center">클릭</th>
+              <th className="px-4 py-3">신청일</th>
             </tr>
           </thead>
           <tbody>
             {filtered.length === 0 && (
               <tr>
                 <td
-                  colSpan={6}
+                  colSpan={9}
                   className="px-4 py-10 text-center text-[13px] text-[#5f6363]"
                 >
                   조건에 맞는 다운로드가 없습니다.
@@ -138,6 +168,29 @@ export function DownloadsTable({
                     "-"
                   )}
                 </td>
+                <td className="px-4 py-3">
+                  <EmailStatusBadge row={row} />
+                </td>
+                <td className="px-4 py-3 text-center">
+                  <CountCell
+                    count={row.emailOpenCount}
+                    tooltip={
+                      row.emailFirstOpenedAt
+                        ? `최초 ${formatDate(row.emailFirstOpenedAt)}`
+                        : undefined
+                    }
+                  />
+                </td>
+                <td className="px-4 py-3 text-center">
+                  <CountCell
+                    count={row.emailClickCount}
+                    tooltip={
+                      row.emailFirstClickedAt
+                        ? `최초 ${formatDate(row.emailFirstClickedAt)}`
+                        : undefined
+                    }
+                  />
+                </td>
                 <td className="px-4 py-3 text-[12.5px] text-[#5f6363]">
                   {formatDate(row.createdAt)}
                 </td>
@@ -147,6 +200,56 @@ export function DownloadsTable({
         </table>
       </div>
     </div>
+  );
+}
+
+/** 이메일 발송 상태 배지 — 3 상태: 발송(녹색) / 실패(빨강, 툴팁) / 미발송(회색). */
+function EmailStatusBadge({ row }: { row: DownloadRow }) {
+  if (row.emailSentAt) {
+    return (
+      <span
+        className="inline-flex items-center rounded-md bg-[#e6f6ee] px-2 py-0.5 text-[11px] font-semibold text-[#047857]"
+        title={`발송 ${formatDate(row.emailSentAt)}`}
+      >
+        발송
+      </span>
+    );
+  }
+  if (row.emailSendError) {
+    return (
+      <span
+        className="inline-flex items-center rounded-md bg-[#fdeaea] px-2 py-0.5 text-[11px] font-semibold text-[#b91c1c]"
+        title={row.emailSendError}
+      >
+        실패
+      </span>
+    );
+  }
+  return (
+    <span className="inline-flex items-center rounded-md bg-[var(--color-bg-alt)] px-2 py-0.5 text-[11px] font-semibold text-[#6b7280]">
+      미발송
+    </span>
+  );
+}
+
+/** 숫자 셀 — 0 이면 dim, >0 이면 강조 + 최초 시간 툴팁. */
+function CountCell({
+  count,
+  tooltip,
+}: {
+  count: number;
+  tooltip?: string;
+}) {
+  if (count <= 0) {
+    return <span className="text-[12.5px] text-[#9099a3]">-</span>;
+  }
+  return (
+    <span
+      className="inline-flex items-center rounded-full bg-[var(--color-primary-light)] px-2 py-0.5 text-[12px] font-semibold text-[var(--color-primary)]"
+      title={tooltip}
+    >
+      {count}회
+    </span>
   );
 }
 

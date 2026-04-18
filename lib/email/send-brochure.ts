@@ -42,20 +42,34 @@ export type BrochureMailInput = {
   to: string;
   name: string;
   company: string;
-  downloadUrl: string;
   filename?: string;
+  /** Download 레코드의 cuid — 트래킹 URL 구성에 사용 (click/open 프록시) */
+  downloadId: string;
   /** 마케팅 수신 동의 여부 — footer 의 수신거부 문구 가시성 제어 */
   marketingOptIn?: boolean;
 };
+
+/**
+ * 이메일에서 쓰이는 트래킹/CDN URL 의 원본 도메인.
+ * Production 은 supercoder.co 고정. dev/preview 에서도 프록시 endpoint 는
+ * 여기로 모아두어야 메일 클라이언트가 캐시한 이후에도 깨지지 않는다.
+ */
+const EMAIL_BASE_URL = "https://supercoder.co";
+const EMAIL_LOGO_URL =
+  "https://eifrhwclbojdrlxgwbzn.supabase.co/storage/v1/object/public/seo-images/email/logo-horizontal-email.png";
 
 export async function sendBrochureEmail(input: BrochureMailInput): Promise<void> {
   const fromName = process.env.BROCHURE_FROM_NAME ?? "슈퍼코더 AI Interviewer";
   const fromEmail = process.env.GMAIL_USER!.trim();
   const replyTo = process.env.BROCHURE_REPLY_TO?.trim() || fromEmail;
 
+  // 트래킹 URL 두 개 — click (파일 프록시) / open (1×1 픽셀)
+  const clickUrl = `${EMAIL_BASE_URL}/api/downloads/${encodeURIComponent(input.downloadId)}/file`;
+  const openUrl = `${EMAIL_BASE_URL}/api/downloads/${encodeURIComponent(input.downloadId)}/open`;
+
   const subject = "✉️ 신청하신 슈퍼코더 AI Interviewer 소개서를 보내드립니다";
-  const text = buildPlainText(input);
-  const html = buildHtml({ ...input, fromName });
+  const text = buildPlainText({ ...input, clickUrl });
+  const html = buildHtml({ ...input, fromName, clickUrl, openUrl });
 
   const raw = buildRawMime({
     fromName,
@@ -173,13 +187,15 @@ const features: {
   },
 ];
 
-function buildPlainText(i: BrochureMailInput): string {
+function buildPlainText(
+  i: BrochureMailInput & { clickUrl: string },
+): string {
   const lines: string[] = [
     `${i.name}님, 안녕하세요. 슈퍼코더 AI Interviewer 팀입니다.`,
     "",
     `신청하신 ${i.company} 담당자용 서비스 소개서를 아래 전달드립니다.`,
     "",
-    `📄 소개서 확인하기: ${i.downloadUrl}`,
+    `📄 소개서 확인하기: ${i.clickUrl}`,
     "",
     "슈퍼코더 AI Interviewer 는 채용의 모든 과정을 AI 로 구조화해, 채용팀의 판단이 데이터로 단단해지도록 돕습니다.",
     "",
@@ -216,12 +232,17 @@ function buildPlainText(i: BrochureMailInput): string {
 }
 
 function buildHtml(
-  i: BrochureMailInput & { fromName: string },
+  i: BrochureMailInput & {
+    fromName: string;
+    clickUrl: string;
+    openUrl: string;
+  },
 ): string {
   const safeName = escapeHtml(i.name);
   const safeCompany = escapeHtml(i.company);
   const safeFile = escapeHtml(i.filename ?? "supercoder-brochure.pdf");
-  const safeUrl = encodeURI(i.downloadUrl);
+  const safeClickUrl = encodeURI(i.clickUrl);
+  const safeOpenUrl = encodeURI(i.openUrl);
   // 이메일 본문 내 링크는 프로덕션 브랜드 도메인(.co) 으로 고정.
   const contactUrl = "https://supercoder.co/contact";
 
@@ -268,7 +289,7 @@ function buildHtml(
                style="max-width:600px;width:100%;background:#ffffff;border-radius:16px;border:1px solid #e5e7eb;overflow:hidden;">
           <tr>
             <td style="padding:28px 32px 0 32px;">
-              <img src="https://supercoder.co/logo-horizontal-email.png"
+              <img src="${EMAIL_LOGO_URL}"
                    alt="슈퍼코더"
                    width="160"
                    height="20"
@@ -291,7 +312,7 @@ function buildHtml(
               <table role="presentation" cellpadding="0" cellspacing="0" border="0">
                 <tr>
                   <td align="center" style="background:#2563eb;border-radius:10px;">
-                    <a href="${safeUrl}"
+                    <a href="${safeClickUrl}"
                        style="display:inline-block;padding:14px 28px;font-size:15px;font-weight:600;color:#ffffff;text-decoration:none;">
                       📄 소개서 확인하기 →
                     </a>
@@ -355,6 +376,8 @@ function buildHtml(
       </td>
     </tr>
   </table>
+  <!-- 트래킹 픽셀 — 수신자가 메일을 열면 Download.emailOpenCount 증가 -->
+  <img src="${safeOpenUrl}" width="1" height="1" alt="" style="display:block;width:1px;height:1px;border:0;" />
 </body>
 </html>`;
 }

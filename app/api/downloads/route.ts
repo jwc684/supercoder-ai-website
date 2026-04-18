@@ -56,32 +56,45 @@ export async function POST(request: Request) {
       }),
     ]);
 
-    // 현재 활성 브로셔(최신 업로드) URL 을 반환. 없으면 정적 placeholder.
+    // 최신 브로셔 파일명 (메일 본문 파일명 표기용).
     const latest = await prisma.brochure.findFirst({
       orderBy: { createdAt: "desc" },
-      select: { url: true, filename: true },
+      select: { filename: true },
     });
-    const downloadUrl = latest?.url ?? "/files/supercoder-brochure.pdf";
     const filename = latest?.filename ?? "supercoder-brochure.pdf";
 
-    // 이메일 발송 — 실패해도 클라이언트 흐름은 유지 (즉시 다운로드 UX 보존)
-    // downloadUrl 이 상대 경로면 절대화해서 메일 속 링크가 유효하도록 한다.
-    const absoluteUrl = downloadUrl.startsWith("http")
-      ? downloadUrl
-      : new URL(downloadUrl, request.url).toString();
-
+    // 이메일 발송 — 실패해도 클라이언트 흐름은 유지하되 발송 상태는 DB 에 기록.
+    // 수신자의 실제 다운로드는 이제 이메일 링크(/api/downloads/:id/file) 로만 이뤄진다.
     try {
       await sendBrochureEmail({
         to: data.email,
         name: data.name,
         company: data.company,
-        downloadUrl: absoluteUrl,
         filename,
+        downloadId: record.id,
         marketingOptIn: data.marketingAgreed ?? false,
       });
+      // 발송 성공 타임스탬프 기록.
+      await prisma.download.update({
+        where: { id: record.id },
+        data: { emailSentAt: new Date() },
+      });
     } catch (mailErr) {
-      // 메일 실패만으로 500 을 내리지 않는다 — DB 기록·다운로드 링크는 살아 있음.
+      // 메일 실패만으로 500 을 내리지 않지만, admin 에서 원인 확인하도록 에러 메시지 저장.
+      const msg =
+        mailErr instanceof Error ? mailErr.message : String(mailErr);
       console.error("[api/downloads] brochure email failed:", mailErr);
+      await prisma.download
+        .update({
+          where: { id: record.id },
+          data: { emailSendError: msg.slice(0, 500) },
+        })
+        .catch((dbErr) =>
+          console.error(
+            "[api/downloads] failed to record email error:",
+            dbErr,
+          ),
+        );
     }
 
     return NextResponse.json(
@@ -89,8 +102,6 @@ export async function POST(request: Request) {
         ok: true,
         id: record.id,
         createdAt: record.createdAt,
-        downloadUrl,
-        filename,
       },
       { status: 201 },
     );

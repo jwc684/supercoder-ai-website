@@ -81,10 +81,9 @@ export default function DownloadPage() {
       if (!res.ok) {
         throw new Error(json.error ?? "제출 실패");
       }
-      toast.success("소개서 다운로드가 준비되었습니다.");
-      router.push(
-        `/download/thank-you?url=${encodeURIComponent(json.downloadUrl)}`,
-      );
+      // 다운로드는 이메일 링크를 통해서만 이뤄지므로 thank-you 로만 이동.
+      toast.success("소개서를 이메일로 발송했습니다.");
+      router.push("/download/thank-you");
     } catch (err) {
       const msg = err instanceof Error ? err.message : "알 수 없는 오류";
       toast.error(`제출에 실패했습니다. ${msg}`);

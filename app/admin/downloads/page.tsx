@@ -16,6 +16,9 @@ export default async function AdminDownloadsPage() {
   const initialData = downloads.map((d) => ({
     ...d,
     createdAt: d.createdAt.toISOString(),
+    emailSentAt: d.emailSentAt?.toISOString() ?? null,
+    emailFirstOpenedAt: d.emailFirstOpenedAt?.toISOString() ?? null,
+    emailFirstClickedAt: d.emailFirstClickedAt?.toISOString() ?? null,
   }));
 
   return (
