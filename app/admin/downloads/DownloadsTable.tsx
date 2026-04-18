@@ -12,6 +12,7 @@ type DownloadRow = {
   email: string;
   jobTitle: string | null;
   phone: string | null;
+  marketingAgreed: boolean;
   createdAt: string;
   emailSentAt: string | null;
   emailSendError: string | null;
@@ -45,6 +46,10 @@ export function DownloadsTable({
       { header: "이메일", accessor: (r) => r.email },
       { header: "직책", accessor: (r) => r.jobTitle },
       { header: "전화번호", accessor: (r) => r.phone },
+      {
+        header: "마케팅 동의",
+        accessor: (r) => (r.marketingAgreed ? "Y" : "N"),
+      },
       {
         header: "이메일 발송",
         accessor: (r) =>
@@ -108,13 +113,14 @@ export function DownloadsTable({
 
       {/* Table */}
       <div className="mt-5 overflow-x-auto rounded-2xl border border-[var(--color-border)] bg-white">
-        <table className="w-full min-w-[1000px] text-left">
+        <table className="w-full min-w-[1080px] text-left">
           <thead className="bg-[#fafbfc]">
             <tr className="border-b border-[var(--color-border)] text-[11px] font-semibold uppercase tracking-wider text-[#5f6363]">
               <th className="px-4 py-3">회사</th>
               <th className="px-4 py-3">담당자</th>
               <th className="px-4 py-3">이메일</th>
               <th className="px-4 py-3">직책</th>
+              <th className="px-4 py-3 text-center">마케팅</th>
               <th className="px-4 py-3">이메일 상태</th>
               <th className="px-4 py-3 text-center">열람</th>
               <th className="px-4 py-3 text-center">클릭</th>
@@ -125,7 +131,7 @@ export function DownloadsTable({
             {filtered.length === 0 && (
               <tr>
                 <td
-                  colSpan={8}
+                  colSpan={9}
                   className="px-4 py-10 text-center text-[13px] text-[#5f6363]"
                 >
                   조건에 맞는 다운로드가 없습니다.
@@ -148,6 +154,9 @@ export function DownloadsTable({
                 </td>
                 <td className="px-4 py-3 text-[12.5px] text-[#5f6363]">
                   {row.jobTitle ?? "-"}
+                </td>
+                <td className="px-4 py-3 text-center">
+                  <ConsentBadge agreed={row.marketingAgreed} />
                 </td>
                 <td className="px-4 py-3">
                   <EmailStatusBadge row={row} />
@@ -209,6 +218,22 @@ function EmailStatusBadge({ row }: { row: DownloadRow }) {
   return (
     <span className="inline-flex items-center rounded-md bg-[var(--color-bg-alt)] px-2 py-0.5 text-[11px] font-semibold text-[#6b7280]">
       미발송
+    </span>
+  );
+}
+
+/** 동의 여부 뱃지 — 동의(초록) / 미동의(회색). */
+function ConsentBadge({ agreed }: { agreed: boolean }) {
+  if (agreed) {
+    return (
+      <span className="inline-flex items-center rounded-md bg-[#e6f6ee] px-2 py-0.5 text-[11px] font-semibold text-[#047857]">
+        동의
+      </span>
+    );
+  }
+  return (
+    <span className="inline-flex items-center rounded-md bg-[var(--color-bg-alt)] px-2 py-0.5 text-[11px] font-semibold text-[#6b7280]">
+      미동의
     </span>
   );
 }

@@ -23,7 +23,9 @@ type InquiryRow = {
   hireSize: string | null;
   interests: string[];
   message: string | null;
+  ageOver14: boolean;
   privacyAgreed: boolean;
+  marketingAgreed: boolean;
   status: "NEW" | "REVIEWED" | "CONTACTED" | "COMPLETED";
   adminNote: string | null;
   createdAt: string;
@@ -120,6 +122,10 @@ export function InquiriesTable({
       { header: "채용규모", accessor: (r) => r.hireSize },
       { header: "관심서비스", accessor: (r) => r.interests },
       { header: "메시지", accessor: (r) => r.message },
+      {
+        header: "마케팅 동의",
+        accessor: (r) => (r.marketingAgreed ? "Y" : "N"),
+      },
       { header: "관리자 메모", accessor: (r) => r.adminNote },
     ];
     const csv = toCsv(filtered, columns);
@@ -186,7 +192,7 @@ export function InquiriesTable({
 
       {/* 테이블 */}
       <div className="mt-5 overflow-x-auto rounded-2xl border border-[var(--color-border)] bg-white">
-        <table className="w-full min-w-[960px] text-left">
+        <table className="w-full min-w-[1040px] text-left">
           <thead className="bg-[#fafbfc]">
             <tr className="border-b border-[var(--color-border)] text-[11px] font-semibold uppercase tracking-wider text-[#5f6363]">
               <th className="px-4 py-3">회사</th>
@@ -194,6 +200,7 @@ export function InquiriesTable({
               <th className="px-4 py-3">이메일</th>
               <th className="px-4 py-3">전화</th>
               <th className="px-4 py-3">규모</th>
+              <th className="px-4 py-3 text-center">마케팅</th>
               <th className="px-4 py-3">문의일</th>
               <th className="px-4 py-3">상태</th>
             </tr>
@@ -202,7 +209,7 @@ export function InquiriesTable({
             {filtered.length === 0 && (
               <tr>
                 <td
-                  colSpan={7}
+                  colSpan={8}
                   className="px-4 py-10 text-center text-[13px] text-[#5f6363]"
                 >
                   조건에 맞는 문의가 없습니다.
@@ -229,6 +236,9 @@ export function InquiriesTable({
                 </td>
                 <td className="px-4 py-3 text-[12.5px] text-[#5f6363]">
                   {row.hireSize ?? "-"}
+                </td>
+                <td className="px-4 py-3 text-center">
+                  <ConsentBadge agreed={row.marketingAgreed} />
                 </td>
                 <td className="px-4 py-3 text-[12.5px] text-[#5f6363]">
                   {formatDate(row.createdAt)}
@@ -345,6 +355,18 @@ function DetailModal({
             label="관심 서비스"
             value={inquiry.interests.length ? inquiry.interests.join(", ") : "-"}
           />
+          <Info
+            label="만 14세 이상"
+            value={inquiry.ageOver14 ? "동의" : "미동의"}
+          />
+          <Info
+            label="개인정보 수집"
+            value={inquiry.privacyAgreed ? "동의" : "미동의"}
+          />
+          <Info
+            label="마케팅 수신"
+            value={inquiry.marketingAgreed ? "동의" : "미동의"}
+          />
         </div>
 
         {/* 메시지 */}
@@ -403,6 +425,22 @@ function Info({ label, value }: { label: string; value: string }) {
       </p>
       <p className="mt-0.5 text-[13px] text-[#282828]">{value}</p>
     </div>
+  );
+}
+
+/** 동의 여부 뱃지 — 동의(초록 Y) / 미동의(회색 N). */
+function ConsentBadge({ agreed }: { agreed: boolean }) {
+  if (agreed) {
+    return (
+      <span className="inline-flex items-center rounded-md bg-[#e6f6ee] px-2 py-0.5 text-[11px] font-semibold text-[#047857]">
+        동의
+      </span>
+    );
+  }
+  return (
+    <span className="inline-flex items-center rounded-md bg-[var(--color-bg-alt)] px-2 py-0.5 text-[11px] font-semibold text-[#6b7280]">
+      미동의
+    </span>
   );
 }
 
