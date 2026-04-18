@@ -60,7 +60,13 @@ const EMAIL_LOGO_URL =
 
 export async function sendBrochureEmail(input: BrochureMailInput): Promise<void> {
   const fromName = process.env.BROCHURE_FROM_NAME ?? "슈퍼코더 AI Interviewer";
-  const fromEmail = process.env.GMAIL_USER!.trim();
+  const fromEmailRaw = process.env.GMAIL_USER?.trim();
+  if (!fromEmailRaw) {
+    throw new Error(
+      "GMAIL_USER 환경변수가 누락되었습니다. Vercel Production Environment Variables 에 GMAIL_USER, GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, GOOGLE_REFRESH_TOKEN 4 개를 모두 설정해주세요.",
+    );
+  }
+  const fromEmail = fromEmailRaw;
   const replyTo = process.env.BROCHURE_REPLY_TO?.trim() || fromEmail;
 
   // 트래킹 URL 두 개 — click (파일 프록시) / open (1×1 픽셀)
