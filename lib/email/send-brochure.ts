@@ -51,10 +51,14 @@ export type BrochureMailInput = {
 
 /**
  * 이메일에서 쓰이는 트래킹/CDN URL 의 원본 도메인.
- * Production 은 supercoder.co 고정. dev/preview 에서도 프록시 endpoint 는
- * 여기로 모아두어야 메일 클라이언트가 캐시한 이후에도 깨지지 않는다.
+ * 메일은 수신함에 장기 보관되므로 여기서 참조하는 URL 은
+ * '반드시 도달 가능해야' 한다. 지금은 Vercel 배포 URL 로 고정.
+ * 나중에 supercoder.co 등 브랜드 도메인을 Vercel 에 연결하면
+ * EMAIL_BASE_URL 환경변수로 override 가능.
  */
-const EMAIL_BASE_URL = "https://supercoder.co";
+const EMAIL_BASE_URL =
+  process.env.EMAIL_BASE_URL?.replace(/\/$/, "") ??
+  "https://supercoder-ai-website.vercel.app";
 const EMAIL_LOGO_URL =
   "https://eifrhwclbojdrlxgwbzn.supabase.co/storage/v1/object/public/seo-images/email/logo-horizontal-email.png";
 
@@ -216,7 +220,7 @@ function buildPlainText(
 
   lines.push(
     "귀사의 채용 문제, 슈퍼코더와 함께 해결하고 싶으시다면?",
-    "아래 링크로 도입 문의를 남겨주세요: https://supercoder.co/contact",
+    `아래 링크로 도입 문의를 남겨주세요: ${EMAIL_BASE_URL}/contact`,
     "",
     "감사합니다.",
     "슈퍼코더 AI Interviewer 팀 드림.",
@@ -224,7 +228,7 @@ function buildPlainText(
     "──",
     "슈퍼코더 AI Interviewer",
     "sales@supercoder.co",
-    "https://supercoder.co",
+    EMAIL_BASE_URL,
   );
 
   if (i.marketingOptIn) {
@@ -249,8 +253,8 @@ function buildHtml(
   const safeFile = escapeHtml(i.filename ?? "supercoder-brochure.pdf");
   const safeClickUrl = encodeURI(i.clickUrl);
   const safeOpenUrl = encodeURI(i.openUrl);
-  // 이메일 본문 내 링크는 프로덕션 브랜드 도메인(.co) 으로 고정.
-  const contactUrl = "https://supercoder.co/contact";
+  // 도입 문의 CTA — 트래킹 URL 과 같은 origin 을 사용해 링크 유효성 보장.
+  const contactUrl = `${EMAIL_BASE_URL}/contact`;
 
   const featureBlocks = features
     .map(
@@ -370,14 +374,14 @@ function buildHtml(
               <p style="margin:0;font-size:12.5px;line-height:1.65;color:#6b7280;">
                 <strong style="color:#111827;">슈퍼코더 AI Interviewer</strong><br/>
                 sales@supercoder.co<br/>
-                <a href="https://supercoder.co" style="color:#6b7280;text-decoration:underline;">supercoder.co</a>
+                <a href="${EMAIL_BASE_URL}" style="color:#6b7280;text-decoration:underline;">${EMAIL_BASE_URL.replace(/^https?:\/\//, "")}</a>
               </p>
               ${marketingFooter}
             </td>
           </tr>
         </table>
         <p style="margin:14px 0 0 0;font-size:11px;color:#9ca3af;">
-          이 메일은 귀하께서 supercoder.co 에서 서비스 소개서를 요청하셔서 발송되었습니다.
+          이 메일은 귀하께서 ${EMAIL_BASE_URL.replace(/^https?:\/\//, "")} 에서 서비스 소개서를 요청하셔서 발송되었습니다.
         </p>
       </td>
     </tr>
