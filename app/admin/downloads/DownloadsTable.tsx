@@ -12,7 +12,6 @@ type DownloadRow = {
   email: string;
   jobTitle: string | null;
   phone: string | null;
-  interests: string[];
   createdAt: string;
   emailSentAt: string | null;
   emailSendError: string | null;
@@ -46,7 +45,6 @@ export function DownloadsTable({
       { header: "이메일", accessor: (r) => r.email },
       { header: "직책", accessor: (r) => r.jobTitle },
       { header: "전화번호", accessor: (r) => r.phone },
-      { header: "관심분야", accessor: (r) => r.interests },
       {
         header: "이메일 발송",
         accessor: (r) =>
@@ -110,14 +108,13 @@ export function DownloadsTable({
 
       {/* Table */}
       <div className="mt-5 overflow-x-auto rounded-2xl border border-[var(--color-border)] bg-white">
-        <table className="w-full min-w-[1100px] text-left">
+        <table className="w-full min-w-[1000px] text-left">
           <thead className="bg-[#fafbfc]">
             <tr className="border-b border-[var(--color-border)] text-[11px] font-semibold uppercase tracking-wider text-[#5f6363]">
               <th className="px-4 py-3">회사</th>
               <th className="px-4 py-3">담당자</th>
               <th className="px-4 py-3">이메일</th>
               <th className="px-4 py-3">직책</th>
-              <th className="px-4 py-3">관심분야</th>
               <th className="px-4 py-3">이메일 상태</th>
               <th className="px-4 py-3 text-center">열람</th>
               <th className="px-4 py-3 text-center">클릭</th>
@@ -128,7 +125,7 @@ export function DownloadsTable({
             {filtered.length === 0 && (
               <tr>
                 <td
-                  colSpan={9}
+                  colSpan={8}
                   className="px-4 py-10 text-center text-[13px] text-[#5f6363]"
                 >
                   조건에 맞는 다운로드가 없습니다.
@@ -151,22 +148,6 @@ export function DownloadsTable({
                 </td>
                 <td className="px-4 py-3 text-[12.5px] text-[#5f6363]">
                   {row.jobTitle ?? "-"}
-                </td>
-                <td className="px-4 py-3 text-[12px] text-[#5f6363]">
-                  {row.interests.length ? (
-                    <div className="flex flex-wrap gap-1">
-                      {row.interests.map((it) => (
-                        <span
-                          key={it}
-                          className="inline-flex items-center rounded-md bg-[var(--color-primary-light)] px-2 py-0.5 text-[11px] font-medium text-[var(--color-primary)]"
-                        >
-                          {it}
-                        </span>
-                      ))}
-                    </div>
-                  ) : (
-                    "-"
-                  )}
                 </td>
                 <td className="px-4 py-3">
                   <EmailStatusBadge row={row} />
