@@ -69,11 +69,11 @@ export function Metrics() {
           {/* Left: header + 3 metric cards */}
           <div>
             <span className="inline-flex items-center rounded-full border border-[#f0efe6] bg-white px-2 py-1 text-[12px] font-semibold uppercase leading-[15.6px] tracking-[0.1em] text-[var(--color-primary)]">
-              실제 성과
+              고객 사례
             </span>
 
             <h2 className="mt-4 max-w-xl text-[2rem] font-semibold leading-[1.2] tracking-[-0.02em] text-[#282828] md:text-[2.5rem]">
-              실제 고객사가 거둔 성과
+              AI 면접 도입 고객 사례
             </h2>
 
             <ul className="mt-8 flex flex-col gap-3.5">
