@@ -107,7 +107,7 @@ function InterviewLive() {
         alt="AI 면접 진행 중인 지원자"
         fill
         sizes="(min-width: 1024px) 50vw, 100vw"
-        className="object-cover object-[85%_center]"
+        className="object-cover object-center sm:object-[85%_center]"
         priority={false}
       />
 
@@ -126,7 +126,7 @@ function InterviewLive() {
       </div>
 
       {/* 채팅 스택 — 모바일: 하단 풀폭 / 데스크톱: 우측 ~58% 세로중앙 */}
-      <div className="absolute inset-x-0 bottom-0 z-10 flex flex-col justify-end gap-1.5 px-3 pb-3 pt-6 sm:inset-y-0 sm:left-auto sm:right-0 sm:w-[58%] sm:justify-center sm:gap-3 sm:px-5 sm:py-8">
+      <div className="absolute inset-x-0 bottom-0 z-10 flex flex-col justify-end gap-3 px-5 pb-5 pt-8 sm:inset-y-0 sm:left-auto sm:right-0 sm:w-[58%] sm:justify-center sm:gap-4 sm:px-8 sm:py-10">
         {/* 1. AI 첫 질문 */}
         <ChatBubble side="ai" cycle="b1" label="AI 면접관">
           최근 해결하셨던 가장 어려웠던 기술 문제 하나만 말씀해 주실래요? 어떤
