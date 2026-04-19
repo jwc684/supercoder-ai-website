@@ -97,7 +97,7 @@ export function CLevelPerspective() {
                   ○○○ HR 총괄
                 </p>
                 <p className="text-[12px] text-[#9099a3]">
-                  [고객사명 교체] — 인공지능 인테리어 디자인 솔루션 회사
+                  인공지능 인테리어 디자인 솔루션 회사
                 </p>
               </div>
             </figcaption>
