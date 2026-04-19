@@ -58,15 +58,13 @@ export function PainPoints() {
   return (
     <div className="bg-white py-20 md:py-28 lg:py-32">
       <div className="wp-container">
-        <div className="flex flex-col items-start text-left">
+        <div className="flex flex-col items-center text-center">
           <span className="inline-flex items-center rounded-full border border-[#f0efe6] bg-white px-2 py-1 text-[12px] font-semibold uppercase leading-[15.6px] tracking-[0.1em] text-[var(--color-primary)]">
             채용팀의 현실
           </span>
 
-          <h2 className="mt-4 max-w-3xl text-[2rem] font-semibold leading-[1.2] tracking-[-0.02em] text-[#282828] md:text-[2.5rem]">
-            좋은 인재를 고르는 일이
-            <br />
-            점점 어려워집니다
+          <h2 className="mt-4 max-w-4xl text-[2rem] font-semibold leading-[1.2] tracking-[-0.02em] text-[#282828] md:text-[2.5rem]">
+            좋은 인재를 고르는 일이 점점 어려워집니다
           </h2>
 
           <p className="mt-5 max-w-2xl text-[17px] leading-[1.7] text-[#5f6363]">

@@ -16,20 +16,20 @@ type SolPoint = {
 const points: SolPoint[] = [
   {
     icon: Search,
-    title: "직무 역량 자동 추출 — 검증의 문제 해결",
-    body: "JD를 분석해 Hard / Soft Skills를 분리하고, 이력서와 교차 비교합니다. HR이 직무를 몰라도 AI가 기준을 만듭니다.",
+    title: "직무 역량을 AI가 정의합니다",
+    body: "채용공고를 읽고 Hard / Soft Skill을 자동으로 추출해 이력서와 교차 검증합니다. HR이 직무 전문가가 아니어도 일관된 기준으로 거를 수 있습니다.",
     accent: "blue",
   },
   {
     icon: Clock3,
-    title: "AI가 1차 면접 전체 진행 — 효율의 문제 해결",
-    body: "구조화된 질문을 자동 생성하고, 실시간 꼬리 질문으로 깊이 파악합니다. 면접관 교육 없이 일관된 수준이 유지됩니다.",
+    title: "1차 면접을 AI가 진행합니다",
+    body: "구조화된 질문과 실시간 꼬리 질문으로 30분 면접을 자동 진행합니다. 면접관 일정 조율도, 별도 교육도 필요하지 않습니다.",
     accent: "indigo",
   },
   {
     icon: ClipboardList,
-    title: "모든 과정을 리포트로 — 투명성의 문제 해결",
-    body: "역량별 점수, 답변 근거 인용, 영상 타임라인까지. \"왜 이 사람인가\"를 데이터로 경영진에게 보고할 수 있습니다.",
+    title: "결정의 근거를 리포트로 남깁니다",
+    body: "역량별 점수, 답변 인용, 영상 타임라인이 한 리포트에 정리됩니다. \"왜 이 사람인가\"를 데이터로 경영진에게 설명할 수 있습니다.",
     accent: "emerald",
   },
 ];
@@ -52,14 +52,12 @@ export function SolutionBridge() {
             </span>
 
             <h2 className="mt-4 max-w-xl text-[2rem] font-semibold leading-[1.2] tracking-[-0.02em] text-[#282828] md:text-[2.5rem]">
-              직감이 데이터로
-              <br />
-              바뀌는 과정
+              부족한 기준, 시간, 근거를 AI가 채웁니다
             </h2>
 
             <p className="mt-5 max-w-xl text-[17px] leading-[1.7] text-[#5f6363]">
-              채용공고 한 장으로 기준을 만들고, 면접으로 검증하고, 리포트로
-              근거를 남깁니다.
+              직무 역량을 자동으로 정의하고, 면접을 대신 진행하고, 결정의 근거를
+              데이터로 남깁니다.
             </p>
 
             <ul className="mt-10 flex flex-col gap-7">
