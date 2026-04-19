@@ -100,21 +100,21 @@ export function SolutionBridge() {
  */
 function InterviewLive() {
   return (
-    <div className="relative aspect-[4/3] w-full overflow-hidden rounded-3xl border border-[var(--color-border)] shadow-sm md:aspect-[5/4]">
-      {/* 배경 인물 이미지 */}
+    <div className="relative aspect-[3/4] w-full overflow-hidden rounded-3xl border border-[var(--color-border)] shadow-sm sm:aspect-[16/11] md:aspect-[5/4]">
+      {/* 배경 인물 이미지 — object-position 로 인물을 좌측에 배치 */}
       <Image
         src="/images/interview-candidate.png"
         alt="AI 면접 진행 중인 지원자"
         fill
         sizes="(min-width: 1024px) 50vw, 100vw"
-        className="object-cover"
+        className="object-cover object-[85%_center]"
         priority={false}
       />
 
-      {/* 우측 다크 그라디언트 — 채팅 가독성 확보 (좌측 인물은 또렷하게 보임) */}
+      {/* 다크 오버레이 — 모바일은 하단/전체 페이드(세로), 데스크톱은 우측 페이드(가로) */}
       <div
         aria-hidden
-        className="absolute inset-0 bg-gradient-to-r from-transparent via-[#070d24]/30 to-[#070d24]/85"
+        className="absolute inset-0 bg-gradient-to-b from-transparent via-[#070d24]/55 to-[#070d24]/92 sm:bg-gradient-to-r sm:from-transparent sm:from-50% sm:via-[#070d24]/55 sm:via-72% sm:to-[#070d24]/90"
       />
 
       {/* LIVE 인디케이터 (좌상단) */}
@@ -125,8 +125,8 @@ function InterviewLive() {
         </span>
       </div>
 
-      {/* 채팅 스택 — 우측 ~58% 폭, 세로 중앙 배치 */}
-      <div className="absolute inset-y-0 right-0 z-10 flex w-[62%] flex-col justify-center gap-3 px-4 py-6 sm:w-[58%] md:px-5 md:py-8">
+      {/* 채팅 스택 — 모바일: 하단 풀폭 / 데스크톱: 우측 ~58% 세로중앙 */}
+      <div className="absolute inset-x-0 bottom-0 z-10 flex flex-col justify-end gap-1.5 px-3 pb-3 pt-6 sm:inset-y-0 sm:left-auto sm:right-0 sm:w-[58%] sm:justify-center sm:gap-3 sm:px-5 sm:py-8">
         {/* 1. AI 첫 질문 */}
         <ChatBubble side="ai" cycle="b1" label="AI 면접관">
           최근 해결하셨던 가장 어려웠던 기술 문제 하나만 말씀해 주실래요? 어떤
@@ -152,12 +152,12 @@ function InterviewLive() {
         </ChatBubble>
 
         {/* 5. AI 분석 카드 (펄스) */}
-        <div className="ilv-bubble ilv-b5 rounded-xl border border-white/15 bg-white/10 px-3 py-2.5 backdrop-blur-md">
-          <p className="flex items-center gap-1.5 text-[11px] font-semibold text-sky-300">
+        <div className="ilv-bubble ilv-b5 rounded-xl border border-white/15 bg-white/10 px-2.5 py-2 backdrop-blur-md sm:px-3 sm:py-2.5">
+          <p className="flex items-center gap-1.5 text-[10px] font-semibold text-sky-300 sm:text-[11px]">
             <Zap className="h-3 w-3" />
             AI 실시간 분석 중
           </p>
-          <p className="mt-0.5 text-[11px] leading-[1.5] text-white/80">
+          <p className="mt-0.5 text-[10px] leading-[1.45] text-white/80 sm:text-[11px] sm:leading-[1.5]">
             STAR 구조 확인 · 핵심 역량 추출 · 답변 근거 인용 매칭
           </p>
         </div>
@@ -177,13 +177,13 @@ function ChatBubble({ side, cycle, label, children }: ChatBubbleProps) {
   const isAi = side === "ai";
   return (
     <div
-      className={`ilv-bubble ilv-${cycle} flex ${isAi ? "" : "flex-row-reverse"} items-start gap-2`}
+      className={`ilv-bubble ilv-${cycle} flex ${isAi ? "" : "flex-row-reverse"} items-start gap-1.5 sm:gap-2`}
     >
       <Avatar kind={side} />
       <div className="min-w-0 flex-1">
         {label ? (
           <p
-            className={`mb-1 text-[10px] font-semibold uppercase tracking-[0.08em] text-white/65 ${isAi ? "" : "text-right"}`}
+            className={`mb-0.5 text-[9px] font-semibold uppercase tracking-[0.08em] text-white/65 sm:mb-1 sm:text-[10px] ${isAi ? "" : "text-right"}`}
           >
             {label}
           </p>
@@ -193,7 +193,7 @@ function ChatBubble({ side, cycle, label, children }: ChatBubbleProps) {
             isAi
               ? "rounded-2xl rounded-tl-md bg-white/95 text-[#1f2937]"
               : "rounded-2xl rounded-tr-md bg-[var(--color-primary)] text-white"
-          } px-3 py-2 text-[12.5px] leading-[1.55] shadow-sm`}
+          } px-2.5 py-1.5 text-[11px] leading-[1.5] shadow-sm sm:px-3 sm:py-2 sm:text-[12.5px] sm:leading-[1.55]`}
         >
           {children}
         </div>
@@ -205,13 +205,13 @@ function ChatBubble({ side, cycle, label, children }: ChatBubbleProps) {
 function Avatar({ kind }: { kind: "ai" | "user" }) {
   if (kind === "ai") {
     return (
-      <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-[#3A6FFF] to-[#2563eb] text-[10px] font-bold text-white shadow-sm">
+      <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-[#3A6FFF] to-[#2563eb] text-[9px] font-bold text-white shadow-sm sm:h-7 sm:w-7 sm:text-[10px]">
         AI
       </div>
     );
   }
   return (
-    <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-white/95 text-[10px] font-bold text-[#374151] ring-1 ring-white/30 shadow-sm">
+    <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-white/95 text-[9px] font-bold text-[#374151] ring-1 ring-white/30 shadow-sm sm:h-7 sm:w-7 sm:text-[10px]">
       지
     </div>
   );
