@@ -37,18 +37,16 @@ export function CLevelPerspective() {
         <div className="grid gap-12 lg:grid-cols-2 lg:gap-16 lg:items-center">
           <div>
             <span className="inline-flex items-center rounded-full border border-[#f0efe6] bg-white px-2 py-1 text-[12px] font-semibold uppercase leading-[15.6px] tracking-[0.1em] text-[var(--color-primary)]">
-              경영진 관점
+              도입 효과
             </span>
 
             <h2 className="mt-4 max-w-xl text-[2rem] font-semibold leading-[1.2] tracking-[-0.02em] text-[#282828] md:text-[2.5rem]">
-              채용팀의 노력이
-              <br />
-              성과로 이어지려면
+              채용이 빨라지고, 정확해지고, 비용은 줄어듭니다
             </h2>
 
             <p className="mt-5 max-w-xl text-[17px] leading-[1.7] text-[#5f6363]">
-              면접관이 훈련 없이 면접을 진행하고, HR이 직무를 모른 채
-              평가합니다. 채용 품질의 문제는 사람이 아니라 구조입니다.
+              1차 면접을 AI가 자동으로 진행합니다. HR 팀은 결과 검토에만
+              집중하고, 채용 속도·정확도·비용이 동시에 개선됩니다.
             </p>
 
             <ul className="mt-8 flex flex-col gap-4">
@@ -84,20 +82,22 @@ export function CLevelPerspective() {
               strokeWidth={1.5}
             />
             <blockquote className="relative pt-10 text-[16px] leading-[1.85] text-[#282828] md:text-[17px]">
-              채용팀이 바쁜 건 알았지만, 왜 사람을 자꾸 잘못 뽑는지는 몰랐습니다.
-              AI 리포트를 보고 나서야 면접 과정 자체에 구조가 없었다는 걸 알게
-              됐어요. 이제 경영진이 채용 결과를 신뢰할 수 있게 됐습니다.
+              AI 면접을 도입한 뒤로는 1차 면접이 자동으로 진행되니, 저희 시간은
+              최종 후보 검토와 조직 핏 판단에만 쓰고 있습니다. 채용 검증
+              기간은 2–3개월에서 1–2주로 줄었고, 1인당 채용 비용도 AI 면접
+              덕분에 수천만 원 가까이 아낄 수 있게 됐습니다. 무엇보다 합격자의
+              업무 적합도가 체감될 만큼 올라갔습니다.
             </blockquote>
             <figcaption className="mt-7 flex items-center gap-3 border-t border-[var(--color-border)] pt-5">
               <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[var(--color-primary-light)] text-[13px] font-bold text-[var(--color-primary)]">
-                대
+                김
               </div>
               <div>
                 <p className="text-[14px] font-semibold text-[#282828]">
-                  ○○○ 대표
+                  ○○○ HR 총괄
                 </p>
                 <p className="text-[12px] text-[#9099a3]">
-                  [고객사명 교체] — 대표이사
+                  [고객사명 교체] — 인공지능 인테리어 디자인 솔루션 회사
                 </p>
               </div>
             </figcaption>
