@@ -1,9 +1,10 @@
-import { Search, Clock3, ClipboardList, Check } from "lucide-react";
+import { Search, Clock3, ClipboardList } from "lucide-react";
 
 /**
  * PainPoints — v3 narrative 의 "Problem" 섹션.
  * 3-bucket 구조: 검증 / 효율 / 투명성.
- * 각 버킷 = 태그 · 제목 · 3 개 pain · divider · ✓ 답변.
+ * 각 카드 = 컬러 배지 아이콘 + 태그 + 타이틀 + 설명.
+ * 솔루션은 다음 섹션(SolutionBridge)에서 제시 — 이 섹션은 문제 정의에만 집중.
  */
 
 type Bucket = {
@@ -11,8 +12,7 @@ type Bucket = {
   tag: string;
   tagAccent: "blue" | "indigo" | "emerald";
   title: string;
-  pains: string[];
-  answer: string;
+  description: string;
 };
 
 const buckets: Bucket[] = [
@@ -20,44 +20,38 @@ const buckets: Bucket[] = [
     icon: Search,
     tag: "검증의 문제",
     tagAccent: "blue",
-    title: "\"무엇을 기준으로 누구를 뽑아야 할지 모르겠다\"",
-    pains: [
-      "이력서가 사실인지 확인할 방법이 없다",
-      "직무마다 \"좋은 사람\"의 기준이 달라서 혼자 정하기 어렵다",
-      "HR이 개발자, 디자이너, 세일즈 직무를 전부 알 수는 없다",
-    ],
-    answer: "AI가 JD를 읽고 직무 역량을 자동 추출합니다. HR이 직무를 몰라도 됩니다.",
+    title: "채용 기준이 사람마다, 직무마다 달라집니다",
+    description:
+      "이력서가 사실인지 검증할 방법이 없고, \"좋은 사람\"의 기준은 직무마다 다릅니다. HR이 개발·디자인·세일즈 직무를 모두 알고 같은 잣대로 거를 수는 없습니다.",
   },
   {
     icon: Clock3,
     tag: "효율의 문제",
     tagAccent: "indigo",
-    title: "\"채용 한 건에 너무 많은 시간과 사람이 들어간다\"",
-    pains: [
-      "면접 일정 조율, 진행, 평가 취합까지 전부 수작업",
-      "현업 팀장들에게 면접 잘 보는 법을 가르쳐야 하는데 방법도 모르겠다",
-      "면접관 교육을 위한 시간도, 방법도 없다",
-    ],
-    answer: "AI가 1차 면접 전체를 자동 진행합니다. 면접관 교육이 필요 없습니다.",
+    title: "채용 한 건에 너무 많은 시간이 사라집니다",
+    description:
+      "일정 조율부터 진행, 평가 취합까지 전부 수작업입니다. 현업 팀장에게 면접 스킬을 따로 가르칠 시간도 자료도 없어, 면접 품질은 사람에 따라 들쭉날쭉합니다.",
   },
   {
     icon: ClipboardList,
     tag: "투명성의 문제",
     tagAccent: "emerald",
-    title: "\"경영진은 더 높은 기준을 요구하는데 방법이 없다\"",
-    pains: [
-      "채용 과정이 블랙박스다 — 왜 이 사람을 뽑았는지 설명이 안 된다",
-      "AX 도입으로 채용 속도·품질을 동시에 높이라는 압박이 있다",
-      "면접 결과가 기억과 메모에만 남는다",
-    ],
-    answer: "모든 면접이 녹화·리포트화되어 근거 기반 보고가 가능합니다.",
+    title: "채용 결정의 근거가 어디에도 남지 않습니다",
+    description:
+      "누가, 왜 이 사람을 뽑았는지 설명할 데이터가 없습니다. 면접 결과는 면접관의 기억과 메모로만 남고, 경영진이 요구하는 채용 속도·품질을 동시에 입증할 방법이 없습니다.",
   },
 ];
 
-const TAG_STYLES: Record<Bucket["tagAccent"], string> = {
+const ACCENT_BADGE: Record<Bucket["tagAccent"], string> = {
   blue: "bg-[#e8f1ff] text-[#2563eb]",
   indigo: "bg-[#eef0ff] text-[#4338ca]",
   emerald: "bg-[#e6f6ee] text-[#047857]",
+};
+
+const ACCENT_TAG: Record<Bucket["tagAccent"], string> = {
+  blue: "text-[#2563eb]",
+  indigo: "text-[#4338ca]",
+  emerald: "text-[#047857]",
 };
 
 export function PainPoints() {
@@ -70,14 +64,13 @@ export function PainPoints() {
           </span>
 
           <h2 className="mt-4 max-w-3xl text-[2rem] font-semibold leading-[1.2] tracking-[-0.02em] text-[#282828] md:text-[2.5rem]">
-            직감에 의존할 수밖에 없었던
+            좋은 인재를 고르는 일이
             <br />
-            세 가지 이유
+            점점 어려워집니다
           </h2>
 
           <p className="mt-5 max-w-2xl text-[17px] leading-[1.7] text-[#5f6363]">
-            기준도, 데이터도, 시간도 없었으니까요. 채용팀이 지쳐있는 건 당연한
-            일입니다.
+            기준도, 시간도, 근거도 부족한 채 결정만 반복됩니다.
           </p>
         </div>
 
@@ -87,39 +80,30 @@ export function PainPoints() {
             return (
               <article
                 key={bucket.tag}
-                className="flex flex-col rounded-2xl border border-[var(--color-border)] bg-[var(--color-bg-alt)] p-7 md:p-8"
+                className="group flex flex-col rounded-2xl border border-[var(--color-border)] bg-white p-7 transition-all duration-200 hover:-translate-y-0.5 hover:border-[#d4dbe5] hover:shadow-[0_8px_32px_-12px_rgba(15,23,42,0.12)] md:p-8"
               >
+                {/* 컬러 배지 안 아이콘 */}
                 <div
-                  className={`inline-flex w-fit items-center gap-2 rounded-md px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.08em] ${TAG_STYLES[bucket.tagAccent]}`}
+                  className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-xl ${ACCENT_BADGE[bucket.tagAccent]}`}
                 >
-                  <Icon className="h-3.5 w-3.5" />
-                  {bucket.tag}
+                  <Icon className="h-6 w-6" />
                 </div>
 
-                <h3 className="mt-5 text-[19px] font-semibold leading-[1.4] text-[#282828]">
+                {/* 태그 (작은 라벨) */}
+                <p
+                  className={`mt-6 text-[12px] font-semibold uppercase tracking-[0.1em] ${ACCENT_TAG[bucket.tagAccent]}`}
+                >
+                  {bucket.tag}
+                </p>
+
+                {/* 타이틀 */}
+                <h3 className="mt-2 text-[1.25rem] font-semibold leading-[1.35] tracking-[-0.01em] text-[#282828] md:text-[1.375rem]">
                   {bucket.title}
                 </h3>
 
-                <ul className="mt-5 flex flex-col gap-2.5">
-                  {bucket.pains.map((p) => (
-                    <li
-                      key={p}
-                      className="flex items-start gap-2 text-[13.5px] leading-[1.6] text-[#5f6363]"
-                    >
-                      <span aria-hidden className="mt-[9px] h-[1.5px] w-2 shrink-0 bg-[#9099a3]" />
-                      <span>{p}</span>
-                    </li>
-                  ))}
-                </ul>
-
-                <div
-                  aria-hidden
-                  className="my-5 h-px bg-[var(--color-border)]"
-                />
-
-                <p className="flex items-start gap-2 text-[13.5px] font-medium leading-[1.6] text-[var(--color-success)]">
-                  <Check className="mt-[2px] h-4 w-4 shrink-0" />
-                  <span>{bucket.answer}</span>
+                {/* 설명 */}
+                <p className="mt-3 text-[15px] leading-[1.65] text-[#5f6363]">
+                  {bucket.description}
                 </p>
               </article>
             );
