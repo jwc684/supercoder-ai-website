@@ -100,7 +100,7 @@ export function SolutionBridge() {
  */
 function InterviewLive() {
   return (
-    <div className="relative aspect-[3/4] w-full overflow-hidden rounded-3xl border border-[var(--color-border)] shadow-sm sm:aspect-[16/11] md:aspect-[5/4]">
+    <div className="relative aspect-[3/4] w-full overflow-hidden rounded-3xl border border-[var(--color-border)] shadow-sm sm:aspect-[16/11] md:aspect-[5/4] lg:aspect-square">
       {/* 배경 인물 이미지 — object-position 로 인물을 좌측에 배치 */}
       <Image
         src="/images/interview-candidate.png"
@@ -126,7 +126,7 @@ function InterviewLive() {
       </div>
 
       {/* 채팅 스택 — 모바일: 하단 풀폭 / 데스크톱: 우측 ~58% 세로중앙 */}
-      <div className="absolute inset-x-0 bottom-0 z-10 flex flex-col justify-end gap-3 px-5 pb-5 pt-8 sm:inset-y-0 sm:left-auto sm:right-0 sm:w-[58%] sm:justify-center sm:gap-4 sm:px-8 sm:py-10">
+      <div className="absolute inset-x-0 bottom-0 z-10 flex flex-col justify-end gap-3 px-5 pb-5 pt-8 sm:inset-y-0 sm:left-auto sm:right-0 sm:w-[58%] sm:justify-center sm:gap-4 sm:px-8 sm:py-10 lg:gap-3 lg:py-6">
         {/* 1. AI 첫 질문 */}
         <ChatBubble side="ai" cycle="b1" label="AI 면접관">
           최근 해결하셨던 가장 어려웠던 기술 문제 하나만 말씀해 주실래요? 어떤
@@ -135,20 +135,20 @@ function InterviewLive() {
 
         {/* 2. 지원자 답변 */}
         <ChatBubble side="user" cycle="b2">
-          작년 블랙프라이데이 때 결제 시스템 트래픽이 평소의 10배로 몰리면서
-          응답 지연이 심해졌어요.
+          신규 기능 배포 직후 주문 조회 API 응답이 300ms 에서 3초까지
+          느려졌어요.
         </ChatBubble>
 
         {/* 3. AI 꼬리 질문 */}
         <ChatBubble side="ai" cycle="b3">
-          read-replica 와 캐싱 중 어떤 걸 먼저 도입하셨나요? 그 결정의 근거가
-          궁금합니다.
+          인덱스 추가와 쿼리 리팩터링 중 어떤 걸 먼저 시도하셨나요? 그 판단의
+          근거가 궁금합니다.
         </ChatBubble>
 
         {/* 4. 지원자 답변 */}
         <ChatBubble side="user" cycle="b4">
-          Redis 캐시를 먼저 도입했어요. 트래픽 80%가 조회였고, replica 는 비용이
-          즉시 늘어서요.
+          실행 계획부터 확인했어요. 풀 스캔이 보여서 인덱스 추가만으로 350ms
+          까지 내려갔거든요.
         </ChatBubble>
 
         {/* 5. AI 분석 카드 (펄스) */}
