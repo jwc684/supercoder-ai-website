@@ -204,18 +204,20 @@ export function AnomalousMatterHero({
         <GenerativeArtScene color={color} />
       </Suspense>
 
-      {/* Vignette — softly darkens canvas at top + bottom for copy contrast */}
+      {/* Vignette — top + bottom linear darken */}
       <div className="pointer-events-none absolute inset-0 z-10 bg-gradient-to-b from-[#1a3782]/60 via-transparent to-[#1a3782]/60" />
+      {/* Radial vignette — concentrated darken behind centered copy for readability */}
+      <div className="pointer-events-none absolute inset-0 z-10 bg-[radial-gradient(ellipse_60%_45%_at_center,_rgba(26,55,130,0.78)_0%,_transparent_65%)]" />
 
       <div className="relative z-20 flex h-full flex-col items-center justify-center px-4 text-center">
-        <div className="wp-container max-w-3xl">
-          <p className="font-mono text-sm uppercase tracking-[0.2em] text-sky-200/90 md:text-base lg:text-lg">
+        <div className="wp-container max-w-3xl [text-shadow:0_2px_24px_rgba(0,0,0,0.45)]">
+          <p className="font-mono text-sm uppercase tracking-[0.2em] text-white/85 md:text-base lg:text-lg">
             {eyebrow}
           </p>
           <h1 className="mt-5 text-4xl font-bold leading-[1.1] tracking-[-0.02em] text-white md:mt-6 md:text-6xl lg:text-7xl xl:text-[5.5rem]">
             {title}
           </h1>
-          <p className="mx-auto mt-7 max-w-2xl text-lg leading-relaxed text-white/80 md:mt-8 md:text-xl lg:text-2xl">
+          <p className="mx-auto mt-7 max-w-2xl text-lg leading-relaxed text-white md:mt-8 md:text-xl lg:text-2xl">
             {description}
           </p>
           {children ? <div className="mt-10 md:mt-12">{children}</div> : null}

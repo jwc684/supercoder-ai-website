@@ -37,7 +37,7 @@ export default function HomePage() {
             <>
               좋은 인재,
               <br />
-              <span className="text-sky-200">직감 말고 데이터로</span>
+              <span className="text-white">직감 말고 데이터로</span>
             </>
           }
           description={
@@ -64,7 +64,7 @@ export default function HomePage() {
               소개서 다운로드
             </Link>
           </div>
-          <p className="mt-5 text-sm text-white/65 md:text-base">
+          <p className="mt-5 text-sm text-white md:text-base">
             1영업일 내 컨택 · 30일 무료 체험 · 별도 설치 없음
           </p>
         </AnomalousMatterHero>
