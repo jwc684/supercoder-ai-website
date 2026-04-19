@@ -52,7 +52,7 @@ export function SolutionBridge() {
             </span>
 
             <h2 className="mt-4 max-w-xl text-[2rem] font-semibold leading-[1.2] tracking-[-0.02em] text-[#282828] md:text-[2.5rem]">
-              부족한 기준, 시간, 근거를 AI가 채웁니다
+              직감을 데이터로 바꿉니다
             </h2>
 
             <p className="mt-5 max-w-xl text-[17px] leading-[1.7] text-[#5f6363]">
