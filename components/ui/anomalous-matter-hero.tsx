@@ -198,16 +198,18 @@ export function AnomalousMatterHero({
   return (
     <section
       role="banner"
-      className="relative h-screen w-full overflow-hidden bg-[#2144A5] text-white"
+      className="relative h-screen w-full overflow-hidden bg-[#070d24] text-white"
     >
-      <Suspense fallback={<div className="h-full w-full bg-[#2144A5]" />}>
+      <Suspense fallback={<div className="h-full w-full bg-[#070d24]" />}>
         <GenerativeArtScene color={color} />
       </Suspense>
 
-      {/* Vignette — top + bottom linear darken */}
-      <div className="pointer-events-none absolute inset-0 z-10 bg-gradient-to-b from-[#1a3782]/60 via-transparent to-[#1a3782]/60" />
-      {/* Radial vignette — concentrated darken behind centered copy for readability */}
-      <div className="pointer-events-none absolute inset-0 z-10 bg-[radial-gradient(ellipse_60%_45%_at_center,_rgba(26,55,130,0.78)_0%,_transparent_65%)]" />
+      {/* Bottom-up brand glow — primary gradient accent (logo-blue halo rising from bottom) */}
+      <div className="pointer-events-none absolute inset-0 z-10 bg-[radial-gradient(ellipse_85%_55%_at_50%_95%,_rgba(58,111,255,0.55)_0%,_rgba(33,68,165,0.25)_35%,_transparent_70%)]" />
+      {/* Top fade — deepens upper edge for vignette/contrast */}
+      <div className="pointer-events-none absolute inset-0 z-10 bg-gradient-to-b from-[#070d24] via-transparent to-transparent" />
+      {/* Center readability wash — subtle dark behind copy without killing the brand glow */}
+      <div className="pointer-events-none absolute inset-0 z-10 bg-[radial-gradient(ellipse_55%_40%_at_center,_rgba(7,13,36,0.55)_0%,_transparent_70%)]" />
 
       <div className="relative z-20 flex h-full flex-col items-center justify-center px-4 text-center">
         <div className="wp-container max-w-3xl [text-shadow:0_2px_24px_rgba(0,0,0,0.45)]">
