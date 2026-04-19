@@ -9,7 +9,7 @@ type GenerativeArtSceneProps = {
 };
 
 export function GenerativeArtScene({
-  color = "hsl(221, 83%, 53%)",
+  color = "hsl(203, 92%, 75%)",
 }: GenerativeArtSceneProps) {
   const mountRef = useRef<HTMLDivElement | null>(null);
 
@@ -198,24 +198,24 @@ export function AnomalousMatterHero({
   return (
     <section
       role="banner"
-      className="relative h-screen w-full overflow-hidden bg-black text-white"
+      className="relative h-screen w-full overflow-hidden bg-[#2144A5] text-white"
     >
-      <Suspense fallback={<div className="h-full w-full bg-black" />}>
+      <Suspense fallback={<div className="h-full w-full bg-[#2144A5]" />}>
         <GenerativeArtScene color={color} />
       </Suspense>
 
       {/* Bottom gradient — fades canvas into copy area */}
-      <div className="pointer-events-none absolute inset-0 z-10 bg-gradient-to-t from-black via-black/70 to-transparent" />
+      <div className="pointer-events-none absolute inset-0 z-10 bg-gradient-to-t from-[#1a3782] via-[#2144A5]/70 to-transparent" />
 
       <div className="relative z-20 flex h-full flex-col items-center justify-end pb-16 text-center md:pb-24 lg:pb-28">
         <div className="wp-container max-w-3xl">
-          <p className="font-mono text-xs uppercase tracking-[0.2em] text-sky-300/80 md:text-sm">
+          <p className="font-mono text-xs uppercase tracking-[0.2em] text-sky-200/90 md:text-sm">
             {eyebrow}
           </p>
-          <h1 className="mt-4 text-3xl font-bold leading-tight tracking-[-0.02em] md:text-5xl lg:text-6xl">
+          <h1 className="mt-4 text-3xl font-bold leading-tight tracking-[-0.02em] text-white md:text-5xl lg:text-6xl">
             {title}
           </h1>
-          <p className="mx-auto mt-6 max-w-xl text-base leading-relaxed text-white/70 md:text-lg">
+          <p className="mx-auto mt-6 max-w-xl text-base leading-relaxed text-white/80 md:text-lg">
             {description}
           </p>
           {children ? <div className="mt-8">{children}</div> : null}
