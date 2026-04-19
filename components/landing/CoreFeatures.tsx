@@ -66,10 +66,13 @@ export function CoreFeatures() {
           </span>
 
           <h2 className="mt-4 max-w-3xl text-[2rem] font-semibold leading-[1.2] tracking-[-0.02em] text-[#282828] md:text-[2.5rem]">
-            이력서 검증부터 경영진 보고까지
-            <br />
-            한 번의 세팅으로
+            공고 업로드에서 합격 결정까지, 한 번의 세팅으로
           </h2>
+
+          <p className="mt-5 max-w-2xl text-[17px] leading-[1.7] text-[#5f6363]">
+            JD 분석, 실시간 면접, 근거 리포트, 부정 감지 — AI 면접관 하나로
+            채용 전 과정이 이어집니다.
+          </p>
         </div>
 
         <div className="mt-12 grid gap-5 md:mt-14 md:grid-cols-2 md:gap-6">
