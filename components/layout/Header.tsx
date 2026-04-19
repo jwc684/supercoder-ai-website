@@ -44,7 +44,7 @@ export function Header() {
   const closeMenu = () => setMenuOpen(false);
 
   return (
-    <header className="sticky top-0 z-40 w-full border-b border-[var(--color-border)] bg-white/80 backdrop-blur-md">
+    <header className="sticky top-0 z-40 w-full border-b border-[var(--color-border)] bg-white">
       {/* Mobile overlay (직계 자식, absolute, top-0, h-100dvh) — Maki 방식.
           z-index 없음 → row(z-10) 보다 아래. 오버레이 흰색 bg 가 헤더 border-bottom 을 paint-over. */}
       <div
@@ -97,7 +97,7 @@ export function Header() {
           gap: 모바일은 justify-between 이면 되므로 gap-3, 데스크톱은 Maki 스펙 3.5rem.
           overflow-x-hidden: 매우 좁은 뷰포트(320px iPhone SE 1세대)에서 logo 191px + gap + button 64px
           이 280px wp-container 를 초과해 body.scrollWidth 를 늘리던 이슈 방어. */}
-      <div className="wp-container relative z-10 flex h-20 items-center justify-between gap-3 overflow-x-hidden bg-white/80 backdrop-blur-md lg:gap-[3.5rem] lg:overflow-x-visible lg:backdrop-blur-none">
+      <div className="wp-container relative z-10 flex h-20 items-center justify-between gap-3 overflow-x-hidden bg-white lg:gap-[3.5rem] lg:overflow-x-visible">
         {/* Logo */}
         <Link
           href="/"

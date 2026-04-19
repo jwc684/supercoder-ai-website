@@ -52,19 +52,19 @@ export default function HomePage() {
             <Link
               href="/contact"
               data-track="cta_hero_contact"
-              className="inline-flex items-center justify-center gap-2 rounded-lg bg-white px-8 py-4 text-base font-semibold leading-[1.5] text-[#2144A5] transition-colors hover:bg-white/90"
+              className="inline-flex items-center justify-center gap-2 rounded-lg bg-white px-10 py-5 text-lg font-semibold leading-[1.5] text-[#2144A5] transition-colors hover:bg-white/90 md:text-xl"
             >
               무료 데모 신청하기 →
             </Link>
             <Link
               href="/download"
               data-track="cta_hero_download"
-              className="inline-flex items-center justify-center gap-2 rounded-lg bg-transparent px-8 py-4 text-base font-semibold leading-[1.5] text-white shadow-[inset_0_0_0_1px_rgba(255,255,255,0.5)] transition-colors hover:bg-white/10 hover:shadow-[inset_0_0_0_1px_rgba(255,255,255,0.85)]"
+              className="inline-flex items-center justify-center gap-2 rounded-lg bg-transparent px-10 py-5 text-lg font-semibold leading-[1.5] text-white shadow-[inset_0_0_0_1px_rgba(255,255,255,0.5)] transition-colors hover:bg-white/10 hover:shadow-[inset_0_0_0_1px_rgba(255,255,255,0.85)] md:text-xl"
             >
               소개서 다운로드
             </Link>
           </div>
-          <p className="mt-4 text-[13px] text-white/65">
+          <p className="mt-5 text-sm text-white/65 md:text-base">
             1영업일 내 컨택 · 30일 무료 체험 · 별도 설치 없음
           </p>
         </AnomalousMatterHero>
