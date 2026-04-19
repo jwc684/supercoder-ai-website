@@ -49,7 +49,7 @@ export function SolutionBridge() {
           {/* 좌측: 헤더 + 3 points */}
           <div>
             <span className="inline-flex items-center rounded-full border border-[#f0efe6] bg-white px-2 py-1 text-[12px] font-semibold uppercase leading-[15.6px] tracking-[0.1em] text-[var(--color-primary)]">
-              AI 면접관이 하는 일
+              AI 면접관
             </span>
 
             <h2 className="mt-4 max-w-xl text-[2rem] font-semibold leading-[1.2] tracking-[-0.02em] text-[#282828] md:text-[2.5rem]">
@@ -100,14 +100,14 @@ export function SolutionBridge() {
  */
 function InterviewLive() {
   return (
-    <div className="relative aspect-[3/4] w-full overflow-hidden rounded-3xl border border-[var(--color-border)] bg-[#070d24] shadow-sm sm:aspect-[16/11] md:aspect-[5/4] lg:aspect-square">
-      {/* 배경 인물 이미지 — object-position 로 인물을 좌측에 배치, scale 로 줌 아웃 */}
+    <div className="relative aspect-[3/4] w-full overflow-hidden rounded-3xl border border-[var(--color-border)] shadow-sm sm:aspect-[16/11] md:aspect-[5/4] lg:aspect-square">
+      {/* 배경 인물 이미지 — object-position 로 인물을 좌측에 배치 */}
       <Image
         src="/images/interview-candidate.png"
         alt="AI 면접 진행 중인 지원자"
         fill
         sizes="(min-width: 1024px) 50vw, 100vw"
-        className="scale-[0.88] object-cover object-center sm:object-[85%_center]"
+        className="object-cover object-center sm:object-[85%_center]"
         priority={false}
       />
 
