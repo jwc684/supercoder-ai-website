@@ -10,14 +10,14 @@ export function ContactCta() {
   return (
     <div className="bg-[#0a0a0a] py-20 md:py-28 lg:py-32">
       <div className="wp-container">
-        <div className="flex flex-col items-start justify-between gap-8 md:flex-row md:items-center md:gap-16">
+        <div className="flex flex-col items-center justify-between gap-8 text-center md:flex-row md:items-center md:justify-between md:gap-16 md:text-left">
           <h2 className="max-w-xl text-[2rem] font-semibold leading-[1.2] tracking-[-0.02em] text-white md:text-[2.5rem] lg:text-[3rem]">
             직감 대신 데이터로,
             <br />
             지금 시작하세요
           </h2>
 
-          <div className="flex shrink-0 flex-wrap items-center gap-3">
+          <div className="flex shrink-0 flex-wrap items-center justify-center gap-3">
             <Link
               href="/contact"
               data-track="cta_final_contact"
