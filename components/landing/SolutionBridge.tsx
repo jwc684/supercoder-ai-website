@@ -100,14 +100,14 @@ export function SolutionBridge() {
  */
 function InterviewLive() {
   return (
-    <div className="relative aspect-[3/4] w-full overflow-hidden rounded-3xl border border-[var(--color-border)] shadow-sm sm:aspect-[16/11] md:aspect-[5/4] lg:aspect-square">
-      {/* 배경 인물 이미지 — object-position 로 인물을 좌측에 배치 */}
+    <div className="relative aspect-[3/4] w-full overflow-hidden rounded-3xl border border-[var(--color-border)] bg-[#070d24] shadow-sm sm:aspect-[16/11] md:aspect-[5/4] lg:aspect-square">
+      {/* 배경 인물 이미지 — object-position 로 인물을 좌측에 배치, scale 로 줌 아웃 */}
       <Image
         src="/images/interview-candidate.png"
         alt="AI 면접 진행 중인 지원자"
         fill
         sizes="(min-width: 1024px) 50vw, 100vw"
-        className="object-cover object-center sm:object-[85%_center]"
+        className="scale-[0.88] object-cover object-center sm:object-[85%_center]"
         priority={false}
       />
 

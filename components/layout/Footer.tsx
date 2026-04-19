@@ -1,5 +1,5 @@
+import Image from "next/image";
 import Link from "next/link";
-import { LogoMark } from "./LogoMark";
 
 const productLinks = [
   { label: "소개서 다운로드", href: "/download" },
@@ -19,18 +19,21 @@ const legalLinks = [
 
 export function Footer() {
   return (
-    <footer className="mt-24 border-t border-[var(--color-border)] bg-[var(--color-bg-alt)]">
+    <footer className="bg-[#0a0a0a]">
       <div className="wp-container py-16">
         <div className="grid grid-cols-2 gap-10 md:grid-cols-4">
           <div className="col-span-2 md:col-span-1">
-            <Link
-              href="/"
-              className="flex items-center gap-2.5 text-base font-bold text-[var(--color-text)]"
-            >
-              <LogoMark className="h-6 w-auto" title="슈퍼코더 로고" />
-              슈퍼코더
+            <Link href="/" className="inline-flex items-center">
+              <Image
+                src="/images/logo-white.png"
+                alt="슈퍼코더"
+                width={160}
+                height={32}
+                className="h-7 w-auto"
+                priority={false}
+              />
             </Link>
-            <p className="mt-3 max-w-xs text-sm leading-relaxed text-[var(--color-text-sub)]">
+            <p className="mt-4 max-w-xs text-sm leading-relaxed text-[#9ca3af]">
               AI 면접이 채용의 모든 과정을 자동화합니다. 채용공고 분석부터 실시간
               AI 면접, 리포트까지.
             </p>
@@ -41,7 +44,7 @@ export function Footer() {
           <FooterColumn title="약관" links={legalLinks} />
         </div>
 
-        <div className="mt-12 flex flex-col items-start justify-between gap-4 border-t border-[var(--color-border)] pt-6 text-xs text-[var(--color-text-sub)] md:flex-row md:items-center">
+        <div className="mt-12 flex flex-col items-start justify-between gap-4 border-t border-white/10 pt-6 text-xs text-[#9ca3af] md:flex-row md:items-center">
           <p>© {new Date().getFullYear()} 슈퍼코더. All rights reserved.</p>
           <p>Contact: contact@supercoder.ai</p>
         </div>
@@ -59,15 +62,13 @@ function FooterColumn({
 }) {
   return (
     <div>
-      <h3 className="text-sm font-semibold text-[var(--color-text)]">
-        {title}
-      </h3>
+      <h3 className="text-sm font-semibold text-white">{title}</h3>
       <ul className="mt-4 space-y-3">
         {links.map((link) => (
           <li key={link.href}>
             <Link
               href={link.href}
-              className="text-sm text-[var(--color-text-sub)] transition-colors hover:text-[var(--color-text)]"
+              className="text-sm text-[#9ca3af] transition-colors hover:text-white"
             >
               {link.label}
             </Link>
