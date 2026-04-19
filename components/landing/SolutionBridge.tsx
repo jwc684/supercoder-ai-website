@@ -1,3 +1,4 @@
+import Image from "next/image";
 import { Search, Clock3, ClipboardList, Zap } from "lucide-react";
 
 /**
@@ -84,69 +85,117 @@ export function SolutionBridge() {
             </ul>
           </div>
 
-          {/* 우측: AI 면접 chat-demo 프리뷰 */}
-          <ChatDemo />
+          {/* 우측: AI 면접 라이브 프리뷰 — 인물 배경 + 무한 루프 채팅 애니메이션 */}
+          <InterviewLive />
         </div>
       </div>
     </div>
   );
 }
 
-function ChatDemo() {
+/**
+ * InterviewLive — 인물 배경 위에 AI 면접 대화가 채팅처럼 무한 루프로 흐른다.
+ * 사이클: 0–11s 동안 5개 요소가 차례로 페이드인 → 11–13s 모두 페이드아웃 → 반복.
+ * 키프레임은 globals.css 의 .ilv-* 클래스에 정의됨 (각 버블별 등장 시점만 다름).
+ */
+function InterviewLive() {
   return (
-    <div className="rounded-3xl border border-[var(--color-border)] bg-white p-6 shadow-sm md:p-7">
-      <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[#9099a3]">
-        AI 면접 진행 예시
-      </p>
+    <div className="relative aspect-[4/3] w-full overflow-hidden rounded-3xl border border-[var(--color-border)] shadow-sm md:aspect-[5/4]">
+      {/* 배경 인물 이미지 */}
+      <Image
+        src="/images/interview-candidate.png"
+        alt="AI 면접 진행 중인 지원자"
+        fill
+        sizes="(min-width: 1024px) 50vw, 100vw"
+        className="object-cover"
+        priority={false}
+      />
 
-      <div className="mt-5 flex flex-col gap-4">
-        {/* AI greeting */}
-        <div className="flex items-start gap-2.5">
-          <Avatar kind="ai" />
-          <div className="min-w-0 max-w-[82%]">
-            <p className="mb-1 text-[11px] font-semibold uppercase tracking-[0.05em] text-[#9099a3]">
-              AI 면접관
-            </p>
-            <div className="rounded-2xl rounded-tl-md bg-[var(--color-bg-alt)] px-3.5 py-2.5 text-[13.5px] leading-[1.65] text-[#282828]">
-              안녕하세요. 오늘 지원해주신 백엔드 개발자 포지션에 대해 30분 정도
-              편하게 이야기 나눠볼게요.
-            </div>
-          </div>
-        </div>
+      {/* 우측 다크 그라디언트 — 채팅 가독성 확보 (좌측 인물은 또렷하게 보임) */}
+      <div
+        aria-hidden
+        className="absolute inset-0 bg-gradient-to-r from-transparent via-[#070d24]/30 to-[#070d24]/85"
+      />
 
-        {/* Candidate reply */}
-        <div className="flex flex-row-reverse items-start gap-2.5">
-          <Avatar kind="user" />
-          <div className="min-w-0 max-w-[82%]">
-            <p className="mb-1 text-right text-[11px] font-semibold uppercase tracking-[0.05em] text-[#9099a3]">
-              지원자
-            </p>
-            <div className="rounded-2xl rounded-tr-md border border-[#d9e3ff] bg-[var(--color-primary-light)]/60 px-3.5 py-2.5 text-[13.5px] leading-[1.65] text-[#282828]">
-              네, 준비됐습니다.
-            </div>
-          </div>
-        </div>
+      {/* LIVE 인디케이터 (좌상단) */}
+      <div className="absolute left-4 top-4 z-10 flex items-center gap-1.5 rounded-full bg-black/45 px-2.5 py-1 backdrop-blur-sm">
+        <span aria-hidden className="ilv-pulse h-1.5 w-1.5 rounded-full bg-red-500" />
+        <span className="text-[10px] font-semibold uppercase tracking-[0.12em] text-white">
+          LIVE
+        </span>
+      </div>
 
-        {/* AI follow-up */}
-        <div className="flex items-start gap-2.5">
-          <Avatar kind="ai" />
-          <div className="min-w-0 max-w-[82%]">
-            <div className="rounded-2xl rounded-tl-md bg-[var(--color-bg-alt)] px-3.5 py-2.5 text-[13.5px] leading-[1.65] text-[#282828]">
-              이력서에 대용량 트래픽 처리 경험이 있다고 하셨는데, 구체적으로 어떤
-              상황이었나요? 당시 어떻게 접근하셨는지 말씀해 주세요.
-            </div>
-          </div>
-        </div>
+      {/* 채팅 스택 — 우측 ~58% 폭, 세로 중앙 배치 */}
+      <div className="absolute inset-y-0 right-0 z-10 flex w-[62%] flex-col justify-center gap-3 px-4 py-6 sm:w-[58%] md:px-5 md:py-8">
+        {/* 1. AI 첫 질문 */}
+        <ChatBubble side="ai" cycle="b1" label="AI 면접관">
+          최근 해결하셨던 가장 어려웠던 기술 문제 하나만 말씀해 주실래요? 어떤
+          상황이었는지부터요.
+        </ChatBubble>
 
-        {/* AI status card */}
-        <div className="mt-1 rounded-xl border border-[#d9e3ff] bg-[var(--color-primary-light)]/40 px-3.5 py-3">
-          <p className="flex items-center gap-1.5 text-[11px] font-semibold text-[var(--color-primary)]">
+        {/* 2. 지원자 답변 */}
+        <ChatBubble side="user" cycle="b2">
+          작년 블랙프라이데이 때 결제 시스템 트래픽이 평소의 10배로 몰리면서
+          응답 지연이 심해졌어요.
+        </ChatBubble>
+
+        {/* 3. AI 꼬리 질문 */}
+        <ChatBubble side="ai" cycle="b3">
+          read-replica 와 캐싱 중 어떤 걸 먼저 도입하셨나요? 그 결정의 근거가
+          궁금합니다.
+        </ChatBubble>
+
+        {/* 4. 지원자 답변 */}
+        <ChatBubble side="user" cycle="b4">
+          Redis 캐시를 먼저 도입했어요. 트래픽 80%가 조회였고, replica 는 비용이
+          즉시 늘어서요.
+        </ChatBubble>
+
+        {/* 5. AI 분석 카드 (펄스) */}
+        <div className="ilv-bubble ilv-b5 rounded-xl border border-white/15 bg-white/10 px-3 py-2.5 backdrop-blur-md">
+          <p className="flex items-center gap-1.5 text-[11px] font-semibold text-sky-300">
             <Zap className="h-3 w-3" />
             AI 실시간 분석 중
           </p>
-          <p className="mt-1 text-[11.5px] leading-[1.5] text-[#6b7280]">
-            이력서 교차 검증 · STAR 구조 확인 · 꼬리 질문 생성 중…
+          <p className="mt-0.5 text-[11px] leading-[1.5] text-white/80">
+            STAR 구조 확인 · 핵심 역량 추출 · 답변 근거 인용 매칭
           </p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+type ChatBubbleProps = {
+  side: "ai" | "user";
+  cycle: "b1" | "b2" | "b3" | "b4";
+  label?: string;
+  children: React.ReactNode;
+};
+
+function ChatBubble({ side, cycle, label, children }: ChatBubbleProps) {
+  const isAi = side === "ai";
+  return (
+    <div
+      className={`ilv-bubble ilv-${cycle} flex ${isAi ? "" : "flex-row-reverse"} items-start gap-2`}
+    >
+      <Avatar kind={side} />
+      <div className="min-w-0 flex-1">
+        {label ? (
+          <p
+            className={`mb-1 text-[10px] font-semibold uppercase tracking-[0.08em] text-white/65 ${isAi ? "" : "text-right"}`}
+          >
+            {label}
+          </p>
+        ) : null}
+        <div
+          className={`${
+            isAi
+              ? "rounded-2xl rounded-tl-md bg-white/95 text-[#1f2937]"
+              : "rounded-2xl rounded-tr-md bg-[var(--color-primary)] text-white"
+          } px-3 py-2 text-[12.5px] leading-[1.55] shadow-sm`}
+        >
+          {children}
         </div>
       </div>
     </div>
@@ -156,13 +205,13 @@ function ChatDemo() {
 function Avatar({ kind }: { kind: "ai" | "user" }) {
   if (kind === "ai") {
     return (
-      <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-[#3A6FFF] to-[#2563eb] text-[11px] font-bold text-white">
+      <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-[#3A6FFF] to-[#2563eb] text-[10px] font-bold text-white shadow-sm">
         AI
       </div>
     );
   }
   return (
-    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[var(--color-bg-alt)] text-[11px] font-bold text-[#6b7280] ring-1 ring-[var(--color-border)]">
+    <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-white/95 text-[10px] font-bold text-[#374151] ring-1 ring-white/30 shadow-sm">
       지
     </div>
   );

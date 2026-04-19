@@ -302,6 +302,58 @@
   margin-top: 0;
 }
 
+/* InterviewLive — SolutionBridge 우측 카드의 인물 배경 위 채팅 무한 루프.
+   사이클 = 13s. 5개 요소가 차례로 페이드인 → 모두 페이드아웃 → 반복.
+   각 요소는 자신의 등장 시점만 다른 키프레임을 사용 (동시 페이드아웃은 92~100% 구간 공유). */
+@keyframes ilv-bubble-1 {
+  0%, 4%   { opacity: 0; transform: translateY(8px); }
+  7%, 88%  { opacity: 1; transform: translateY(0); }
+  92%,100% { opacity: 0; transform: translateY(-4px); }
+}
+@keyframes ilv-bubble-2 {
+  0%, 18%  { opacity: 0; transform: translateY(8px); }
+  22%, 88% { opacity: 1; transform: translateY(0); }
+  92%,100% { opacity: 0; transform: translateY(-4px); }
+}
+@keyframes ilv-bubble-3 {
+  0%, 36%  { opacity: 0; transform: translateY(8px); }
+  40%, 88% { opacity: 1; transform: translateY(0); }
+  92%,100% { opacity: 0; transform: translateY(-4px); }
+}
+@keyframes ilv-bubble-4 {
+  0%, 54%  { opacity: 0; transform: translateY(8px); }
+  58%, 88% { opacity: 1; transform: translateY(0); }
+  92%,100% { opacity: 0; transform: translateY(-4px); }
+}
+@keyframes ilv-bubble-5 {
+  0%, 72%  { opacity: 0; transform: translateY(8px); }
+  76%, 88% { opacity: 1; transform: translateY(0); }
+  92%,100% { opacity: 0; transform: translateY(-4px); }
+}
+@keyframes ilv-pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50%      { opacity: 0.4; transform: scale(0.85); }
+}
+
+.ilv-bubble {
+  opacity: 0;
+  will-change: opacity, transform;
+}
+.ilv-b1 { animation: ilv-bubble-1 13s cubic-bezier(0.4, 0, 0.2, 1) infinite; }
+.ilv-b2 { animation: ilv-bubble-2 13s cubic-bezier(0.4, 0, 0.2, 1) infinite; }
+.ilv-b3 { animation: ilv-bubble-3 13s cubic-bezier(0.4, 0, 0.2, 1) infinite; }
+.ilv-b4 { animation: ilv-bubble-4 13s cubic-bezier(0.4, 0, 0.2, 1) infinite; }
+.ilv-b5 { animation: ilv-bubble-5 13s cubic-bezier(0.4, 0, 0.2, 1) infinite; }
+.ilv-pulse { animation: ilv-pulse 1.4s ease-in-out infinite; }
+
+@media (prefers-reduced-motion: reduce) {
+  .ilv-bubble,
+  .ilv-pulse {
+    animation: none;
+    opacity: 1;
+  }
+}
+
 /* Logo marquee (Maki .c_logo_marquee--cms scroll animation).
    2-set 복제된 트랙을 translateX(-50%) 로 이동 = 정확히 한 세트 길이만큼 이동.
    duration 25s linear infinite — 모션 민감 사용자 대응. */
