@@ -56,12 +56,12 @@ export function HowItWorks() {
           </span>
 
           <h2 className="mt-4 max-w-3xl text-[2rem] font-semibold leading-[1.2] tracking-[-0.02em] text-[#282828] md:text-[2.5rem]">
-            셋업 10분, 그 다음은 AI가 알아서
+            HR은 10분, 나머지는 AI
           </h2>
 
           <p className="mt-5 max-w-2xl text-[17px] leading-[1.7] text-[#5f6363]">
-            채용공고만 넣으면 면접 설계부터 리포트까지. HR 팀 교육이 따로
-            필요 없습니다.
+            공고를 올리면 AI가 질문을 설계하고, 지원자와 면접을 진행하고, 근거
+            있는 리포트로 돌려드립니다.
           </p>
         </div>
 
