@@ -33,7 +33,7 @@ export default function HomePage() {
       <SectionTracker id="hero">
         <header className="pb-8 pt-8 md:pb-10 md:pt-10 lg:pb-12 lg:pt-12">
           <div className="wp-container">
-            <div className="grid gap-10 md:gap-14 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] lg:gap-16">
+            <div className="grid gap-10 md:gap-14 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] lg:items-center lg:gap-16">
               {/* 좌측: 텍스트 영역 — v3 Problem-first 헤드라인
                    모바일/태블릿(stacked) = 중앙 정렬, 데스크톱(≥lg, 2-col) = 좌측 정렬 */}
               <div className="flex w-full flex-col items-center text-center lg:items-start lg:text-left">
