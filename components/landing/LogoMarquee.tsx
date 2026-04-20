@@ -28,7 +28,7 @@ export async function LogoMarquee() {
         </p>
 
         {/* wrap_list: overflow 마스크 + 좌우 페이드 오버레이 */}
-        <div className="lm-wrap relative w-full overflow-hidden">
+        <div className="lm-wrap relative w-full min-w-0 overflow-hidden">
           <div
             aria-hidden
             className="pointer-events-none absolute inset-y-0 left-0 z-10 w-16 bg-gradient-to-r from-[var(--color-bg-alt)] to-transparent"

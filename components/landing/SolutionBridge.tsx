@@ -100,7 +100,7 @@ export function SolutionBridge() {
  */
 function InterviewLive() {
   return (
-    <div className="relative aspect-[3/4] w-full overflow-hidden rounded-3xl border border-[var(--color-border)] shadow-sm sm:aspect-[16/11] md:aspect-[5/4] lg:aspect-square">
+    <div className="relative aspect-[3/4] w-full overflow-hidden rounded-3xl border border-[var(--color-border)] shadow-sm sm:aspect-[16/11] md:aspect-[5/4] lg:aspect-auto lg:h-full">
       {/* 배경 인물 이미지 — object-position 로 인물을 좌측에 배치 */}
       <Image
         src="/images/interview-candidate.png"

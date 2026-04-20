@@ -121,7 +121,7 @@ export function ContactForm({ logosSlot }: { logosSlot?: ReactNode }) {
       <div className="wp-container">
         <div className="grid gap-12 lg:grid-cols-12 lg:gap-16">
           {/* ────────── 좌측 (col 1–6): Maki g_flex--dvlsb ────────── */}
-          <div className="flex flex-col lg:col-span-6">
+          <div className="flex min-w-0 flex-col lg:col-span-6">
             <div>
               <h1 className="text-[3rem] font-medium leading-[100%] tracking-normal text-[#282828] md:text-[4.25rem]">
                 직감 말고 데이터로
@@ -176,7 +176,7 @@ export function ContactForm({ logosSlot }: { logosSlot?: ReactNode }) {
           {/* ────────── 우측 (col 7–12): c_form 옅은 파란색 카드 ────────── */}
           <form
             onSubmit={handleSubmit(onSubmit)}
-            className="flex w-full flex-col gap-5 rounded-3xl bg-[#eff4ff] p-8 md:p-10 lg:col-span-6"
+            className="flex w-full min-w-0 flex-col gap-5 rounded-3xl bg-[#eff4ff] p-8 md:p-10 lg:col-span-6"
             noValidate
           >
             <div>
