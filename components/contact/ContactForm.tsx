@@ -124,9 +124,7 @@ export function ContactForm({ logosSlot }: { logosSlot?: ReactNode }) {
           <div className="flex min-w-0 flex-col lg:col-span-6">
             <div>
               <h1 className="text-[3rem] font-medium leading-[100%] tracking-normal text-[#282828] md:text-[4.25rem]">
-                직감 말고 데이터로
-                <br />
-                채용하는 법, 직접 보여드립니다
+                직감 말고 데이터로 채용하는 법, 직접 보여드립니다
               </h1>
 
               <p className="mt-6 max-w-xl text-[18px] font-normal leading-[1.5] text-[#5f6363] md:text-[20px] md:leading-[30px]">
@@ -139,7 +137,7 @@ export function ContactForm({ logosSlot }: { logosSlot?: ReactNode }) {
             <div className="mt-14 md:mt-16">
               <figure className="rounded-2xl border border-[var(--color-border)] bg-white p-6 md:p-8">
                 <blockquote className="text-[18px] font-medium leading-[1.4] text-[#282828] md:text-[20px] md:leading-[28px]">
-                  “AI 면접과 함께 채용한 뒤, 60일 걸리던 개발자 채용이 사흘로
+                  “AI 면접과 함께 채용한 뒤, 60일 걸리던 개발자 채용이 2주로
                   줄었습니다. 1차 스크리닝 품질이 올라가 2차 면접의 합격률이
                   눈에 띄게 개선됐어요.”
                 </blockquote>
@@ -149,10 +147,10 @@ export function ContactForm({ logosSlot }: { logosSlot?: ReactNode }) {
                   </div>
                   <div>
                     <p className="text-[14px] font-semibold text-[#282828]">
-                      박 CHRO
+                      인사 총괄 책임자
                     </p>
                     <p className="text-[13px] text-[#5f6363]">
-                      인사 총괄 · GlobalTech
+                      대기업 곙열사
                     </p>
                   </div>
                 </figcaption>
