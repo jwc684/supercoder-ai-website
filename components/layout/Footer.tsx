@@ -25,8 +25,8 @@ export function Footer() {
           <div className="col-span-2 md:col-span-1">
             <Link href="/" className="inline-flex items-center">
               <Image
-                src="/images/logo-white.png"
                 alt="슈퍼코더"
+                src="/images/logo-white.png"
                 width={160}
                 height={32}
                 className="h-7 w-auto"
