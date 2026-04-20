@@ -45,8 +45,8 @@ export function Footer() {
         </div>
 
         <div className="mt-12 flex flex-col items-start justify-between gap-4 border-t border-white/10 pt-6 text-xs text-[#9ca3af] md:flex-row md:items-center">
-          <p>© {new Date().getFullYear()} 슈퍼코더. All rights reserved.</p>
-          <p>Contact: contact@supercoder.ai</p>
+          <p>© {new Date().getFullYear()} 주식회사 세컨드팀. All rights reserved.</p>
+          <p>Contact: sales@supercoder.co</p>
         </div>
       </div>
     </footer>
