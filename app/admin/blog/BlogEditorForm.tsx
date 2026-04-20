@@ -371,6 +371,8 @@ export function BlogEditorForm({ mode, postId, initial }: BlogEditorFormProps) {
               value={tagInput}
               onChange={(e) => setTagInput(e.target.value)}
               onKeyDown={(e) => {
+                // IME 조합 중(한글 마지막 글자 미 commit) Enter 무시 — 조합 완료 후의 Enter 만 처리
+                if (e.nativeEvent.isComposing || e.keyCode === 229) return;
                 if (e.key === "Enter") {
                   e.preventDefault();
                   addTag();
