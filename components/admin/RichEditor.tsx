@@ -62,6 +62,7 @@ export function RichEditor({
     extensions: [
       StarterKit.configure({
         codeBlock: false, // lowlight 버전 사용
+        link: false, // 아래 커스텀 옵션(openOnClick/autolink) 로 별도 등록
       }),
       Image.configure({ HTMLAttributes: { class: "rich-img" } }),
       Link.configure({
@@ -96,7 +97,7 @@ export function RichEditor({
     editorProps: {
       attributes: {
         class:
-          "prose-editor min-h-[400px] max-w-none px-5 py-4 text-[15px] leading-[1.7] text-[#282828] focus:outline-none",
+          "prose-blog min-h-[400px] max-w-none px-5 py-4 text-[15px] leading-[1.7] text-[#282828] focus:outline-none",
       },
     },
   });
