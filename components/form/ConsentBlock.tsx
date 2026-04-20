@@ -80,7 +80,7 @@ export function ConsentBlock({
                 {
                   label: "수집 목적",
                   value:
-                    "슈퍼코더 AI Interviewer 서비스 소개서 발송·도입 문의 응대 대상 식별 및 연락",
+                    "슈퍼코더 AI 면접 서비스 소개서 발송·도입 문의 응대 대상 식별 및 연락",
                 },
                 {
                   label: "수집 항목",
@@ -111,7 +111,7 @@ export function ConsentBlock({
                 {
                   label: "수집 목적",
                   value:
-                    "슈퍼코더 AI Interviewer 도입 안내, 무료체험 안내, 미팅 확정 및 진행, 서비스 업데이트, 이벤트 공지",
+                    "슈퍼코더 AI 면접 도입 안내, 무료체험 안내, 미팅 확정 및 진행, 서비스 업데이트, 이벤트 공지",
                 },
                 {
                   label: "수집 항목",
