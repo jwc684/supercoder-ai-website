@@ -17,6 +17,25 @@ export function GenerativeArtScene({
     const mount = mountRef.current;
     if (!mount) return;
 
+    // WebGL 지원 미탐지 (iOS Low-Power, 크롤러, 하드웨어 가속 Off, 컨텍스트 수 초과 등)
+    // 일 때 Three.js WebGLRenderer 가 throw → app/error 바운더리가 전체 페이지를
+    // 크래시시키는 이슈 방지. 실패 시 mount 영역은 빈 상태로 두고 조용히 리턴
+    // (부모 섹션의 #070d24 배경 + 오버레이 그라데이션이 그대로 노출됨).
+    const probe = document.createElement("canvas");
+    const hasWebGL = !!(
+      probe.getContext("webgl2") ||
+      probe.getContext("webgl") ||
+      probe.getContext("experimental-webgl")
+    );
+    if (!hasWebGL) return;
+
+    let renderer: THREE.WebGLRenderer;
+    try {
+      renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+    } catch {
+      return;
+    }
+
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(
       75,
@@ -26,7 +45,6 @@ export function GenerativeArtScene({
     );
     camera.position.z = 3;
 
-    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
     renderer.setSize(mount.clientWidth, mount.clientHeight);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     mount.appendChild(renderer.domElement);
